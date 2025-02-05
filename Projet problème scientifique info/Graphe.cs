@@ -13,7 +13,7 @@ namespace Projet_problème_scientifique_info
 
         public Graphe(int nbNoeuds)
         {
-            this.nbNoeuds = nbNoeuds;
+            this.nbNoeuds = nbNoeuds; // lol
         }
     }
 }
