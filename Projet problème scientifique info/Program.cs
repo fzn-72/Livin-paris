@@ -10,6 +10,12 @@ namespace Projet_problème_scientifique_info
     {
         static void Main(string[] args)
         {
+            Graphe g = new Graphe(34);
+
+            g.AjouterLien(1, 0);
+            g.AjouterLien(2, 0);
+            g.AjouterLien(3, 0);
+            g.AjouterLien(4, 0);
         }
     }
 }
