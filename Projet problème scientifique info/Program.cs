@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Projet_problème_scientifique_info
 {
@@ -11,11 +7,18 @@ namespace Projet_problème_scientifique_info
         static void Main(string[] args)
         {
             Graphe g = new Graphe(34);
+            g.ChargerDepuisFichier("soc-karate.mtx");
 
-            g.AjouterLien(1, 0);
-            g.AjouterLien(2, 0);
-            g.AjouterLien(3, 0);
-            g.AjouterLien(4, 0);
+            Console.WriteLine("Parcours en Largeur (BFS) depuis le sommet 0:");
+            g.ParcoursLargeur(0);
+            Console.WriteLine("\n");
+
+            Console.WriteLine("Parcours en Profondeur (DFS) depuis le sommet 0:");
+            g.ParcoursProfondeur(0);
+            Console.WriteLine("\n");
+
+            Console.WriteLine("Le graphe est-il connexe ? " + g.EstConnexe());
+            Console.WriteLine("Le graphe contient-il un cycle ? " + g.ContientCycle());
         }
     }
 }
