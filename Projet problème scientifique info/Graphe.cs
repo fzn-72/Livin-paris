@@ -60,10 +60,10 @@ namespace Projet_problème_scientifique_info
 {
     internal class Graphe
     {
-        private Dictionary<int, List<int>> ListeAdjacence;
+        public Dictionary<int, List<int>> ListeAdjacence;
         private int[,] MatriceAdjacence;
         private int nbNoeuds;
-        private List<Lien> liensNoeuds;
+        public List<Lien> liensNoeuds;
 
         public Graphe(int nbNoeuds)
         {

@@ -10,50 +10,62 @@ namespace Projet_problème_scientifique_info
 {
     internal class VisualisationGraphe
     {
-        private Graphe graphe;
 
-        public VisualisationGraphe(Graphe graphe)
+        private Graphe graphe;
+        private int largeur;
+        private int hauteur;
+        private Dictionary<int, Point> positionsNoeuds;
+        private Random random;
+
+        public VisualisationGraphe(Graphe graphe, int largeur = 800, int hauteur = 600)
         {
             this.graphe = graphe;
+            this.largeur = largeur;
+            this.hauteur = hauteur;
+            this.positionsNoeuds = new Dictionary<int, Point>();
+            this.random = new Random();
+            GenererPositionsNoeuds();
         }
 
-        public void GenererEtAfficherGraphe()
+        private void GenererPositionsNoeuds()
         {
-            int largeur = 600;
-            int hauteur = 600;
-            Bitmap bitmap = new Bitmap(largeur, hauteur);
-            Graphics g = Graphics.FromImage(bitmap);
-            g.Clear(Color.White);
-
-            Random rnd = new Random();
-            Dictionary<int, PointF> positions = new Dictionary<int, PointF>();
-
-            foreach (var noeud in graphe.ObtenirNoeuds())
+            foreach (var noeud in graphe.ListeAdjacence.Keys)
             {
-                positions[noeud.Id] = new PointF(rnd.Next(50, largeur - 50), rnd.Next(50, hauteur - 50));
+                int x = random.Next(50, largeur - 50);
+                int y = random.Next(50, hauteur - 50);
+                positionsNoeuds[noeud] = new Point(x, y);
             }
-
-            Pen pen = new Pen(Color.Black, 2);
-            foreach (var lien in graphe.ObtenirLiens())
-            {
-                g.DrawLine(pen, positions[lien.Noeud1.Id], positions[lien.Noeud2.Id]);
-            }
-
-            foreach (var noeud in graphe.ObtenirNoeuds())
-            {
-                PointF pos = positions[noeud.Id];
-                g.FillEllipse(Brushes.Blue, pos.X - 10, pos.Y - 10, 20, 20);
-                g.DrawString(noeud.Id.ToString(), new Font("Arial", 10), Brushes.White, pos.X - 5, pos.Y - 5);
-            }
-
-            g.Dispose();
-
-            Form form = new Form { Text = "Visualisation du Graphe", Width = largeur, Height = hauteur };
-            PictureBox pb = new PictureBox { Dock = DockStyle.Fill, Image = bitmap, SizeMode = PictureBoxSizeMode.Zoom };
-            form.Controls.Add(pb);
-            form.ShowDialog();
         }
 
+        public void DessinerGraphe(string cheminFichier)
+        {
+            using (Bitmap bitmap = new Bitmap(largeur, hauteur))
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                g.Clear(Color.White);
+                Pen penLien = new Pen(Color.Black, 2);
+                Brush brushNoeud = Brushes.Blue;
+                Font font = new Font("Arial", 10);
+                Brush brushTexte = Brushes.White;
+
+                foreach (var lien in graphe.liensNoeuds)
+                {
+                    Point p1 = positionsNoeuds[lien.Noeud1.Id];
+                    Point p2 = positionsNoeuds[lien.Noeud2.Id];
+                    g.DrawLine(penLien, p1, p2);
+                }
+
+                foreach (var noeud in graphe.ListeAdjacence.Keys)
+                {
+                    Point p = positionsNoeuds[noeud];
+                    g.FillEllipse(brushNoeud, p.X - 15, p.Y - 15, 30, 30);
+                    g.DrawString(noeud.ToString(), font, brushTexte, p.X - 7, p.Y - 7);
+                }
+
+                bitmap.Save(cheminFichier, ImageFormat.Png);
+            }
+        }
     }
+
 }
 
