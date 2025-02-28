@@ -19,6 +19,13 @@ namespace Projet_problème_scientifique_info
 
             Console.WriteLine("Le graphe est-il connexe ? " + g.EstConnexe());
             Console.WriteLine("Le graphe contient-il un cycle ? " + g.ContientCycle());
+
+            VisualisationGraphe visualisation = new VisualisationGraphe(g);
+            visualisation.DessinerGraphe("graphe.png");
+
+            Console.WriteLine("Le graphe a été dessiné et sauvegardé sous 'graphe.png'.");
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("graphe.png") { UseShellExecute = true }); /// permet d'ouvrir l'image directement
+
         }
     }
 }
