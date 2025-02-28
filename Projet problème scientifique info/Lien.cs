@@ -35,8 +35,5 @@ namespace Projet_problème_scientifique_info
                 return noeud2;
             }
         }
-
-
-
     }
 }

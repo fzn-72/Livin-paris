@@ -1,53 +1,4 @@
-﻿/*using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Projet_problème_scientifique_info
-{
-    internal class Graphe
-    {
-        private Dictionary<int, List<int>> ListeAdjacence;
-        private int[,] MatriceAdjacence;
-        private int nbNoeuds;
-        private List<Lien> liensNoeuds;
-
-        public Graphe(int nbNoeuds)
-        {
-            ListeAdjacence = new Dictionary<int, List<int>>();
-            MatriceAdjacence = new int[nbNoeuds, nbNoeuds];
-            this.nbNoeuds = nbNoeuds;
-            liensNoeuds = new List<Lien>();
-        }
-
-        public void AjouterLien(int i, int j)
-        {
-            Noeud noeud1 = new Noeud(i);
-            Noeud noeud2 = new Noeud(j);
-            liensNoeuds.Add(new Lien(noeud1, noeud2));
-            // Liste d'adjacence
-            if (!ListeAdjacence.ContainsKey(i))
-            {
-                ListeAdjacence[i] = new List<int>();
-            }
-            if (!ListeAdjacence.ContainsKey(j))
-            {
-                ListeAdjacence[j] = new List<int>();
-            }
-            ListeAdjacence[i].Add(j);
-            ListeAdjacence[j].Add(i);
-
-            // Matrice d'adjacence
-            MatriceAdjacence[i, j] = 1;
-            MatriceAdjacence[j, i] = 1;
-        }
-    }
-}
-*/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -60,33 +11,89 @@ namespace Projet_problème_scientifique_info
 {
     internal class Graphe
     {
-        public Dictionary<int, List<int>> ListeAdjacence;
-        private int[,] MatriceAdjacence;
+        private Dictionary<int, List<int>> listeAdjacence;
+        private int[,] matriceAdjacence;
         private int nbNoeuds;
-        public List<Lien> liensNoeuds;
+        private List<Lien> liensNoeuds;
 
+        /// <summary>
+        /// Le constructeur naturel de la classe Graphe permet entre autres d'initaliser la matrice "matriceAdjacence", la liste "liensNoeuds" et le dictionnaire "listeAdjacence"
+        /// </summary>
+        /// <param name="nbNoeuds"></param>
         public Graphe(int nbNoeuds)
         {
-            ListeAdjacence = new Dictionary<int, List<int>>();
-            MatriceAdjacence = new int[nbNoeuds, nbNoeuds];
+            listeAdjacence = new Dictionary<int, List<int>>();
+            matriceAdjacence = new int[nbNoeuds, nbNoeuds];
             this.nbNoeuds = nbNoeuds;
             liensNoeuds = new List<Lien>();
         }
 
+        /// <summary>
+        /// Cette propriété permet d'accéder à l'attribut "listeAdjacence" (dictionnaire) en lecture 
+        /// </summary>
+        public Dictionary<int, List<int>> ListeAdjacence
+        {
+            get
+            {
+                return listeAdjacence;
+            }
+        }
+
+        /// <summary>
+        /// Cette propriété permet d'accéder à l'attribut "liensNoeuds" (liste) en lecture 
+        /// </summary>
+        public List<Lien> LiensNoeuds
+        {
+            get
+            {
+                return liensNoeuds;
+            }
+        }
+
+        /// <summary>
+        /// Cette méthode ajoute un lien entre les nœuds i et j dans la structure du graphe. Elle vérifie et initialise les listes d'adjacence si nécessaire, puis ajoute la connexion  
+        /// en évitant les doublons. Elle met également à jour la matrice d'adjacence pour représenter cette connexion et enregistre le lien dans la liste des "Lien".  
+        /// </summary>
         public void AjouterLien(int i, int j)
         {
-            if (!ListeAdjacence.ContainsKey(i))
-                ListeAdjacence[i] = new List<int>();
-            if (!ListeAdjacence.ContainsKey(j))
-                ListeAdjacence[j] = new List<int>();
+            if (!listeAdjacence.ContainsKey(i))
+            {
+                listeAdjacence[i] = new List<int>();
+            }
+            if (!listeAdjacence.ContainsKey(j))
+            {
+                listeAdjacence[j] = new List<int>();
+            }
 
-            ListeAdjacence[i].Add(j);
-            ListeAdjacence[j].Add(i);
-            MatriceAdjacence[i, j] = 1;
-            MatriceAdjacence[j, i] = 1;
+            if (!listeAdjacence[i].Contains(j) && !listeAdjacence[j].Contains(i))
+            {
+                listeAdjacence[i].Add(j);
+                listeAdjacence[j].Add(i);
+            }
 
-            liensNoeuds.Add(new Lien(new Noeud(i), new Noeud(j)));
+            if (matriceAdjacence[i, j] == 0 && matriceAdjacence[j, i] == 0)
+            {
+                matriceAdjacence[i, j] = 1;
+                matriceAdjacence[j, i] = 1;
+            }
+            Lien nouveauLien = new Lien(new Noeud(i), new Noeud(j));
+            liensNoeuds.Add(nouveauLien);
         }
+
+        //public void AjouterLien(int i, int j)
+        //{
+        //    if (!listeAdjacence.ContainsKey(i))
+        //        listeAdjacence[i] = new List<int>();
+        //    if (!listeAdjacence.ContainsKey(j))
+        //        listeAdjacence[j] = new List<int>();
+
+        //    listeAdjacence[i].Add(j);
+        //    listeAdjacence[j].Add(i);
+        //    matriceAdjacence[i, j] = 1;
+        //    matriceAdjacence[j, i] = 1;
+
+        //    liensNoeuds.Add(new Lien(new Noeud(i), new Noeud(j)));
+        //}
 
         public void ChargerDepuisFichier(string chemin)
         {
@@ -116,14 +123,12 @@ namespace Projet_problème_scientifique_info
 
             file.Add(sommetDepart);  /// On ajoute le sommet de départ à la liste
             visite.Add(sommetDepart);
-
             while (file.Count > 0)
             {
                 int noeud = file[0];  /// On prend le premier élément de la liste
                 file.RemoveAt(0);     /// Puis on retire cet élément de la liste
                 Console.Write(noeud + " ");
-
-                foreach (int voisin in ListeAdjacence[noeud])
+                foreach (int voisin in listeAdjacence[noeud])
                 {
                     if (!visite.Contains(voisin))
                     {
@@ -134,14 +139,12 @@ namespace Projet_problème_scientifique_info
             }
         }
 
-
         public void ParcoursProfondeur(int sommetDepart)
         {
             HashSet<int> visite = new HashSet<int>();
             List<int> pile = new List<int>();
 
             pile.Add(sommetDepart);  /// On ajoute le sommet de départ à la liste
-
             while (pile.Count > 0)
             {
                 int noeud = pile[pile.Count - 1];  /// On prend le dernier élément de la liste
@@ -151,8 +154,7 @@ namespace Projet_problème_scientifique_info
                 {
                     Console.Write(noeud + " ");
                     visite.Add(noeud);
-
-                    foreach (int voisin in ListeAdjacence[noeud])
+                    foreach (int voisin in listeAdjacence[noeud])
                     {
                         if (!visite.Contains(voisin))
                         {
@@ -163,22 +165,19 @@ namespace Projet_problème_scientifique_info
             }
         }
 
-
         public bool EstConnexe()
         {
             HashSet<int> visite = new HashSet<int>();
             List<int> file = new List<int>();
 
-            int premierNoeud = ListeAdjacence.Keys.First();
+            int premierNoeud = listeAdjacence.Keys.First();
             file.Add(premierNoeud);
             visite.Add(premierNoeud);
-
             while (file.Count > 0)
             {
                 int noeud = file[0];  /// On prend le premier élément
                 file.RemoveAt(0);      /// Puis on va supprimer ce premier élément
-
-                foreach (int voisin in ListeAdjacence[noeud])
+                foreach (int voisin in listeAdjacence[noeud])
                 {
                     if (!visite.Contains(voisin))
                     {
@@ -187,21 +186,20 @@ namespace Projet_problème_scientifique_info
                     }
                 }
             }
-
-            return visite.Count == ListeAdjacence.Count;
+            return visite.Count == listeAdjacence.Count;
         }
-
 
         private bool ContientCycleDFS(int noeud, int parent, HashSet<int> visite)
         {
             visite.Add(noeud);
-
-            foreach (int voisin in ListeAdjacence[noeud])
+            foreach (int voisin in listeAdjacence[noeud])
             {
                 if (!visite.Contains(voisin))
                 {
                     if (ContientCycleDFS(voisin, noeud, visite))
+                    {
                         return true;
+                    }
                 }
                 else if (voisin != parent)
                 {
@@ -215,17 +213,17 @@ namespace Projet_problème_scientifique_info
         {
             HashSet<int> visite = new HashSet<int>();
 
-            foreach (int noeud in ListeAdjacence.Keys)
+            foreach (int noeud in listeAdjacence.Keys)
             {
-                if (!visite.Contains(noeud))
+                if (visite.Contains(noeud) == false)
                 {
                     if (ContientCycleDFS(noeud, -1, visite))
+                    {
                         return true;
+                    }
                 }
             }
             return false;
         }
-
-
     }
 }

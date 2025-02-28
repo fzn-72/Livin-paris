@@ -10,7 +10,6 @@ namespace Projet_problème_scientifique_info
 {
     internal class VisualisationGraphe
     {
-
         private Graphe graphe;
         private int largeur;
         private int hauteur;
@@ -48,7 +47,7 @@ namespace Projet_problème_scientifique_info
                 Font font = new Font("Arial", 10);
                 Brush brushTexte = Brushes.White;
 
-                foreach (var lien in graphe.liensNoeuds)
+                foreach (var lien in graphe.LiensNoeuds)
                 {
                     Point p1 = positionsNoeuds[lien.Noeud1.Id];
                     Point p2 = positionsNoeuds[lien.Noeud2.Id];

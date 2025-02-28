@@ -25,6 +25,5 @@ namespace Projet_problème_scientifique_info
                 return id;
             }
         }
-
     }
 }
