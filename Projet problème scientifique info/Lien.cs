@@ -12,7 +12,7 @@ namespace Projet_problème_scientifique_info
     /// (graphe non pondéré). Le sujet indique que "Les relations entre les membres de l’association sont supposées réciproques". Ainsi, s'il existe 
     /// un lien entre le membre A et le membre B, il y en a aussi un entre B et A; ce qui implique que le graphe représentant la situation sera non-orienté.
     /// </summary>
-    internal class Lien
+    public class Lien
     {
         private Noeud noeud1;
         private Noeud noeud2;

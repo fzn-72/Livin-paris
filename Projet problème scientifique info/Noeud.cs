@@ -9,7 +9,7 @@ namespace Projet_problème_scientifique_info
     /// <summary>
     /// Un noeud représente un membre de l'association. On identifie un membre par un identifiant (id)
     /// </summary>
-    internal class Noeud
+    public class Noeud
     {
         private int id;
 
