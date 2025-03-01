@@ -8,6 +8,9 @@ using System.Windows.Forms;
 
 namespace Projet_problème_scientifique_info
 {
+    /// <summary>
+    /// ECRIS ICI MARTIN
+    /// </summary>
     internal class VisualisationGraphe
     {
         private Graphe graphe;
@@ -16,6 +19,12 @@ namespace Projet_problème_scientifique_info
         private Dictionary<int, Point> positionsNoeuds;
         private Random random;
 
+        /// <summary>
+        /// ECRIS ICI MARTIN
+        /// </summary>
+        /// <param name="graphe"></param>
+        /// <param name="largeur"></param>
+        /// <param name="hauteur"></param>
         public VisualisationGraphe(Graphe graphe, int largeur = 800, int hauteur = 600)
         {
             this.graphe = graphe;
@@ -26,6 +35,9 @@ namespace Projet_problème_scientifique_info
             GenererPositionsNoeuds();
         }
 
+        /// <summary>
+        /// ECRIS ICI MARTIN
+        /// </summary>
         private void GenererPositionsNoeuds()
         {
             foreach (var noeud in graphe.ListeAdjacence.Keys)
@@ -36,6 +48,10 @@ namespace Projet_problème_scientifique_info
             }
         }
 
+        /// <summary>
+        /// ECRIS ICI MARTIN
+        /// </summary>
+        /// <param name="cheminFichier"></param>
         public void DessinerGraphe(string cheminFichier)
         {
             using (Bitmap bitmap = new Bitmap(largeur, hauteur))

@@ -80,6 +80,242 @@ namespace Projet_problème_scientifique_info
             liensNoeuds.Add(nouveauLien);
         }
 
+        /// <summary>
+        /// ECRIS ICI MARTIN
+        /// </summary>
+        /// <param name="chemin"></param>
+        public void ChargerDepuisFichier(string chemin)
+        {
+            foreach (string ligne in File.ReadLines(chemin)) // Lit ligne par ligne
+            {
+                if (ligne.Length > 0 && ligne[0] != '%') // Vérifie que la ligne n'est ni vide ni un commentaire
+                {
+                    string[] elements = ligne.Split(' ');
+                    if (elements.Length == 2)
+                    {
+                        int noeud1 = Convert.ToInt32(elements[0]) - 1;
+                        int noeud2 = Convert.ToInt32(elements[1]) - 1;
+                        AjouterLien(noeud1, noeud2);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// ECRIS ICI MARTIN
+        /// </summary>
+        /// <param name="sommetDepart"></param>
+        public void ParcoursLargeur(int sommetDepart)
+        {
+            Dictionary<int, bool> visite = new Dictionary<int, bool>();
+            List<int> file = new List<int>();
+
+            file.Add(sommetDepart);
+            visite[sommetDepart] = true;
+
+            while (file.Count > 0)
+            {
+                int noeud = file[0];
+                file.RemoveAt(0);
+                Console.Write(noeud + " ");
+
+                if (listeAdjacence.ContainsKey(noeud)) 
+                {
+                    foreach (int voisin in listeAdjacence[noeud])
+                    {
+                        if (!visite.ContainsKey(voisin)) 
+                        {
+                            file.Add(voisin);
+                            visite[voisin] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// ECRIS ICI MARTIN
+        /// </summary>
+        /// <param name="sommetDepart"></param>
+        public void ParcoursProfondeur(int sommetDepart)
+        {
+            Dictionary<int, bool> visite = new Dictionary<int, bool>();
+            List<int> pile = new List<int>();
+
+            foreach (var sommet in listeAdjacence.Keys)
+            {
+                visite[sommet] = false;
+            }
+
+            pile.Add(sommetDepart);
+
+            while (pile.Count > 0)
+            {
+                int noeud = pile[pile.Count - 1];
+                pile.RemoveAt(pile.Count - 1);    
+
+                if (!visite[noeud])
+                {
+                    Console.Write(noeud + " ");
+                    visite[noeud] = true;
+
+                    foreach (int voisin in listeAdjacence[noeud])
+                    {
+                        if (!visite[voisin])
+                        {
+                            pile.Add(voisin);  
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///  ECRIS ICI MARTIN
+        /// </summary>
+        /// <returns></returns>
+        public bool EstConnexe()
+        {
+            Dictionary<int, bool> visite = new Dictionary<int, bool>();
+            List<int> file = new List<int>();
+
+            int premierNoeud = listeAdjacence.Keys.First();
+            file.Add(premierNoeud);
+            visite[premierNoeud] = true;
+
+            while (file.Count > 0)
+            {
+                int noeud = file[0];  
+                file.RemoveAt(0);     
+
+                foreach (int voisin in listeAdjacence[noeud])
+                {
+                    if (!visite.ContainsKey(voisin) || !visite[voisin])
+                    {
+                        file.Add(voisin);  
+                        visite[voisin] = true;
+                    }
+                }
+            }
+            return visite.Count == listeAdjacence.Count;
+        }
+
+        /// <summary>
+        /// ECRIS ICI MARTIN
+        /// </summary>
+        /// <param name="noeud"></param>
+        /// <param name="parent"></param>
+        /// <param name="visite"></param>
+        /// <returns></returns>
+        private bool ContientCycleDFS(int noeud, int parent, Dictionary<int, bool> visite)
+        {
+            visite[noeud] = true;
+            foreach (int voisin in listeAdjacence[noeud])
+            {
+                if (visite.ContainsKey(voisin) == false || visite[voisin] == false)
+                {
+                    if (ContientCycleDFS(voisin, noeud, visite))
+                    {
+                        return true;
+                    }
+                }
+                else if (voisin != parent)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// ECRIS ICI MARTIN
+        /// </summary>
+        /// <returns></returns>
+        public bool ContientCycle()
+        {
+            Dictionary<int, bool> visite = new Dictionary<int, bool>();
+
+            foreach (int noeud in listeAdjacence.Keys)
+            {
+                if (visite.ContainsKey(noeud) == false || visite[noeud] == false)
+                {
+                    if (ContientCycleDFS(noeud, -1, visite))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// ECRIS ICI MARTIN
+        /// </summary>
+        public void AnalyserProprietesGraphe()
+        {
+            int ordre = listeAdjacence.Count; 
+            int taille = 0; 
+
+            bool graphePondere = false; 
+            bool grapheOriente = false;
+
+            foreach (var lien in liensNoeuds)
+            {
+                if (lien.Poids != 0)
+                {
+                    graphePondere = true;
+                }
+                taille++;
+                if (listeAdjacence[lien.Noeud2.Id].Contains(lien.Noeud1.Id) == false)
+                {
+                    grapheOriente = true;
+                }
+            }
+
+            if (grapheOriente == false)
+            {
+                taille /= 2;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Voici une analyse des propriétés du graphe :");
+            Console.WriteLine();
+
+            Console.WriteLine("-Ordre du graphe (=nombre de sommets) : " + ordre);
+            Console.WriteLine();
+
+            Console.WriteLine("-Taille du graphe (=nombre d'arêtes) : " + taille);
+            Console.WriteLine();
+
+            Console.WriteLine("-Le graphe est-il orienté ?");
+            if (grapheOriente == true) 
+            {
+                Console.WriteLine("OUI : Le graphe est bien orienté");
+            }
+            else
+            {
+                Console.WriteLine("NON : Le graphe n'est pas orienté");
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("-Le graphe est-il pondéré ?");
+            if (graphePondere == true)
+            { 
+                Console.WriteLine("OUI : Le graphe est bien pondéré");    
+            }
+            else
+            {
+                Console.WriteLine("NON : Le graphe n'est pas pondéré");
+            }
+            Console.WriteLine();
+        }
+
+
+
+
+
+
+
         //public void AjouterLien(int i, int j)
         //{
         //    if (!listeAdjacence.ContainsKey(i))
@@ -95,135 +331,141 @@ namespace Projet_problème_scientifique_info
         //    liensNoeuds.Add(new Lien(new Noeud(i), new Noeud(j)));
         //}
 
-        public void ChargerDepuisFichier(string chemin)
-        {
-            using (StreamReader sr = new StreamReader(chemin))
-            {
-                string ligne;
-                while ((ligne = sr.ReadLine()) != null)
-                {
-                    if (ligne.StartsWith("%") || ligne.StartsWith("%%"))
-                        continue;
+        //public void ChargerDepuisFichier(string chemin)
+        //{
+        //    using (StreamReader sr = new StreamReader(chemin))
+        //    {
+        //        string ligne;
+        //        while ((ligne = sr.ReadLine()) != null)
+        //        {
+        //            if (ligne.StartsWith("%") || ligne.StartsWith("%%"))
+        //                continue;
 
-                    string[] elements = ligne.Split(' ');
-                    if (elements.Length == 2)
-                    {
-                        int noeud1 = Convert.ToInt32(elements[0]) - 1;
-                        int noeud2 = Convert.ToInt32(elements[1]) - 1;
-                        AjouterLien(noeud1, noeud2);
-                    }
-                }
-            }
-        }
+        //            string[] elements = ligne.Split(' ');
+        //            if (elements.Length == 2)
+        //            {
+        //                int noeud1 = Convert.ToInt32(elements[0]) - 1;
+        //                int noeud2 = Convert.ToInt32(elements[1]) - 1;
+        //                AjouterLien(noeud1, noeud2);
+        //            }
+        //        }
+        //    }
+        //}
 
-        public void ParcoursLargeur(int sommetDepart)
-        {
-            HashSet<int> visite = new HashSet<int>();
-            List<int> file = new List<int>();
+        //public void ParcoursLargeur(int sommetDepart)
+        //{
+        //    HashSet<int> visite = new HashSet<int>();
+        //    List<int> file = new List<int>();
 
-            file.Add(sommetDepart);  /// On ajoute le sommet de départ à la liste
-            visite.Add(sommetDepart);
-            while (file.Count > 0)
-            {
-                int noeud = file[0];  /// On prend le premier élément de la liste
-                file.RemoveAt(0);     /// Puis on retire cet élément de la liste
-                Console.Write(noeud + " ");
-                foreach (int voisin in listeAdjacence[noeud])
-                {
-                    if (!visite.Contains(voisin))
-                    {
-                        file.Add(voisin);  /// Ici on ajoute le voisin à la fin de la liste
-                        visite.Add(voisin);
-                    }
-                }
-            }
-        }
+        //    file.Add(sommetDepart);  /// On ajoute le sommet de départ à la liste
+        //    visite.Add(sommetDepart);
+        //    while (file.Count > 0)
+        //    {
+        //        int noeud = file[0];  /// On prend le premier élément de la liste
+        //        file.RemoveAt(0);     /// Puis on retire cet élément de la liste
+        //        Console.Write(noeud + " ");
+        //        foreach (int voisin in listeAdjacence[noeud])
+        //        {
+        //            if (!visite.Contains(voisin))
+        //            {
+        //                file.Add(voisin);  /// Ici on ajoute le voisin à la fin de la liste
+        //                visite.Add(voisin);
+        //            }
+        //        }
+        //    }
+        //}
 
-        public void ParcoursProfondeur(int sommetDepart)
-        {
-            HashSet<int> visite = new HashSet<int>();
-            List<int> pile = new List<int>();
+        //public void ParcoursProfondeur(int sommetDepart)
+        //{
+        //    HashSet<int> visite = new HashSet<int>();
+        //    List<int> pile = new List<int>();
 
-            pile.Add(sommetDepart);  /// On ajoute le sommet de départ à la liste
-            while (pile.Count > 0)
-            {
-                int noeud = pile[pile.Count - 1];  /// On prend le dernier élément de la liste
-                pile.RemoveAt(pile.Count - 1);     /// On retire cet élément de la liste
+        //    pile.Add(sommetDepart);  /// On ajoute le sommet de départ à la liste
+        //    while (pile.Count > 0)
+        //    {
+        //        int noeud = pile[pile.Count - 1];  /// On prend le dernier élément de la liste
+        //        pile.RemoveAt(pile.Count - 1);     /// On retire cet élément de la liste
 
-                if (!visite.Contains(noeud))
-                {
-                    Console.Write(noeud + " ");
-                    visite.Add(noeud);
-                    foreach (int voisin in listeAdjacence[noeud])
-                    {
-                        if (!visite.Contains(voisin))
-                        {
-                            pile.Add(voisin);  /// On ajoute le voisin à la fin de la liste
-                        }
-                    }
-                }
-            }
-        }
+        //        if (!visite.Contains(noeud))
+        //        {
+        //            Console.Write(noeud + " ");
+        //            visite.Add(noeud);
+        //            foreach (int voisin in listeAdjacence[noeud])
+        //            {
+        //                if (!visite.Contains(voisin))
+        //                {
+        //                    pile.Add(voisin);  /// On ajoute le voisin à la fin de la liste
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
-        public bool EstConnexe()
-        {
-            HashSet<int> visite = new HashSet<int>();
-            List<int> file = new List<int>();
 
-            int premierNoeud = listeAdjacence.Keys.First();
-            file.Add(premierNoeud);
-            visite.Add(premierNoeud);
-            while (file.Count > 0)
-            {
-                int noeud = file[0];  /// On prend le premier élément
-                file.RemoveAt(0);      /// Puis on va supprimer ce premier élément
-                foreach (int voisin in listeAdjacence[noeud])
-                {
-                    if (!visite.Contains(voisin))
-                    {
-                        file.Add(voisin);  /// On ajoute à la fin
-                        visite.Add(voisin);
-                    }
-                }
-            }
-            return visite.Count == listeAdjacence.Count;
-        }
+        //public bool EstConnexe()
+        //{
+        //    HashSet<int> visite = new HashSet<int>();
+        //    List<int> file = new List<int>();
 
-        private bool ContientCycleDFS(int noeud, int parent, HashSet<int> visite)
-        {
-            visite.Add(noeud);
-            foreach (int voisin in listeAdjacence[noeud])
-            {
-                if (!visite.Contains(voisin))
-                {
-                    if (ContientCycleDFS(voisin, noeud, visite))
-                    {
-                        return true;
-                    }
-                }
-                else if (voisin != parent)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        //    int premierNoeud = listeAdjacence.Keys.First();
+        //    file.Add(premierNoeud);
+        //    visite.Add(premierNoeud);
+        //    while (file.Count > 0)
+        //    {
+        //        int noeud = file[0];  /// On prend le premier élément
+        //        file.RemoveAt(0);      /// Puis on va supprimer ce premier élément
+        //        foreach (int voisin in listeAdjacence[noeud])
+        //        {
+        //            if (!visite.Contains(voisin))
+        //            {
+        //                file.Add(voisin);  /// On ajoute à la fin
+        //                visite.Add(voisin);
+        //            }
+        //        }
+        //    }
+        //    return visite.Count == listeAdjacence.Count;
+        //}
 
-        public bool ContientCycle()
-        {
-            HashSet<int> visite = new HashSet<int>();
+        //private bool ContientCycleDFS(int noeud, int parent, HashSet<int> visite)
+        //{
+        //    visite.Add(noeud);
+        //    foreach (int voisin in listeAdjacence[noeud])
+        //    {
+        //        if (!visite.Contains(voisin))
+        //        {
+        //            if (ContientCycleDFS(voisin, noeud, visite))
+        //            {
+        //                return true;
+        //            }
+        //        }
+        //        else if (voisin != parent)
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
 
-            foreach (int noeud in listeAdjacence.Keys)
-            {
-                if (visite.Contains(noeud) == false)
-                {
-                    if (ContientCycleDFS(noeud, -1, visite))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+
+        //public bool ContientCycle()
+        //{
+        //    HashSet<int> visite = new HashSet<int>();
+
+        //    foreach (int noeud in listeAdjacence.Keys)
+        //    {
+        //        if (visite.Contains(noeud) == false)
+        //        {
+        //            if (ContientCycleDFS(noeud, -1, visite))
+        //            {
+        //                return true;
+        //            }
+        //        }
+        //    }
+        //    return false;
+        //}
+
+
+
+
     }
 }
