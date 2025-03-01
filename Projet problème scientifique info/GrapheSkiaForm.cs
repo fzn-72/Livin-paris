@@ -4,6 +4,11 @@ using System.Drawing;
 
 namespace Projet_problème_scientifique_info
 {
+    /// <summary>
+    /// La classe DispositionGraphe est responsable du calcul de la disposition des nœuds d'un graphe dans une zone de dessin définie par sa largeur et sa hauteur. 
+    /// Elle prend un graphe en entrée et génère les positions des nœuds de manière circulaire autour du centre de la zone. 
+    /// Les positions sont ensuite retournées sous forme de dictionnaire, où chaque nœud est associé à un point de position (x, y).
+    /// </summary>
     internal class DispositionGraphe
     {
         private Graphe graphe;
@@ -11,6 +16,13 @@ namespace Projet_problème_scientifique_info
         private int hauteur;
         private Dictionary<int, Point> positionsNoeuds;
 
+        /// <summary>
+        /// Constructeur de la classe DispositionGraphe. Il initialise les propriétés nécessaires pour calculer la disposition des nœuds, 
+        /// en prenant le graphe, la largeur et la hauteur de la zone de dessin comme paramètres. Un dictionnaire vide est créé pour stocker les positions des nœuds.
+        /// </summary>
+        /// <param name="graphe"></param>
+        /// <param name="largeur"></param>
+        /// <param name="hauteur"></param>
         public DispositionGraphe(Graphe graphe, int largeur, int hauteur)
         {
             this.graphe = graphe;
@@ -20,7 +32,8 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// Calcule une disposition optimisée des nœuds du graphe.
+        /// Calcule les positions des nœuds du graphe en les disposant de manière circulaire autour du centre de la zone de dessin. 
+        /// Chaque nœud est positionné selon un angle calculé uniformément réparti autour du cercle. Les positions sont ensuite retournées sous forme de dictionnaire.
         /// </summary>
         /// <returns>Un dictionnaire associant chaque nœud à une position.</returns>
         public Dictionary<int, Point> CalculerPositions()

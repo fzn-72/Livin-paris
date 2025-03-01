@@ -17,7 +17,9 @@ namespace Projet_problème_scientifique_info
         private List<Lien> liensNoeuds;
 
         /// <summary>
-        /// Le constructeur naturel de la classe Graphe permet entre autres d'initaliser la matrice "matriceAdjacence", la liste "liensNoeuds" et le dictionnaire "listeAdjacence"
+        ///Constructeur de la classe Graphe. Ce constructeur initialise un graphe avec un nombre donné de nœuds.
+        /// Il crée une liste d'adjacence vide, une matrice d'adjacence de dimensions appropriées, et une liste de liens entre nœuds.
+        /// Chaque nœud est ajouté à la liste d'adjacence sous la forme d'une liste vide.
         /// </summary>
         /// <param name="nbNoeuds"></param>
         public Graphe(int nbNoeuds)
@@ -96,7 +98,8 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// ECRIS ICI MARTIN
+        /// Charge les liens du graphe depuis un fichier spécifié. Chaque ligne du fichier doit contenir deux entiers séparés par un espace, représentant deux nœuds à relier.
+        /// Les lignes vides et les commentaires (commençant par '%') sont ignorés. Les indices des nœuds dans le fichier sont ajustés en soustrayant 1.
         /// </summary>
         /// <param name="chemin"></param>
         public void ChargerDepuisFichier(string chemin)
@@ -117,7 +120,9 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// ECRIS ICI MARTIN
+        /// Effectue un parcours en largeur (BFS) dans le graphe à partir d'un sommet de départ spécifié.
+        /// Cette méthode explore tous les nœuds atteignables en partant du sommet donné, en parcourant chaque niveau de voisinage avant de passer au suivant.
+        /// Les nœuds sont marqués comme visités pour éviter de les explorer plusieurs fois.
         /// </summary>
         /// <param name="sommetDepart"></param>
         public void ParcoursLargeur(int sommetDepart)
@@ -149,7 +154,9 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// ECRIS ICI MARTIN
+        /// Effectue un parcours en profondeur (DFS) du graphe à partir d'un sommet donné. 
+        /// Les sommets sont visités dans l'ordre où ils sont rencontrés, et chaque sommet est marqué comme visité pour éviter les cycles.
+        /// Les sommets voisins sont ajoutés à la pile et explorés de manière récursive.
         /// </summary>
         /// <param name="sommetDepart"></param>
         public void ParcoursProfondeur(int sommetDepart)
@@ -186,7 +193,8 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        ///  ECRIS ICI MARTIN
+        /// Vérifie si le graphe est connexe, c'est-à-dire si tous les sommets sont accessibles à partir de n'importe quel sommet.
+        /// Cette méthode utilise un parcours en largeur (BFS) pour explorer les sommets du graphe et vérifier si tous les sommets sont visités.
         /// </summary>
         /// <returns></returns>
         public bool EstConnexe()
@@ -216,7 +224,9 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// ECRIS ICI MARTIN
+        /// Vérifie si un cycle existe dans le graphe en utilisant une recherche en profondeur (DFS).
+        /// Cette méthode explore les nœuds du graphe en profondeur tout en suivant les arêtes. Si elle rencontre un nœud déjà visité
+        /// qui n'est pas le parent immédiat du nœud courant, cela indique la présence d'un cycle.
         /// </summary>
         /// <param name="noeud"></param>
         /// <param name="parent"></param>
@@ -243,7 +253,9 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// ECRIS ICI MARTIN
+        /// Vérifie si le graphe contient un cycle en utilisant une recherche en profondeur (DFS).
+        /// La méthode explore tous les nœuds du graphe et pour chaque nœud non visité, elle appelle la méthode `ContientCycleDFS` 
+        /// pour vérifier la présence d'un cycle dans le sous-graphe auquel ce nœud appartient.
         /// </summary>
         /// <returns></returns>
         public bool ContientCycle()
@@ -264,7 +276,9 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// ECRIS ICI MARTIN
+        /// Analyse les propriétés du graphe, telles que son ordre (nombre de sommets), sa taille (nombre d'arêtes), 
+        /// s'il est orienté et s'il est pondéré. La méthode affiche ces informations dans la console.
+        /// </summary>
         /// </summary>
         public void AnalyserProprietesGraphe()
         {

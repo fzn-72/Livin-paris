@@ -27,8 +27,6 @@ namespace Projet_problème_scientifique_info
             VisualisationGraphe visualisation = new VisualisationGraphe(g);
             visualisation.DessinerGraphe("graphe.png");
 
-
-
             Console.WriteLine("Le graphe a été dessiné et sauvegardé sous 'graphe.png'. Il va apparaître automatiquement.");
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("graphe.png") { UseShellExecute = true }); /// permet d'ouvrir l'image créée (fourni par l'IA)
 
