@@ -103,7 +103,7 @@ namespace Projet_problème_scientifique_info
         {
             foreach (string ligne in File.ReadLines(chemin))
             {
-                if (ligne.Length > 0 && ligne[0] != '%') // Vérifie que la ligne n'est ni vide ni un commentaire
+                if (ligne.Length > 0 && ligne[0] != '%') /// Vérifie que la ligne n'est ni vide ni un commentaire
                 {
                     string[] elements = ligne.Split(' ');
                     if (elements.Length == 2)

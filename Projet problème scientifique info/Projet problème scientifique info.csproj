@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Graphe.cs" />
+    <Compile Include="GrapheSkiaForm.cs" />
     <Compile Include="Lien.cs" />
     <Compile Include="Noeud.cs" />
     <Compile Include="Program.cs" />

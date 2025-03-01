@@ -32,7 +32,7 @@ namespace Projet_problème_scientifique_info
             this.hauteur = hauteur;
             this.positionsNoeuds = new Dictionary<int, Point>();
             this.random = new Random();
-            GenererPositionsNoeuds();
+            GenererPositionsOptimisees(); // Utilisation de la méthode optimisée pour générer les positions
         }
 
         /// <summary>
@@ -49,20 +49,22 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// ECRIS ICI MARTIN
+        /// Génère les positions des nœuds en utilisant une disposition optimisée.
         /// </summary>
-        /// <param name="cheminFichier"></param>
+        private void GenererPositionsOptimisees()
+        {
+            DispositionGraphe disposition = new DispositionGraphe(graphe, largeur, hauteur);
+            positionsNoeuds = disposition.CalculerPositions();
+        }
+
         public void DessinerGraphe(string cheminFichier)
         {
             using (Bitmap bitmap = new Bitmap(largeur, hauteur))
             using (Graphics g = Graphics.FromImage(bitmap))
             {
                 g.Clear(Color.White);
-                Pen penLien = new Pen(Color.Black, 2);
-                Brush brushNoeud = Brushes.Blue;
-                Font font = new Font("Arial", 10);
-                Brush brushTexte = Brushes.White;
 
+                Pen penLien = new Pen(Color.Black, 2);
                 foreach (var lien in graphe.LiensNoeuds)
                 {
                     Point p1 = positionsNoeuds[lien.Noeud1.Id];
@@ -70,6 +72,9 @@ namespace Projet_problème_scientifique_info
                     g.DrawLine(penLien, p1, p2);
                 }
 
+                Brush brushNoeud = Brushes.Blue;
+                Font font = new Font("Arial", 10);
+                Brush brushTexte = Brushes.White;
                 foreach (var noeud in graphe.ListeAdjacence.Keys)
                 {
                     Point p = positionsNoeuds[noeud];
@@ -81,6 +86,4 @@ namespace Projet_problème_scientifique_info
             }
         }
     }
-
 }
-
