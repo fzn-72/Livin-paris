@@ -15,24 +15,24 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         static void Main(string[] args)
         {
-            // Créer le graphe
+            /// Créer le graphe
             Graphe g = new Graphe(34);
             g.ChargerDepuisFichier("soc-karate.mtx");
 
-            // Calculer les positions des nœuds
+            /// Calculer les positions des nœuds
             DispositionGraphe disposition = new DispositionGraphe(g, 800, 600);
             Dictionary<int, Point> positions = disposition.CalculerPositions();
 
-            // Visualisation du graphe avec les positions calculées
+            /// Visualisation du graphe avec les positions calculées
             VisualisationGraphe visualisation = new VisualisationGraphe(g);
             visualisation.DessinerGraphe("graphe.png");
 
 
 
             Console.WriteLine("Le graphe a été dessiné et sauvegardé sous 'graphe.png'. Il va apparaître automatiquement.");
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("graphe.png") { UseShellExecute = true });
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("graphe.png") { UseShellExecute = true }); /// permet d'ouvrir l'image créée (fourni par l'IA)
 
-            // Analyser les propriétés du graphe
+            /// Analyser les propriétés du graphe
             g.AnalyserProprietesGraphe();
 
             Console.WriteLine("-Voici le Parcours en Largeur (BFS) depuis le sommet 0: ");
