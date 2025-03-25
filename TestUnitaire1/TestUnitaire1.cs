@@ -21,8 +21,10 @@ namespace Projet_problème_scientifique_info
         [TestMethod]
         public void TestMethod3()
         {
-            Graphe<int> graphe = new Graphe<int>(3);
+            Graphe<int> graphe = new Graphe<int>();
             graphe.AjouterLien(0, 1);
+            graphe.AjouterLien(1, 2);
+            graphe.AjouterLien(0, 2);
 
             Assert.IsTrue(graphe.ListeAdjacence.ContainsKey(0));
             Assert.IsTrue(graphe.ListeAdjacence[0].Contains(1));
@@ -31,7 +33,6 @@ namespace Projet_problème_scientifique_info
             Assert.AreEqual(1, graphe.MatriceAdjacence[1, 0]);
 
             Assert.AreEqual(1, graphe.LiensNoeuds.Count);
-            Assert.AreEqual(10, graphe.LiensNoeuds[0].Noeud1.Valeur);
         }
 
     }

@@ -16,7 +16,7 @@ namespace Projet_problème_scientifique_info
         static void Main(string[] args)
         {
             /// Créer le graphe
-            Graphe<int> g = new Graphe<int>(34);
+            Graphe<int> g = new Graphe<int>();
             g.ChargerDepuisFichier("soc-karate.mtx", s => (int)Convert.ChangeType(s, typeof(int)));
 
             /// Calculer les positions des nœuds

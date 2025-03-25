@@ -80,8 +80,8 @@ namespace Projet_problème_scientifique_info
                 Pen penLien = new Pen(Color.Black, 2);
                 foreach (var lien in graphe.LiensNoeuds)
                 {
-                    Point p1 = positionsNoeuds[lien.Noeud1];
-                    Point p2 = positionsNoeuds[lien.Noeud2];
+                    Point p1 = positionsNoeuds[lien.Noeud1.Id];
+                    Point p2 = positionsNoeuds[lien.Noeud2.Id];
                     g.DrawLine(penLien, p1, p2);
                 }
 

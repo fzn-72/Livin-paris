@@ -28,6 +28,21 @@ namespace Projet_problème_scientifique_info
             liensNoeuds = new List<Lien<T>>();
         }
 
+        #region Autre constructeur
+        public Graphe(int nbNoeuds)
+        {
+            this.nbNoeuds = nbNoeuds;
+            listeAdjacence = new Dictionary<T, List<T>>();
+            liensNoeuds = new List<Lien<T>>();
+            matriceAdjacence = new int[nbNoeuds, nbNoeuds];
+
+            for (int i = 0; i < nbNoeuds; i++)
+            {
+                listeAdjacence.Add((T)Convert.ChangeType(i, typeof(T)), new List<T>());
+            }
+        }
+        #endregion
+
         /// <summary>
         /// Cette propriété permet d'accéder à l'attribut "listeAdjacence" (dictionnaire) en lecture 
         /// </summary>
@@ -86,8 +101,10 @@ namespace Projet_problème_scientifique_info
                     matriceAdjacence[j, i] = 1;
                 }
             }
+            Noeud<T> noeud1Obj = new Noeud<T>(noeud1, noeud1);
+            Noeud<T> noeud2Obj = new Noeud<T>(noeud2, noeud2);
 
-            Lien<T> nouveauLien = new Lien<T>(noeud1, noeud2);
+            Lien<T> nouveauLien = new Lien<T>(noeud1Obj, noeud2Obj);
             liensNoeuds.Add(nouveauLien);
         }
 
