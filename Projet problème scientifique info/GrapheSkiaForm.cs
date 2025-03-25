@@ -9,12 +9,12 @@ namespace Projet_problème_scientifique_info
     /// Elle prend un graphe en entrée et génère les positions des nœuds de manière circulaire autour du centre de la zone. 
     /// Les positions sont ensuite retournées sous forme de dictionnaire, où chaque nœud est associé à un point de position (x, y).
     /// </summary>
-    internal class DispositionGraphe
+    internal class DispositionGraphe<T>
     {
-        private Graphe graphe;
+        private Graphe<T> graphe;
         private int largeur;
         private int hauteur;
-        private Dictionary<int, Point> positionsNoeuds;
+        private Dictionary<T, Point> positionsNoeuds;
 
         /// <summary>
         /// Constructeur de la classe DispositionGraphe. Il initialise les propriétés nécessaires pour calculer la disposition des nœuds, 
@@ -23,12 +23,12 @@ namespace Projet_problème_scientifique_info
         /// <param name="graphe"></param>
         /// <param name="largeur"></param>
         /// <param name="hauteur"></param>
-        public DispositionGraphe(Graphe graphe, int largeur, int hauteur)
+        public DispositionGraphe(Graphe<T> graphe, int largeur, int hauteur)
         {
             this.graphe = graphe;
             this.largeur = largeur;
             this.hauteur = hauteur;
-            this.positionsNoeuds = new Dictionary<int, Point>();
+            this.positionsNoeuds = new Dictionary<T, Point>();
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Projet_problème_scientifique_info
         /// Chaque nœud est positionné selon un angle calculé uniformément réparti autour du cercle. Les positions sont ensuite retournées sous forme de dictionnaire.
         /// </summary>
         /// <returns>Un dictionnaire associant chaque nœud à une position.</returns>
-        public Dictionary<int, Point> CalculerPositions()
+        public Dictionary<T, Point> CalculerPositions()
         {
             int n = graphe.ListeAdjacence.Count;
             double angleIncrement = 2 * Math.PI / n;

@@ -13,12 +13,12 @@ namespace Projet_problème_scientifique_info
     /// Elle génère d'abord les positions des nœuds de manière optimisée (ou aléatoire si nécessaire), puis dessine le graphe sur une image, 
     /// en sauvegardant le résultat sous un fichier PNG. Elle contient des méthodes pour dessiner les liens entre nœuds et afficher les nœuds eux-mêmes.
     /// </summary>
-    internal class VisualisationGraphe
+    internal class VisualisationGraphe<T>
     {
-        private Graphe graphe;
+        private Graphe<T> graphe;
         private int largeur;
         private int hauteur;
-        private Dictionary<int, Point> positionsNoeuds;
+        private Dictionary<T, Point> positionsNoeuds;
         private Random random;
 
         /// <summary>
@@ -29,12 +29,12 @@ namespace Projet_problème_scientifique_info
         /// <param name="graphe"></param>
         /// <param name="largeur"></param>
         /// <param name="hauteur"></param>
-        public VisualisationGraphe(Graphe graphe, int largeur = 800, int hauteur = 600)
+        public VisualisationGraphe(Graphe<T> graphe, int largeur = 800, int hauteur = 600)
         {
             this.graphe = graphe;
             this.largeur = largeur;
             this.hauteur = hauteur;
-            this.positionsNoeuds = new Dictionary<int, Point>();
+            this.positionsNoeuds = new Dictionary<T, Point>();
             this.random = new Random();
             GenererPositionsOptimisees(); // Utilisation de la méthode optimisée pour générer les positions
         }
@@ -60,7 +60,7 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         private void GenererPositionsOptimisees()
         {
-            DispositionGraphe disposition = new DispositionGraphe(graphe, largeur, hauteur);
+            DispositionGraphe<T> disposition = new DispositionGraphe<T>(graphe, largeur, hauteur);
             positionsNoeuds = disposition.CalculerPositions();
         }
 
@@ -80,8 +80,8 @@ namespace Projet_problème_scientifique_info
                 Pen penLien = new Pen(Color.Black, 2);
                 foreach (var lien in graphe.LiensNoeuds)
                 {
-                    Point p1 = positionsNoeuds[lien.Noeud1.Id];
-                    Point p2 = positionsNoeuds[lien.Noeud2.Id];
+                    Point p1 = positionsNoeuds[lien.Noeud1];
+                    Point p2 = positionsNoeuds[lien.Noeud2];
                     g.DrawLine(penLien, p1, p2);
                 }
 

@@ -16,15 +16,15 @@ namespace Projet_problème_scientifique_info
         static void Main(string[] args)
         {
             /// Créer le graphe
-            Graphe g = new Graphe(34);
-            g.ChargerDepuisFichier("soc-karate.mtx");
+            Graphe<int> g = new Graphe<int>(34);
+            g.ChargerDepuisFichier("soc-karate.mtx", s => (int)Convert.ChangeType(s, typeof(int)));
 
             /// Calculer les positions des nœuds
-            DispositionGraphe disposition = new DispositionGraphe(g, 800, 600);
+            DispositionGraphe<int> disposition = new DispositionGraphe<int>(g, 800, 600);
             Dictionary<int, Point> positions = disposition.CalculerPositions();
 
             /// Visualisation du graphe avec les positions calculées
-            VisualisationGraphe visualisation = new VisualisationGraphe(g);
+            VisualisationGraphe<int> visualisation = new VisualisationGraphe<int>(g);
             visualisation.DessinerGraphe("graphe.png");
 
             Console.WriteLine("Le graphe a été dessiné et sauvegardé sous 'graphe.png'. Il va apparaître automatiquement.");

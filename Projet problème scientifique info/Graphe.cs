@@ -9,12 +9,12 @@ using System.IO;
 
 namespace Projet_problème_scientifique_info
 {
-    public class Graphe
+    public class Graphe<T>
     {
-        private Dictionary<int, List<int>> listeAdjacence;
+        private Dictionary<T, List<T>> listeAdjacence;
         private int[,] matriceAdjacence;
         private int nbNoeuds;
-        private List<Lien> liensNoeuds;
+        private List<Lien<T>> liensNoeuds;
 
         /// <summary>
         ///Constructeur de la classe Graphe. Ce constructeur initialise un graphe avec un nombre donné de nœuds.
@@ -22,38 +22,26 @@ namespace Projet_problème_scientifique_info
         /// Chaque nœud est ajouté à la liste d'adjacence sous la forme d'une liste vide.
         /// </summary>
         /// <param name="nbNoeuds"></param>
-        public Graphe(int nbNoeuds)
+        public Graphe()
         {
-            listeAdjacence = new Dictionary<int, List<int>>();
-            matriceAdjacence = new int[nbNoeuds, nbNoeuds];
-            this.nbNoeuds = nbNoeuds;
-            liensNoeuds = new List<Lien>();
-            for (int i = 0; i < nbNoeuds; i++)
-            {
-                listeAdjacence[i] = new List<int>();
-            }
+            listeAdjacence = new Dictionary<T, List<T>>();
+            liensNoeuds = new List<Lien<T>>();
         }
 
         /// <summary>
         /// Cette propriété permet d'accéder à l'attribut "listeAdjacence" (dictionnaire) en lecture 
         /// </summary>
-        public Dictionary<int, List<int>> ListeAdjacence
+        public Dictionary<T, List<T>> ListeAdjacence
         {
-            get
-            {
-                return listeAdjacence;
-            }
+            get { return listeAdjacence; }
         }
 
         /// <summary>
         /// Cette propriété permet d'accéder à l'attribut "liensNoeuds" (liste) en lecture 
         /// </summary>
-        public List<Lien> LiensNoeuds
+        public List<Lien<T>> LiensNoeuds
         {
-            get
-            {
-                return liensNoeuds;
-            }
+            get { return liensNoeuds; }
         }
 
         /// <summary>
@@ -71,29 +59,35 @@ namespace Projet_problème_scientifique_info
         /// Cette méthode ajoute un lien entre les nœuds i et j dans la structure du graphe. Elle vérifie et initialise les listes d'adjacence si nécessaire, puis ajoute la connexion  
         /// en évitant les doublons. Elle met également à jour la matrice d'adjacence pour représenter cette connexion et enregistre le lien dans la liste des "Lien".  
         /// </summary>
-        public void AjouterLien(int i, int j)
+        public void AjouterLien(T noeud1, T noeud2)
         {
-            if (!listeAdjacence.ContainsKey(i))
+            if (listeAdjacence.ContainsKey(noeud1) == false)
             {
-                listeAdjacence[i] = new List<int>();
+                listeAdjacence[noeud1] = new List<T>();
             }
-            if (!listeAdjacence.ContainsKey(j))
+            if (listeAdjacence.ContainsKey(noeud2) == false)
             {
-                listeAdjacence[j] = new List<int>();
-            }
-
-            if (!listeAdjacence[i].Contains(j) && !listeAdjacence[j].Contains(i))
-            {
-                listeAdjacence[i].Add(j);
-                listeAdjacence[j].Add(i);
+                listeAdjacence[noeud2] = new List<T>();
             }
 
-            if (matriceAdjacence[i, j] == 0 && matriceAdjacence[j, i] == 0)
+            if (listeAdjacence[noeud1].Contains(noeud2) == false && listeAdjacence[noeud2].Contains(noeud1) == false)
             {
-                matriceAdjacence[i, j] = 1;
-                matriceAdjacence[j, i] = 1;
+                listeAdjacence[noeud1].Add(noeud2);
+                listeAdjacence[noeud2].Add(noeud1);
             }
-            Lien nouveauLien = new Lien(new Noeud(i), new Noeud(j));
+
+            if (noeud1 is int && noeud2 is int)
+            {
+                int i = Convert.ToInt32(noeud1);
+                int j = Convert.ToInt32(noeud2);
+                if (matriceAdjacence[i, j] == 0 && matriceAdjacence[j, i] == 0)
+                {
+                    matriceAdjacence[i, j] = 1;
+                    matriceAdjacence[j, i] = 1;
+                }
+            }
+
+            Lien<T> nouveauLien = new Lien<T>(noeud1, noeud2);
             liensNoeuds.Add(nouveauLien);
         }
 
@@ -102,22 +96,23 @@ namespace Projet_problème_scientifique_info
         /// Les lignes vides et les commentaires (commençant par '%') sont ignorés. Les indices des nœuds dans le fichier sont ajustés en soustrayant 1.
         /// </summary>
         /// <param name="chemin"></param>
-        public void ChargerDepuisFichier(string chemin)
+        public void ChargerDepuisFichier(string chemin, Func<string, T> convert)
         {
             foreach (string ligne in File.ReadLines(chemin))
             {
-                if (ligne.Length > 0 && ligne[0] != '%') /// Vérifie que la ligne n'est ni vide ni un commentaire
+                if (ligne.Length > 0 && ligne[0] != '%')
                 {
                     string[] elements = ligne.Split(' ');
                     if (elements.Length == 2)
                     {
-                        int noeud1 = Convert.ToInt32(elements[0]) - 1;
-                        int noeud2 = Convert.ToInt32(elements[1]) - 1;
+                        T noeud1 = convert(elements[0]);
+                        T noeud2 = convert(elements[1]);
                         AjouterLien(noeud1, noeud2);
                     }
                 }
             }
         }
+
 
         /// <summary>
         /// Effectue un parcours en largeur (BFS) dans le graphe à partir d'un sommet de départ spécifié.
@@ -125,27 +120,26 @@ namespace Projet_problème_scientifique_info
         /// Les nœuds sont marqués comme visités pour éviter de les explorer plusieurs fois.
         /// </summary>
         /// <param name="sommetDepart"></param>
-        public void ParcoursLargeur(int sommetDepart)
+        public void ParcoursLargeur(T sommetDepart)
         {
-            Dictionary<int, bool> visite = new Dictionary<int, bool>();
-            List<int> file = new List<int>();
+            Dictionary<T, bool> visite = new Dictionary<T, bool>();
+            Queue<T> file = new Queue<T>();
 
-            file.Add(sommetDepart);
+            file.Enqueue(sommetDepart);
             visite[sommetDepart] = true;
 
             while (file.Count > 0)
             {
-                int noeud = file[0];
-                file.RemoveAt(0);
+                T noeud = file.Dequeue();
                 Console.Write(noeud + " ");
 
-                if (listeAdjacence.ContainsKey(noeud)) 
+                if (listeAdjacence.ContainsKey(noeud))
                 {
-                    foreach (int voisin in listeAdjacence[noeud])
+                    foreach (T voisin in listeAdjacence[noeud])
                     {
-                        if (!visite.ContainsKey(voisin)) 
+                        if (visite.ContainsKey(voisin) == false)
                         {
-                            file.Add(voisin);
+                            file.Enqueue(voisin);
                             visite[voisin] = true;
                         }
                     }
@@ -153,44 +147,45 @@ namespace Projet_problème_scientifique_info
             }
         }
 
+
         /// <summary>
         /// Effectue un parcours en profondeur (DFS) du graphe à partir d'un sommet donné. 
         /// Les sommets sont visités dans l'ordre où ils sont rencontrés, et chaque sommet est marqué comme visité pour éviter les cycles.
         /// Les sommets voisins sont ajoutés à la pile et explorés de manière récursive.
         /// </summary>
         /// <param name="sommetDepart"></param>
-        public void ParcoursProfondeur(int sommetDepart)
+        public void ParcoursProfondeur(T sommetDepart)
         {
-            Dictionary<int, bool> visite = new Dictionary<int, bool>();
-            List<int> pile = new List<int>();
+            Dictionary<T, bool> visite = new Dictionary<T, bool>();
+            Stack<T> pile = new Stack<T>();
 
             foreach (var sommet in listeAdjacence.Keys)
             {
                 visite[sommet] = false;
             }
 
-            pile.Add(sommetDepart);
+            pile.Push(sommetDepart);
 
             while (pile.Count > 0)
             {
-                int noeud = pile[pile.Count - 1];
-                pile.RemoveAt(pile.Count - 1);    
+                T noeud = pile.Pop();
 
-                if (!visite[noeud])
+                if (visite[noeud] == false)
                 {
                     Console.Write(noeud + " ");
                     visite[noeud] = true;
 
-                    foreach (int voisin in listeAdjacence[noeud])
+                    foreach (T voisin in listeAdjacence[noeud])
                     {
-                        if (!visite[voisin])
+                        if (visite[voisin] == false)
                         {
-                            pile.Add(voisin);  
+                            pile.Push(voisin);
                         }
                     }
                 }
             }
         }
+
 
         /// <summary>
         /// Vérifie si le graphe est connexe, c'est-à-dire si tous les sommets sont accessibles à partir de n'importe quel sommet.
@@ -199,29 +194,33 @@ namespace Projet_problème_scientifique_info
         /// <returns></returns>
         public bool EstConnexe()
         {
-            Dictionary<int, bool> visite = new Dictionary<int, bool>();
-            List<int> file = new List<int>();
+            if (listeAdjacence.Count == 0)
+                return true;
 
-            int premierNoeud = listeAdjacence.Keys.First();
-            file.Add(premierNoeud);
+            Dictionary<T, bool> visite = new Dictionary<T, bool>();
+            Queue<T> file = new Queue<T>();
+
+            T premierNoeud = listeAdjacence.Keys.First();
+            file.Enqueue(premierNoeud);
             visite[premierNoeud] = true;
 
             while (file.Count > 0)
             {
-                int noeud = file[0];  
-                file.RemoveAt(0);     
+                T noeud = file.Dequeue();
 
-                foreach (int voisin in listeAdjacence[noeud])
+                foreach (T voisin in listeAdjacence[noeud])
                 {
-                    if (!visite.ContainsKey(voisin) || !visite[voisin])
+                    if (visite.ContainsKey(voisin) == false || visite[voisin] == false)
                     {
-                        file.Add(voisin);  
+                        file.Enqueue(voisin);
                         visite[voisin] = true;
                     }
                 }
             }
+
             return visite.Count == listeAdjacence.Count;
         }
+
 
         /// <summary>
         /// Vérifie si un cycle existe dans le graphe en utilisant une recherche en profondeur (DFS).
@@ -232,10 +231,10 @@ namespace Projet_problème_scientifique_info
         /// <param name="parent"></param>
         /// <param name="visite"></param>
         /// <returns></returns>
-        private bool ContientCycleDFS(int noeud, int parent, Dictionary<int, bool> visite)
+        private bool ContientCycleDFS(T noeud, T parent, Dictionary<T, bool> visite)
         {
             visite[noeud] = true;
-            foreach (int voisin in listeAdjacence[noeud])
+            foreach (T voisin in listeAdjacence[noeud])
             {
                 if (visite.ContainsKey(voisin) == false || visite[voisin] == false)
                 {
@@ -244,13 +243,14 @@ namespace Projet_problème_scientifique_info
                         return true;
                     }
                 }
-                else if (voisin != parent)
+                else if (EqualityComparer<T>.Default.Equals(voisin, parent) == false)
                 {
                     return true;
                 }
             }
             return false;
         }
+
 
         /// <summary>
         /// Vérifie si le graphe contient un cycle en utilisant une recherche en profondeur (DFS).
@@ -260,13 +260,13 @@ namespace Projet_problème_scientifique_info
         /// <returns></returns>
         public bool ContientCycle()
         {
-            Dictionary<int, bool> visite = new Dictionary<int, bool>();
+            Dictionary<T, bool> visite = new Dictionary<T, bool>();
 
-            foreach (int noeud in listeAdjacence.Keys)
+            foreach (T noeud in listeAdjacence.Keys)
             {
                 if (visite.ContainsKey(noeud) == false || visite[noeud] == false)
                 {
-                    if (ContientCycleDFS(noeud, -1, visite))
+                    if (ContientCycleDFS(noeud, default(T), visite)) // Utilisation de 'default(T)' pour le parent
                     {
                         return true;
                     }
@@ -274,6 +274,7 @@ namespace Projet_problème_scientifique_info
             }
             return false;
         }
+
 
         /// <summary>
         /// Analyse les propriétés du graphe, telles que son ordre (nombre de sommets), sa taille (nombre d'arêtes), 

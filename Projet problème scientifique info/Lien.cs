@@ -12,64 +12,45 @@ namespace Projet_problème_scientifique_info
     /// (graphe non pondéré). Le sujet indique que "Les relations entre les membres de l’association sont supposées réciproques". Ainsi, s'il existe 
     /// un lien entre le membre A et le membre B, il y en a aussi un entre B et A; ce qui implique que le graphe représentant la situation sera non-orienté.
     /// </summary>
-    public class Lien
+    public class Lien<T>
     {
-        private Noeud noeud1;
-        private Noeud noeud2;
+        private Noeud<T> noeud1;
+        private Noeud<T> noeud2;
         private int poids;
 
         /// <summary>
-        /// Le constructeur naturel de la classe Lien permet d'initialiser deux noeuds (utile dans la classe Graphe) 
+        /// Le constructeur de la classe Lien initialise deux noeuds
         /// </summary>
-        /// <param name="noeud1"></param>
-        /// <param name="noeud2"></param>
-        public Lien(Noeud noeud1, Noeud noeud2, int poids = 0)
-        { 
+        public Lien(Noeud<T> noeud1, Noeud<T> noeud2, int poids = 0)
+        {
             this.noeud1 = noeud1;
             this.noeud2 = noeud2;
             this.poids = poids;
         }
 
         /// <summary>
-        /// Cette propriété permet d'accéder à l'attribut "noeud1" (Noeud) en lecture 
+        /// Accéder au premier noeud du lien
         /// </summary>
-        public Noeud Noeud1
-        { 
-            get 
-            { 
-                return noeud1; 
-            } 
-        }
-
-        /// <summary>
-        /// Cette propriété permet d'accéder à l'attribut "noeud2" (Noeud) en lecture 
-        /// </summary>
-        public Noeud Noeud2
+        public Noeud<T> Noeud1
         {
-            get
-            {
-                return noeud2;
-            }
+            get { return noeud1; }
         }
 
         /// <summary>
-        /// Cette propriété permet d'accéder à l'attribut "poids" (int) en lecture 
+        /// Accéder au second noeud du lien
+        /// </summary>
+        public Noeud<T> Noeud2
+        {
+            get { return noeud2; }
+        }
+
+        /// <summary>
+        /// Accéder au poids du lien
         /// </summary>
         public int Poids
         {
-            get 
-            {
-                return poids;
-            }
-        }
-
-        /// <summary>
-        /// Cette méthode permet d'accéder au poids de chaque lien
-        /// </summary>
-        /// <returns></returns>
-        public int ObtenirPoids()
-        {
-            return poids;
+            get { return poids; }
         }
     }
+
 }
