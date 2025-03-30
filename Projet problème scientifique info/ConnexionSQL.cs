@@ -9,14 +9,14 @@ namespace Projet_problème_scientifique_info
 {
     internal class ConnexionSQL
     {
-        static void Main(string[] args)
+        static void Connexion()
         {
             MySqlConnection maConnexion = null;
             try
             {
                 string connexionString = "SERVER=localhost;PORT=3306;" +
                                          "DATABASE=livinparis;" +
-                                         "UID=root;PASSWORD=";
+                                         "UID=administrateur;PASSWORD=REDACTED";
 
                 maConnexion = new MySqlConnection(connexionString);
                 maConnexion.Open();

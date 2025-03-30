@@ -15,53 +15,55 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         static void Main(string[] args)
         {
-            /// Créer le graphe
-            Graphe<int> g = new Graphe<int>();
-            g.ChargerDepuisFichier("soc-karate.mtx", s => (int)Convert.ChangeType(s, typeof(int)));
+            ///// Créer le graphe
+            //Graphe<int> g = new Graphe<int>();
+            //g.ChargerDepuisFichier("soc-karate.mtx", s => (int)Convert.ChangeType(s, typeof(int)));
 
-            /// Calculer les positions des nœuds
-            DispositionGraphe<int> disposition = new DispositionGraphe<int>(g, 800, 600);
-            Dictionary<int, Point> positions = disposition.CalculerPositions();
+            ///// Calculer les positions des nœuds
+            //DispositionGraphe<int> disposition = new DispositionGraphe<int>(g, 800, 600);
+            //Dictionary<int, Point> positions = disposition.CalculerPositions();
 
-            /// Visualisation du graphe avec les positions calculées
-            VisualisationGraphe<int> visualisation = new VisualisationGraphe<int>(g);
-            visualisation.DessinerGraphe("graphe.png");
+            ///// Visualisation du graphe avec les positions calculées
+            //VisualisationGraphe<int> visualisation = new VisualisationGraphe<int>(g);
+            //visualisation.DessinerGraphe("graphe.png");
 
-            Console.WriteLine("Le graphe a été dessiné et sauvegardé sous 'graphe.png'. Il va apparaître automatiquement.");
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("graphe.png") { UseShellExecute = true }); /// permet d'ouvrir l'image créée (fourni par l'IA)
+            //Console.WriteLine("Le graphe a été dessiné et sauvegardé sous 'graphe.png'. Il va apparaître automatiquement.");
+            //System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("graphe.png") { UseShellExecute = true }); /// permet d'ouvrir l'image créée (fourni par l'IA)
 
-            /// Analyser les propriétés du graphe
-            g.AnalyserProprietesGraphe();
+            ///// Analyser les propriétés du graphe
+            //g.AnalyserProprietesGraphe();
 
-            Console.WriteLine("-Voici le Parcours en Largeur (BFS) depuis le sommet 0: ");
-            g.ParcoursLargeur(0);
-            Console.WriteLine("\n");
+            //Console.WriteLine("-Voici le Parcours en Largeur (BFS) depuis le sommet 0: ");
+            //g.ParcoursLargeur(0);
+            //Console.WriteLine("\n");
 
-            Console.WriteLine("-Voici le Parcours en Profondeur (DFS) depuis le sommet 0: ");
-            g.ParcoursProfondeur(0);
-            Console.WriteLine("\n");
+            //Console.WriteLine("-Voici le Parcours en Profondeur (DFS) depuis le sommet 0: ");
+            //g.ParcoursProfondeur(0);
+            //Console.WriteLine("\n");
 
-            Console.WriteLine("-Le graphe est-il connexe ?");
-            if (g.EstConnexe() == true)
-            {
-                Console.WriteLine("OUI : le graphe est bien connexe");
-            }
-            else
-            {
-                Console.WriteLine("NON : le graphe n'est pas connexe");
-            }
-            Console.WriteLine();
+            //Console.WriteLine("-Le graphe est-il connexe ?");
+            //if (g.EstConnexe() == true)
+            //{
+            //    Console.WriteLine("OUI : le graphe est bien connexe");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("NON : le graphe n'est pas connexe");
+            //}
+            //Console.WriteLine();
 
-            Console.WriteLine("-Le graphe contient-il un cycle ?");
-            if (g.ContientCycle() == true)
-            {
-                Console.WriteLine("OUI : le graphe contient bien un cycle");
-            }
-            else
-            {
-                Console.WriteLine("NON : le graphe ne contient aucun cycle");
-            }
-            Console.WriteLine();
+            //Console.WriteLine("-Le graphe contient-il un cycle ?");
+            //if (g.ContientCycle() == true)
+            //{
+            //    Console.WriteLine("OUI : le graphe contient bien un cycle");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("NON : le graphe ne contient aucun cycle");
+            //}
+            //Console.WriteLine();
+
+            CalculDistance.DistanceEntreDeuxStations();
         }
     }
 }

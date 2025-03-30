@@ -103,6 +103,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CalculDistance.cs" />
     <Compile Include="ConnexionSQL.cs" />
     <Compile Include="Graphe.cs" />
     <Compile Include="GrapheSkiaForm.cs" />

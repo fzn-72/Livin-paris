@@ -173,7 +173,6 @@ ADD numero_client VARCHAR(50);
 ALTER TABLE COMMANDE
 ADD ingredient1 VARCHAR(50);
 
-
 ALTER TABLE client
 MODIFY COLUMN code_Postal VARCHAR(50);
 
