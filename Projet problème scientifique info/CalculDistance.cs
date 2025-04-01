@@ -15,67 +15,102 @@ namespace Projet_problème_scientifique_info
     {
         public static void DistanceEntreDeuxStations()
         {
-            string filePath = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
 
             Console.Write("Station 1 : ");
             string station1 = Console.ReadLine();
             Console.Write("Station 2 : ");
             string station2 = Console.ReadLine();
 
-            (double lat1, double lon1) = GetStationCoordinates(filePath, station1);
-            (double lat2, double lon2) = GetStationCoordinates(filePath, station2);
+            (double lat1, double lon1) = GetStationCoordinates(chemin, station1);
+            (double lat2, double lon2) = GetStationCoordinates(chemin, station2);
 
             if (lat1 != 0 && lat2 != 0)
             {
                 double distance = Haversine(lat1, lon1, lat2, lon2);
                 Console.WriteLine($"Distance entre {station1} et {station2} : {distance:F2} km");
             }
-            else
+            else    
             {
                 Console.WriteLine("Une ou plusieurs stations introuvables !");
             }
         }
 
+        //#region Méthode qui récup les coordonnées
+        //static (double, double) GetStationCoordinates(string filePath, string stationName)
+        //{
+        //    string[] lignes = File.ReadAllLines(filePath);
+
+        //    foreach (string ligne in lignes.Skip(1)) /// On ignore l'en-tête
+        //    {
+        //        var data = ligne.Split(','); /// Le séparateur (',') car ligne sous la forme suivante : 1,"1","Porte Maillot","2.282583847361549", ...etc
+
+        //        string nomStation = data[2].Trim().Trim('"'); /// On supprime les guillemets s'il y en a
+        //        if (nomStation.Equals(stationName, StringComparison.OrdinalIgnoreCase) == false) continue;
+
+        //        if (double.TryParse(data[4], out double latitude) && double.TryParse(data[3], out double longitude))
+        //        {
+        //            return (latitude, longitude);
+        //        }
+        //    }
+
+        //    return (0, 0); /// On retourne (0,0) si la station n'existe pas
+        //}
+        //#endregion
+
         static (double, double) GetStationCoordinates(string filePath, string stationName)
         {
-            using (var sr = new StreamReader(filePath))
+            string[] lignes = File.ReadAllLines(filePath);
+
+            foreach (string ligne in lignes.Skip(1)) // Ignorer l'en-tête
             {
-                string line;
-                bool isFirstLine = true;
+                var data = ligne.Split(','); // Séparateur correct
 
-                while ((line = sr.ReadLine()) != null)
+                // Nettoyer les guillemets et récupérer le nom de la station
+                string nomStation = data[2].Trim().Trim('"');
+
+                if (nomStation.Trim().Equals(stationName.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
-                    if (isFirstLine) { isFirstLine = false; continue; } // Ignore l'en-tête
-
-                    var data = line.Split(';'); // Adapter si le séparateur est ','
-
-                    if (data.Length >= 3 && data[0].Trim().Equals(stationName, StringComparison.OrdinalIgnoreCase))
+                    // Nettoyer les valeurs et les convertir
+                    if (double.TryParse(data[4].Trim('"'), out double latitude) &&
+                        double.TryParse(data[3].Trim('"'), out double longitude))
                     {
-                        return (double.Parse(data[1]), double.Parse(data[2])); // Latitude, Longitude
+                        return (latitude, longitude);
                     }
                 }
             }
+
             return (0, 0); // Retourne (0,0) si la station n'existe pas
         }
 
-        static double Haversine(double lat1, double lon1, double lat2, double lon2)
+
+        #region Méthode qui implémente la formule de Haversine 
+        static double Haversine(double lat1, double long1, double lat2, double long2)
         {
-            const double R = 6371; // Rayon de la Terre en km
-            double dLat = ToRadians(lat2 - lat1);
-            double dLon = ToRadians(lon2 - lon1);
+            const double R = 6371;
+            double deltaPhi = ConversionEnRadian(lat2 - lat1);
+            double deltaLambda = ConversionEnRadian(long2 - long1);
 
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                       Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
-                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double phi1 = ConversionEnRadian(lat1);
+            double phi2 = ConversionEnRadian(lat2);
 
-            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-            return R * c; // Distance en km
+            double a = Math.Sin(deltaPhi / 2) * Math.Sin(deltaPhi / 2) +
+                       Math.Cos(phi1) * Math.Cos(phi2) *
+                       Math.Sin(deltaLambda / 2) * Math.Sin(deltaLambda / 2);
+            double b = Math.Sqrt(a);
+
+            double c = 2 * R * Math.Asin(b);
+
+            return c;
         }
 
-        static double ToRadians(double angle)
+        static double ConversionEnRadian(double degre)
         {
-            return Math.PI * angle / 180.0;
+            double radian = Math.PI * degre / 180.0;
+            return radian;
         }
+
+        #endregion
     }
 
 }
