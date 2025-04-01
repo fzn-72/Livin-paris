@@ -108,10 +108,13 @@
     <Compile Include="Graphe.cs" />
     <Compile Include="GrapheSkiaForm.cs" />
     <Compile Include="Lien.cs" />
+    <Compile Include="MetroGraphe.cs" />
     <Compile Include="Noeud.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Station.cs" />
     <Compile Include="VisualisationGraphe.cs" />
+    <Compile Include="VisualisationMetro.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -63,7 +63,76 @@ namespace Projet_problème_scientifique_info
             //}
             //Console.WriteLine();
 
-            CalculDistance.DistanceEntreDeuxStations();
+            /// CalculDistance.DistanceEntreDeuxStations();
+
+            Console.WriteLine("=== Projet Métro Parisien ===");
+            Console.WriteLine("1. Construire et visualiser le graphe du métro");
+            Console.WriteLine("2. Calculer la distance entre deux stations");
+            Console.WriteLine("Choisissez une option (1-2) : ");
+
+            string choix = Console.ReadLine();
+
+            switch (choix)
+            {
+                case "1":
+                    ConstruireEtVisualiserGrapheMetro();
+                    break;
+                case "2":
+                    CalculDistance.DistanceEntreDeuxStations();
+                    break;
+                default:
+                    Console.WriteLine("Option non valide.");
+                    break;
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour quitter...");
+            Console.ReadKey();
+        }
+
+        static void ConstruireEtVisualiserGrapheMetro()
+        {
+            // Chemins vers les fichiers CSV
+            string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+
+            // Créer une instance de MetroGraphe
+            MetroGraphe metroGraphe = new MetroGraphe(cheminFichierNoeuds, cheminFichierArcs);
+
+            // Construire le graphe
+            if (metroGraphe.ConstruireGraphe())
+            {
+                Console.WriteLine("Choisissez le type de visualisation :");
+                Console.WriteLine("1. Visualisation standard (disposition circulaire)");
+                Console.WriteLine("2. Visualisation géographique (basée sur les coordonnées)");
+
+                string choixVisu = Console.ReadLine();
+                string cheminImage = "graphe_metro.png";
+
+                if (choixVisu == "2")
+                {
+                    // Utiliser la visualisation géographique
+                    VisualisationMetro visuMetro = new VisualisationMetro(metroGraphe, 1200, 800);
+                    visuMetro.DessinerMetro(cheminImage);
+
+                    // Ouvrir l'image
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(cheminImage) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Erreur lors de l'ouverture de l'image : {ex.Message}");
+                    }
+                }
+                else
+                {
+                    // Utiliser la visualisation standard
+                    metroGraphe.VisualiserGraphe(cheminImage);
+                }
+
+                // Analyser les propriétés du graphe
+                metroGraphe.AnalyserProprietesGraphe();
+            }
         }
     }
 }
