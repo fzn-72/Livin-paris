@@ -15,20 +15,20 @@ namespace Projet_problème_scientifique_info
     {
         public static void DistanceEntreDeuxStations()
         {
-            string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
 
             Console.Write("Station 1 : ");
             string station1 = Console.ReadLine();
             Console.Write("Station 2 : ");
             string station2 = Console.ReadLine();
 
-            (double lat1, double lon1) = GetStationCoordinates(chemin, station1);
-            (double lat2, double lon2) = GetStationCoordinates(chemin, station2);
+            (double lat1, double long1) = GetStationCoordinates(chemin, station1);
+            (double lat2, double long2) = GetStationCoordinates(chemin, station2);
 
             if (lat1 != 0 && lat2 != 0)
             {
-                double distance = Haversine(lat1, lon1, lat2, lon2);
-                Console.WriteLine($"Distance entre {station1} et {station2} : {distance:F2} km");
+                double distance = Haversine(lat1, long1, lat2, long2);
+                Console.WriteLine("Voici la Distance entre {station1} et {station2} : {distance:F2} km");
             }
             else    
             {
