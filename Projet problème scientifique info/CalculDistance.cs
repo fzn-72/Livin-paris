@@ -13,28 +13,28 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class CalculDistance
     {
-        public static void DistanceEntreDeuxStations()
-        {
-            string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+        //public static void DistanceEntreDeuxStations()
+        //{
+        //    string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
 
-            Console.Write("Station 1 : ");
-            string station1 = Console.ReadLine();
-            Console.Write("Station 2 : ");
-            string station2 = Console.ReadLine();
+        //    Console.Write("Station 1 : ");
+        //    string station1 = Console.ReadLine();
+        //    Console.Write("Station 2 : ");
+        //    string station2 = Console.ReadLine();
 
-            (double lat1, double long1) = GetStationCoordinates(chemin, station1);
-            (double lat2, double long2) = GetStationCoordinates(chemin, station2);
+        //    (double lat1, double long1) = GetStationCoordinates(chemin, station1);
+        //    (double lat2, double long2) = GetStationCoordinates(chemin, station2);
 
-            if (lat1 != 0 && lat2 != 0)
-            {
-                double distance = Haversine(lat1, long1, lat2, long2);
-                Console.WriteLine("Voici la Distance entre {station1} et {station2} : {distance:F2} km");
-            }
-            else    
-            {
-                Console.WriteLine("Une ou plusieurs stations introuvables !");
-            }
-        }
+        //    if (lat1 != 0 && lat2 != 0)
+        //    {
+        //        double distance = Haversine(lat1, long1, lat2, long2);
+        //        Console.WriteLine("Voici la distance entre " + station1 + " et " + station2 + ": " + distance + " km.");
+        //    }
+        //    else    
+        //    {
+        //        Console.WriteLine("Une ou plusieurs stations introuvables !");
+        //    }
+        //}
 
         //#region Méthode qui récup les coordonnées
         //static (double, double) GetStationCoordinates(string filePath, string stationName)
@@ -58,34 +58,113 @@ namespace Projet_problème_scientifique_info
         //}
         //#endregion
 
-        static (double, double) GetStationCoordinates(string filePath, string stationName)
+        //#region Méthode qui implémente la formule de Haversine 
+        //static double Haversine(double lat1, double long1, double lat2, double long2)
+        //{
+        //    const double R = 6371;
+        //    double deltaPhi = ConversionEnRadian(lat2 - lat1);
+        //    double deltaLambda = ConversionEnRadian(long2 - long1);
+
+        //    double phi1 = ConversionEnRadian(lat1);
+        //    double phi2 = ConversionEnRadian(lat2);
+
+        //    double a = Math.Sin(deltaPhi / 2) * Math.Sin(deltaPhi / 2) +
+        //               Math.Cos(phi1) * Math.Cos(phi2) *
+        //               Math.Sin(deltaLambda / 2) * Math.Sin(deltaLambda / 2);
+        //    double b = Math.Sqrt(a);
+
+        //    double c = 2 * R * Math.Asin(b);
+
+        //    return c;
+        //}
+
+        //static double ConversionEnRadian(double degre)
+        //{
+        //    double radian = Math.PI * degre / 180.0;
+        //    return radian;
+        //}
+        //#endregion
+
+
+        public static void DistanceEntreDeuxStations()
         {
-            string[] lignes = File.ReadAllLines(filePath);
+            string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
 
-            foreach (string ligne in lignes.Skip(1)) // Ignorer l'en-tête
+            // Vérifier que le fichier existe
+            if (!File.Exists(chemin))
             {
-                var data = ligne.Split(','); // Séparateur correct
-
-                // Nettoyer les guillemets et récupérer le nom de la station
-                string nomStation = data[2].Trim().Trim('"');
-
-                if (nomStation.Trim().Equals(stationName.Trim(), StringComparison.OrdinalIgnoreCase))
-                {
-                    // Nettoyer les valeurs et les convertir
-                    if (double.TryParse(data[4].Trim('"'), out double latitude) &&
-                        double.TryParse(data[3].Trim('"'), out double longitude))
-                    {
-                        return (latitude, longitude);
-                    }
-                }
+                Console.WriteLine("Erreur: Le fichier " + chemin + " n'existe pas.");
+                return;
             }
 
-            return (0, 0); // Retourne (0,0) si la station n'existe pas
+            Console.WriteLine("Entrez le nom de deux stations dont vous voulez connaître la distance de l'une à l'autre.");
+            Console.WriteLine("La saisie se fait sans accents (grave, aigu, circonflexe), sans cédille et sans tréma, et en respectant les espaces");
+            Console.WriteLine();
+            Console.Write("Station 1 : ");
+            string station1 = Console.ReadLine();
+            Console.Write("Station 2 : ");
+            string station2 = Console.ReadLine();
+
+            // Rechercher les coordonnées des stations
+            (double lat1, double long1) = AcquisitionCoordonnees(chemin, station1);
+            (double lat2, double long2) = AcquisitionCoordonnees(chemin, station2);
+
+            if (lat1 != 0 && lat2 != 0)
+            {
+                double distance = Haversine(lat1, long1, lat2, long2);
+                Console.WriteLine($"Voici la distance entre {station1} et {station2}: {distance:F2} km.");
+            }
+            else
+            {
+                if (lat1 == 0)
+                    Console.WriteLine("Station " + station1 + " introuvable !");
+                if (lat2 == 0)
+                    Console.WriteLine("Station " + station2 + " introuvable !");
+            }
         }
 
 
-        #region Méthode qui implémente la formule de Haversine 
-        static double Haversine(double lat1, double long1, double lat2, double long2)
+        static (double, double) AcquisitionCoordonnees(string chemin, string stationName)
+        {
+        try
+        {
+            string[] lignes = File.ReadAllLines(chemin);
+
+            foreach (string ligne in lignes.Skip(1)) // On ignore l'en-tête
+            {
+                var data = ligne.Split(',');
+                if (data.Length < 5)
+                    continue;
+
+                string nomStation = data[2].Trim().Trim('"');
+
+                // Recherche avec correspondance exacte (insensible à la casse)
+                if (nomStation.Equals(stationName, StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        double latitude = double.Parse(data[4].Trim().Trim('"').Replace('.', ','));
+                        double longitude = double.Parse(data[3].Trim().Trim('"').Replace('.', ','));
+                        return (latitude, longitude);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Erreur de conversion des coordonnées pour " + nomStation);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la recherche de la station: {ex.Message}");
+        }
+
+        return (0, 0); // On retourne (0,0) si la station n'existe pas
+    }
+
+
+    #region Méthode qui implémente la formule de Haversine 
+    static double Haversine(double lat1, double long1, double lat2, double long2)
         {
             const double R = 6371;
             double deltaPhi = ConversionEnRadian(lat2 - lat1);
@@ -97,20 +176,17 @@ namespace Projet_problème_scientifique_info
             double a = Math.Sin(deltaPhi / 2) * Math.Sin(deltaPhi / 2) +
                        Math.Cos(phi1) * Math.Cos(phi2) *
                        Math.Sin(deltaLambda / 2) * Math.Sin(deltaLambda / 2);
-            double b = Math.Sqrt(a);
-
-            double c = 2 * R * Math.Asin(b);
+            double c = 2 * R * Math.Asin(Math.Sqrt(a));
 
             return c;
         }
 
         static double ConversionEnRadian(double degre)
         {
-            double radian = Math.PI * degre / 180.0;
-            return radian;
+            return Math.PI * degre / 180.0;
         }
-
         #endregion
+
     }
 
 }
