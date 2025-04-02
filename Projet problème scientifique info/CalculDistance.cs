@@ -13,82 +13,11 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class CalculDistance
     {
-        //public static void DistanceEntreDeuxStations()
-        //{
-        //    string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
 
-        //    Console.Write("Station 1 : ");
-        //    string station1 = Console.ReadLine();
-        //    Console.Write("Station 2 : ");
-        //    string station2 = Console.ReadLine();
-
-        //    (double lat1, double long1) = GetStationCoordinates(chemin, station1);
-        //    (double lat2, double long2) = GetStationCoordinates(chemin, station2);
-
-        //    if (lat1 != 0 && lat2 != 0)
-        //    {
-        //        double distance = Haversine(lat1, long1, lat2, long2);
-        //        Console.WriteLine("Voici la distance entre " + station1 + " et " + station2 + ": " + distance + " km.");
-        //    }
-        //    else    
-        //    {
-        //        Console.WriteLine("Une ou plusieurs stations introuvables !");
-        //    }
-        //}
-
-        //#region Méthode qui récup les coordonnées
-        //static (double, double) GetStationCoordinates(string filePath, string stationName)
-        //{
-        //    string[] lignes = File.ReadAllLines(filePath);
-
-        //    foreach (string ligne in lignes.Skip(1)) /// On ignore l'en-tête
-        //    {
-        //        var data = ligne.Split(','); /// Le séparateur (',') car ligne sous la forme suivante : 1,"1","Porte Maillot","2.282583847361549", ...etc
-
-        //        string nomStation = data[2].Trim().Trim('"'); /// On supprime les guillemets s'il y en a
-        //        if (nomStation.Equals(stationName, StringComparison.OrdinalIgnoreCase) == false) continue;
-
-        //        if (double.TryParse(data[4], out double latitude) && double.TryParse(data[3], out double longitude))
-        //        {
-        //            return (latitude, longitude);
-        //        }
-        //    }
-
-        //    return (0, 0); /// On retourne (0,0) si la station n'existe pas
-        //}
-        //#endregion
-
-        //#region Méthode qui implémente la formule de Haversine 
-        //static double Haversine(double lat1, double long1, double lat2, double long2)
-        //{
-        //    const double R = 6371;
-        //    double deltaPhi = ConversionEnRadian(lat2 - lat1);
-        //    double deltaLambda = ConversionEnRadian(long2 - long1);
-
-        //    double phi1 = ConversionEnRadian(lat1);
-        //    double phi2 = ConversionEnRadian(lat2);
-
-        //    double a = Math.Sin(deltaPhi / 2) * Math.Sin(deltaPhi / 2) +
-        //               Math.Cos(phi1) * Math.Cos(phi2) *
-        //               Math.Sin(deltaLambda / 2) * Math.Sin(deltaLambda / 2);
-        //    double b = Math.Sqrt(a);
-
-        //    double c = 2 * R * Math.Asin(b);
-
-        //    return c;
-        //}
-
-        //static double ConversionEnRadian(double degre)
-        //{
-        //    double radian = Math.PI * degre / 180.0;
-        //    return radian;
-        //}
-        //#endregion
-
-
+        #region : Affichage de la distance entre deux stations 
         public static void DistanceEntreDeuxStations()
         {
-            string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
 
             // Vérifier que le fichier existe
             if (!File.Exists(chemin))
@@ -122,49 +51,52 @@ namespace Projet_problème_scientifique_info
                     Console.WriteLine("Station " + station2 + " introuvable !");
             }
         }
+        #endregion
 
 
+        #region : Récupération des coordonnées des stations 
         static (double, double) AcquisitionCoordonnees(string chemin, string stationName)
         {
-        try
-        {
-            string[] lignes = File.ReadAllLines(chemin);
-
-            foreach (string ligne in lignes.Skip(1)) // On ignore l'en-tête
+            try
             {
-                var data = ligne.Split(',');
-                if (data.Length < 5)
-                    continue;
+                string[] lignes = File.ReadAllLines(chemin);
 
-                string nomStation = data[2].Trim().Trim('"');
-
-                // Recherche avec correspondance exacte (insensible à la casse)
-                if (nomStation.Equals(stationName, StringComparison.OrdinalIgnoreCase))
+                foreach (string ligne in lignes.Skip(1)) // On ignore l'en-tête
                 {
-                    try
+                    var data = ligne.Split(',');
+                    if (data.Length < 5)
                     {
-                        double latitude = double.Parse(data[4].Trim().Trim('"').Replace('.', ','));
-                        double longitude = double.Parse(data[3].Trim().Trim('"').Replace('.', ','));
-                        return (latitude, longitude);
+                        continue;
                     }
-                    catch
+                    string nomStation = data[2].Trim().Trim('"');
+
+                    // Recherche avec correspondance exacte (insensible à la casse)
+                    if (nomStation.Equals(stationName, StringComparison.OrdinalIgnoreCase))
                     {
-                        Console.WriteLine("Erreur de conversion des coordonnées pour " + nomStation);
+                        try
+                        {
+                            double latitude = double.Parse(data[4].Trim().Trim('"').Replace('.', ','));
+                            double longitude = double.Parse(data[3].Trim().Trim('"').Replace('.', ','));
+                            return (latitude, longitude);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Erreur de conversion des coordonnées pour " + nomStation);
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la recherche de la station: {ex.Message}");
+            }
+            return (0, 0); // On retourne (0,0) si la station n'existe pas
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erreur lors de la recherche de la station: {ex.Message}");
-        }
-
-        return (0, 0); // On retourne (0,0) si la station n'existe pas
-    }
+        #endregion
 
 
-    #region Méthode qui implémente la formule de Haversine 
-    static double Haversine(double lat1, double long1, double lat2, double long2)
+        #region Calcul de la distance par la formule de Haversine 
+        static double Haversine(double lat1, double long1, double lat2, double long2)
         {
             const double R = 6371;
             double deltaPhi = ConversionEnRadian(lat2 - lat1);
@@ -187,7 +119,60 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-    }
 
+        public static void BellmanFordAlgo(Noeud<string> source, List<Noeud<string>> noeuds, List<Lien<string>> liens)
+        {
+            // Initialisation des distances
+            var distances = new Dictionary<Noeud<string>, double>();
+            foreach (var noeud in noeuds)
+            {
+                distances[noeud] = double.PositiveInfinity;
+            }
+            distances[source] = 0;
+
+            // Relaxation des arêtes
+            for (int i = 1; i < noeuds.Count; i++)
+            {
+                foreach (var lien in liens)
+                {
+                    if (distances[lien.Noeud1] + lien.Poids < distances[lien.Noeud2])
+                    {
+                        distances[lien.Noeud2] = distances[lien.Noeud1] + lien.Poids;
+                    }
+                    if (distances[lien.Noeud2] + lien.Poids < distances[lien.Noeud1])
+                    {
+                        distances[lien.Noeud1] = distances[lien.Noeud2] + lien.Poids;
+                    }
+                }
+            }
+
+            // Vérification de la présence de cycles de poids négatif
+            foreach (var lien in liens)
+            {
+                if (distances[lien.Noeud1] + lien.Poids < distances[lien.Noeud2] ||
+                    distances[lien.Noeud2] + lien.Poids < distances[lien.Noeud1])
+                {
+                    Console.WriteLine("Le graphe contient un cycle de poids négatif.");
+                    return;
+                }
+            }
+
+            // Affichage des distances
+            foreach (var kvp in distances)
+            {
+                Console.WriteLine($"Distance de {source.Id} à {kvp.Key.Id}: {kvp.Value}");
+            }
+        }
+
+
+        static void Dijkstra()
+        {
+
+        }
+
+
+    } 
 }
+
+
 

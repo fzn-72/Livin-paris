@@ -24,7 +24,7 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// Cette propriété permet d'accéder à l'attribut "id" (int) en lecture (dans d'autres classes)
+        /// Cette propriété permet d'accéder à l'attribut "id" (générique) en lecture (dans d'autres classes)
         /// </summary>
         public T Id
         { 

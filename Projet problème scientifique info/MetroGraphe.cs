@@ -1,4 +1,5 @@
-﻿using System;
+﻿#region Ancienne version pour afficher comme avant
+/*using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -311,5 +312,231 @@ namespace Projet_problème_scientifique_info
                 return false;
             }
         }
+    }
+}
+*/
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Globalization;
+using System.Drawing;
+
+namespace Projet_problème_scientifique_info
+{
+    public class MetroGraphe : Graphe<int>
+    {
+        private Dictionary<int, Station> stations;
+        private string cheminFichierNoeuds;
+        private string cheminFichierArcs;
+
+        public MetroGraphe(string cheminFichierNoeuds, string cheminFichierArcs)
+            : base() // Appelle le constructeur de Graphe<int>()
+        {
+            this.cheminFichierNoeuds = cheminFichierNoeuds;
+            this.cheminFichierArcs = cheminFichierArcs;
+            this.stations = new Dictionary<int, Station>();
+        }
+
+        public Dictionary<int, Station> Stations => stations;
+
+        /// <summary>
+        /// Retourne un dictionnaire groupant les stations par leur nom unique (ignorant la casse).
+        /// </summary>
+        /// <returns>Dictionnaire avec Nom comme clé et Liste de Stations comme valeur.</returns>
+        public Dictionary<string, List<Station>> GetStationsByName()
+        {
+            return stations.Values
+                .GroupBy(s => s.Nom.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.ToList());
+        }
+
+
+        public int ChargerStations()
+        {
+            // Utiliser CultureInfo.InvariantCulture pour forcer le point comme séparateur décimal
+            var culture = CultureInfo.InvariantCulture;
+            stations.Clear(); // S'assurer que le dictionnaire est vide avant chargement
+
+            try
+            {
+                if (!File.Exists(cheminFichierNoeuds))
+                {
+                    Console.WriteLine($"Erreur : Le fichier {cheminFichierNoeuds} n'existe pas.");
+                    return 0;
+                }
+
+                var lignes = File.ReadLines(cheminFichierNoeuds).Skip(1); // Skip header row
+
+                foreach (string ligne in lignes)
+                {
+                    if (string.IsNullOrWhiteSpace(ligne)) continue; // Ignorer lignes vides
+
+                    string[] donnees = ligne.Split(',');
+                    if (donnees.Length >= 7)
+                    {
+                        string idStr = donnees[0].Trim().Trim('"');
+                        string numLigne = donnees[1].Trim().Trim('"');
+                        string nomStation = donnees[2].Trim().Trim('"');
+                        // --- MODIFICATION PARSING DOUBLE ---
+                        // Remplacer la virgule par un point OU utiliser CultureInfo appropriée
+                        string longitudeStr = donnees[3].Trim().Trim('"').Replace(',', '.'); // Assure le point comme séparateur
+                        string latitudeStr = donnees[4].Trim().Trim('"').Replace(',', '.');  // Assure le point comme séparateur                                                                                    
+                        string commune = donnees[5].Trim().Trim('"');
+                        string codeInsee = donnees[6].Trim().Trim('"');
+
+                        if (int.TryParse(idStr, out int id) &&
+                            double.TryParse(longitudeStr, NumberStyles.Any, culture, out double longitude) && // Utilise la culture Invariante
+                            double.TryParse(latitudeStr, NumberStyles.Any, culture, out double latitude)) // Utilise la culture Invariante
+                        {
+                            if (!stations.ContainsKey(id)) // Éviter doublons d'ID
+                            {
+                                Station station = new Station(id, numLigne, nomStation, longitude, latitude, commune, codeInsee);
+                                stations.Add(id, station);
+
+                                // Ajouter le nœud à la liste d'adjacence si absent (important pour Graphe<T>)
+                                if (!ListeAdjacence.ContainsKey(id))
+                                {
+                                    ListeAdjacence[id] = new List<int>();
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Avertissement: ID de station dupliqué ignoré: {id} ({nomStation})");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Erreur de parsing sur la ligne station: {ligne}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Avertissement: Ligne station incomplète ignorée: {ligne}");
+                    }
+                }
+                Console.WriteLine($"Nombre de stations chargées : {stations.Count}");
+                return stations.Count;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement des stations : {ex.Message}");
+                Console.WriteLine(ex.StackTrace); // Afficher plus de détails pour le débogage
+                return 0;
+            }
+        }
+
+        public int ChargerArcs()
+        {
+            int nbLiensCrees = 0;
+            var culture = CultureInfo.InvariantCulture; // Pour parser le temps
+
+            try
+            {
+                if (!File.Exists(cheminFichierArcs))
+                {
+                    Console.WriteLine($"Erreur : Le fichier {cheminFichierArcs} n'existe pas.");
+                    return 0;
+                }
+
+                var lignes = File.ReadLines(cheminFichierArcs).Skip(1); // Skip header row
+
+                foreach (string ligne in lignes)
+                {
+                    if (string.IsNullOrWhiteSpace(ligne)) continue;
+
+                    string[] donnees = ligne.Split(',');
+                    if (donnees.Length >= 6) // Assurez-vous que l'indice 5 (temps) existe
+                    {
+                        string idStr = donnees[0].Trim().Trim('"');
+                        string precedentStr = donnees[2].Trim().Trim('"');
+                        string suivantStr = donnees[3].Trim().Trim('"');
+                        string tempsStr = donnees[5].Trim().Trim('"').Replace(',', '.'); // Indice 5 pour 'average_time_s', assure le point
+
+                        if (int.TryParse(idStr, out int stationId) && stations.ContainsKey(stationId)) // Vérifier si la station principale existe
+                        {
+                            // Essayer de parser le temps
+                            double tempsParcours = 0; // Temps par défaut si parsing échoue ou non applicable
+                            if (double.TryParse(tempsStr, NumberStyles.Any, culture, out double parsedTime))
+                            {
+                                tempsParcours = parsedTime;
+                            }
+                            // Note: Le poids est basé sur 'average_time_s'
+                            int poids = (int)(tempsParcours); // Convertir en secondes (si c'était déjà en secondes, pas besoin de * 60)
+
+                            // Traiter le lien vers la station précédente
+                            if (precedentStr != "X" && int.TryParse(precedentStr, out int precedentId))
+                            {
+                                if (stations.ContainsKey(precedentId)) // Vérifier si la station précédente existe
+                                {
+                                    // Ajouter le lien dans le graphe de base
+                                    AjouterLien(stationId, precedentId, poids); // Utiliser la surcharge avec poids
+                                    nbLiensCrees++;
+                                }
+                                else { Console.WriteLine($"Avertissement: Station précédente inconnue {precedentId} pour station {stationId}"); }
+                            }
+
+                            // Traiter le lien vers la station suivante
+                            if (suivantStr != "X" && int.TryParse(suivantStr, out int suivantId))
+                            {
+                                if (stations.ContainsKey(suivantId)) // Vérifier si la station suivante existe
+                                {
+                                    // Ajouter le lien dans le graphe de base
+                                    AjouterLien(stationId, suivantId, poids); // Utiliser la surcharge avec poids
+                                    nbLiensCrees++;
+                                }
+                                else { Console.WriteLine($"Avertissement: Station suivante inconnue {suivantId} pour station {stationId}"); }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Erreur parsing ID ou station inconnue sur ligne arc: {ligne}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Avertissement: Ligne arc incomplète ignorée: {ligne}");
+                    }
+                }
+                // Note: nbLiensCrees compte les appels à AjouterLien. Le nombre final dans LiensNoeuds peut être différent si AjouterLien gère les doublons.
+                Console.WriteLine($"Appels à AjouterLien effectués: {nbLiensCrees}. Nombre final de liens dans Graphe.LiensNoeuds: {this.LiensNoeuds.Count}");
+                return this.LiensNoeuds.Count; // Retourne le nombre réel de liens dans la liste
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement des arcs : {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Ajoute un lien pondéré entre deux nœuds.
+        /// </summary>
+        public void AjouterLien(int noeud1, int noeud2, int poids)
+        {
+            if (!ListeAdjacence.ContainsKey(noeud1)) ListeAdjacence[noeud1] = new List<int>();
+            if (!ListeAdjacence.ContainsKey(noeud2)) ListeAdjacence[noeud2] = new List<int>();
+
+            // Ajout à la liste d'adjacence (non-orienté)
+            if (!ListeAdjacence[noeud1].Contains(noeud2)) ListeAdjacence[noeud1].Add(noeud2);
+            if (!ListeAdjacence[noeud2].Contains(noeud1)) ListeAdjacence[noeud2].Add(noeud1);
+
+            // Ajout à la liste des liens (évite les doublons exacts de paires non ordonnées si possible)
+            // Note: La vérification de doublon ici est basique. Si A->B puis B->A sont ajoutés, les deux seront présents.
+            bool lienExiste = LiensNoeuds.Any(l =>
+                (l.Noeud1.Id == noeud1 && l.Noeud2.Id == noeud2) ||
+                (l.Noeud1.Id == noeud2 && l.Noeud2.Id == noeud1)
+            );
+
+            Noeud<int> n1 = new Noeud<int>(noeud1, noeud1);
+            Noeud<int> n2 = new Noeud<int>(noeud2, noeud2);
+            Lien<int> nouveauLien = new Lien<int>(n1, n2, poids);
+            LiensNoeuds.Add(nouveauLien);
+            
+        }
+
     }
 }

@@ -36,7 +36,7 @@ namespace Projet_problème_scientifique_info
             this.hauteur = hauteur;
             this.positionsNoeuds = new Dictionary<T, Point>();
             this.random = new Random();
-            GenererPositionsOptimisees(); // Utilisation de la méthode optimisée pour générer les positions
+            GenererPositionsOptimisees(); /// Utilisation de la méthode optimisée pour générer les positions
         }
 
         /// <summary>
