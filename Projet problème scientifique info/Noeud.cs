@@ -27,7 +27,7 @@ namespace Projet_problème_scientifique_info
         /// Cette propriété permet d'accéder à l'attribut "id" (générique) en lecture (dans d'autres classes)
         /// </summary>
         public T Id
-        { 
+        {
             get
             {
                 return id;
@@ -35,6 +35,20 @@ namespace Projet_problème_scientifique_info
         }
 
         public T Valeur { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            Noeud<T> other = (Noeud<T>)obj;
+            return EqualityComparer<T>.Default.Equals(id, other.id);
+        }
+
+        public override int GetHashCode()
+        {
+            return EqualityComparer<T>.Default.GetHashCode(id);
+        }
 
     }
 }
