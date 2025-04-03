@@ -165,9 +165,65 @@ namespace Projet_problème_scientifique_info
         }
 
 
-        static void Dijkstra()
+        public static List<Noeud<string>> Dijkstra(Noeud<string> depart, Noeud<string> arrivee, List<Noeud<string>> noeuds, List<Lien<string>> liens)
         {
+            // Initialisation des distances et des prédécesseurs
+            var distances = new Dictionary<Noeud<string>, double>();
+            var predecesseurs = new Dictionary<Noeud<string>, Noeud<string>>();
+            var nonTraites = new List<Noeud<string>>(noeuds);
 
+            foreach (var noeud in noeuds)
+            {
+                distances[noeud] = double.PositiveInfinity;
+                predecesseurs[noeud] = null;
+            }
+            distances[depart] = 0;
+
+            // Tant qu'il y a des nœuds non traités
+            while (nonTraites.Count > 0)
+            {
+                // Trouver le nœud non traité avec la distance minimale
+                Noeud<string> noeudCourant = nonTraites.OrderBy(n => distances[n]).First();
+                nonTraites.Remove(noeudCourant);
+
+                // Si le nœud courant est le nœud d'arrivée, on peut arrêter
+                if (noeudCourant.Equals(arrivee))
+                {
+                    break;
+                }
+
+                // Mettre à jour les distances des voisins
+                foreach (var lien in liens)
+                {
+                    if (lien.Noeud1.Equals(noeudCourant) && distances.ContainsKey(lien.Noeud2))
+                    {
+                        double distance = distances[noeudCourant] + lien.Poids;
+                        if (distance < distances[lien.Noeud2])
+                        {
+                            distances[lien.Noeud2] = distance;
+                            predecesseurs[lien.Noeud2] = noeudCourant;
+                        }
+                    }
+                    else if (lien.Noeud2.Equals(noeudCourant) && distances.ContainsKey(lien.Noeud1))
+                    {
+                        double distance = distances[noeudCourant] + lien.Poids;
+                        if (distance < distances[lien.Noeud1])
+                        {
+                            distances[lien.Noeud1] = distance;
+                            predecesseurs[lien.Noeud1] = noeudCourant;
+                        }
+                    }
+                }
+            }
+
+            // Reconstruire le chemin
+            var chemin = new List<Noeud<string>>();
+            for (Noeud<string> noeud = arrivee; noeud != null; noeud = predecesseurs[noeud])
+            {
+                chemin.Insert(0, noeud);
+            }
+
+            return chemin;
         }
 
 

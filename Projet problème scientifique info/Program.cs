@@ -137,8 +137,8 @@ namespace Projet_problème_scientifique_info
             // CultureInfo.CurrentCulture = CultureInfo.InvariantCulture; // Option 1: Forcer la culture Invariante (point décimal)
 
             // Chemins vers les fichiers CSV (vérifiez qu'ils sont corrects)
-            string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            string cheminFichierNoeuds = @"C:\Users\marti\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string cheminFichierArcs = @"C:\Users\marti\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
 
             try
             {

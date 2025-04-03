@@ -35,5 +35,43 @@ namespace Projet_problème_scientifique_info
             Assert.AreEqual(1, graphe.LiensNoeuds.Count);
         }
 
+        [TestMethod]
+        public void TestLienInitialisation()
+        {
+            // Arrange
+            var noeud1 = new Noeud<int>(1, 10);
+            var noeud2 = new Noeud<int>(2, 20);
+            int poids = 5;
+
+            // Act
+            var lien = new Lien<int>(noeud1, noeud2, poids);
+
+            // Assert
+            Assert.AreEqual(noeud1, lien.Noeud1);
+            Assert.AreEqual(noeud2, lien.Noeud2);
+            Assert.AreEqual(poids, lien.Poids);
+        }
+
+        [TestMethod]
+        public void TestStationToString()
+        {
+            // Arrange
+            int id = 1;
+            string ligne = "Ligne 1";
+            string nom = "Station Test";
+            double longitude = 2.35;
+            double latitude = 48.85;
+            string commune = "Paris";
+            string codeInsee = "75056";
+
+            // Act
+            var station = new Station(id, ligne, nom, longitude, latitude, commune, codeInsee);
+            string result = station.ToString();
+
+            // Assert
+            Assert.AreEqual($"Station {id}: {nom} (Ligne {ligne})", result);
+        }
+
+        
     }
 }
