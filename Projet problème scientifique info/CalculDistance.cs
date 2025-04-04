@@ -790,7 +790,7 @@ namespace Projet_problème_scientifique_info
             foreach (var lien in liens)
             {
                 graphe[lien.Noeud1].Add(lien.Noeud2);
-                graphe[lien.Noeud2].Add(lien.Noeud1); // Graphe non orienté
+                graphe[lien.Noeud2].Add(lien.Noeud1); 
             }
 
             return graphe;
@@ -1010,10 +1010,10 @@ namespace Projet_problème_scientifique_info
                         Console.Write(" -> ");
                     }
 
-                    // Mettre à jour la ligne précédente
+            
                     lignePrecedente = station.Ligne;
 
-                    // Réinitialiser la couleur à la couleur de la ligne actuelle pour la prochaine station
+                
                     if (couleursLignes.TryGetValue(lignePrecedente, out ConsoleColor couleurLigneSuivante))
                     {
                         Console.ForegroundColor = couleurLigneSuivante;
@@ -1025,7 +1025,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            // Restaurer la couleur originale
+           
             Console.ForegroundColor = couleurOriginale;
             Console.WriteLine();
         }
