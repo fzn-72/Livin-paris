@@ -1,61 +1,62 @@
-CREATE DATABASE IF NOT EXISTS livInParis;
-USE livInParis;
-
 CREATE TABLE CLIENT(
-   id_client SMALLINT,
+   id_client VARCHAR(10),
    nom VARCHAR(50),
    prénom VARCHAR(50),
    rue VARCHAR(50) NOT NULL,
-   numero1 SMALLINT NOT NULL,
    code_Postal SMALLINT,
    tel SMALLINT,
    email VARCHAR(50),
    metro_le_plus_proche VARCHAR(50),
+   ville VARCHAR(30),
+   mot_de_passe VARCHAR(50),
    PRIMARY KEY(id_client)
 );
 
-CREATE TABLE ENTREPRISE(
-   ID_RESTO VARCHAR(50),
-   Nom_resto VARCHAR(50),
-   Type VARCHAR(50),
+CREATE TABLE RESTAURANT(
+   ID_resto VARCHAR(50),
+   nom_resto VARCHAR(50),
+   type_resto VARCHAR(50),
    capacité_resto DECIMAL(3,0),
-   PRIMARY KEY(ID_RESTO)
+   PRIMARY KEY(ID_resto)
 );
 
-CREATE TABLE CUISTOT(
-   id_cuistot SMALLINT,
-   Nom_cuistot VARCHAR(50),
-   prénom_cuistot VARCHAR(50),
-   rue_cuistot VARCHAR(50),
-   numero_cuistot SMALLINT,
-   code_postal_cuistot SMALLINT,
-   ville_cuistot VARCHAR(50),
-   tel_cuistot SMALLINT,
-   email_cuistot VARCHAR(50),
-   metro_le_plus_proche_cuistot VARCHAR(50),
-   PRIMARY KEY(id_cuistot)
+CREATE TABLE CUISINIER_(
+   id_cuisinier VARCHAR(10),
+   nom_cuisinier VARCHAR(50),
+   prénom_cuisinier VARCHAR(50),
+   rue_cuisinier VARCHAR(50),
+   code_postal_cuisinier SMALLINT,
+   ville_cuisinier VARCHAR(50),
+   tel_cuisinier SMALLINT,
+   email_cuisinier VARCHAR(50),
+   metro_le_plus_proche_cuisinier VARCHAR(50),
+   mot_de_passe VARCHAR(50),
+   PRIMARY KEY(id_cuisinier)
 );
 
 CREATE TABLE MENU(
-   ID_MENU VARCHAR(50),
-   entrèes VARCHAR(50),
+   id_menu VARCHAR(50),
+   entrée VARCHAR(50),
    plat VARCHAR(50),
    dessert VARCHAR(50),
    boisson VARCHAR(50),
-   type_de_régime_suivi VARCHAR(50),
-   régime_alimentaires_particuliers VARCHAR(50),
-   PRIMARY KEY(ID_MENU)
+   régime_correspondant VARCHAR(50),
+   ID_resto VARCHAR(50) NOT NULL,
+   PRIMARY KEY(id_menu),
+   FOREIGN KEY(ID_resto) REFERENCES RESTAURANT(ID_resto)
 );
 
 CREATE TABLE COMMANDE(
-   ID_comande INT,
+   ID_commande VARCHAR(10),
    numero_cuisiner SMALLINT,
    nom VARCHAR(50),
    prix DECIMAL(15,3),
    quantite SMALLINT,
    type_plat VARCHAR(50),
-   date_de_fabrication VARCHAR(50),
-   date_de_péremption VARCHAR(50),
+   date_de_fabrication DATE,
+   date_de_péremption DATE,
+   date_commande DATE,
+   numero_client SMALLINT,
    régime VARCHAR(50),
    nature VARCHAR(50),
    volume1 VARCHAR(50),
@@ -63,185 +64,118 @@ CREATE TABLE COMMANDE(
    volume2 VARCHAR(50),
    ingredient3 VARCHAR(50),
    volume3 VARCHAR(50),
-   PRIMARY KEY(ID_comande)
+   PRIMARY KEY(ID_commande)
 );
 
 CREATE TABLE TRAJET(
-   ID_TRAJET INT,
-   Duree_Trajet_ TIME,
-   destination VARCHAR(50),
-   metro_utiles VARCHAR(50),
-   PRIMARY KEY(ID_TRAJET)
+   id_trajet VARCHAR(10),
+   duree_trajet_ TIME,
+   date_trajet DATE,
+   point_départ_trajet VARCHAR(50),
+   distance_trajet VARCHAR(10),
+   point_arrivee_trajet VARCHAR(50),
+   PRIMARY KEY(id_trajet)
 );
 
 CREATE TABLE INGREDIENT(
-   ID_INGREDIENT_ INT,
-   arachides BOOLEAN,
-   halal BOOLEAN,
-   casher BOOLEAN,
-   origine_france BOOLEAN,
-   lait BOOLEAN,
-   sans_gluten VARCHAR(50),
-   PRIMARY KEY(ID_INGREDIENT_)
+   id_ingredient VARCHAR(10),
+   nom_ingredient VARCHAR(50),
+   régime_ingredient VARCHAR(100),
+   origine_ingredient VARCHAR(50),
+   type_ingredient VARCHAR(50),
+   allergene_ingredient BOOLEAN,
+   quantité_ingredient SMALLINT,
+   stock_ingredient VARCHAR(50),
+   PRIMARY KEY(id_ingredient)
 );
 
-CREATE TABLE Livreur(
-   ID_Livreur VARCHAR(50),
-   Nom_livreur VARCHAR(50),
+CREATE TABLE LIVREUR(
+   ID_livreur VARCHAR(50),
+   nom_livreur VARCHAR(50),
    prénom_livreur VARCHAR(50),
-   inscription DATE,
-   note_livreur DECIMAL(1,0),
-   PRIMARY KEY(ID_Livreur)
+   date_inscription DATE,
+   note_livreur DECIMAL(1,1),
+   email_livreur VARCHAR(50),
+   tel_livreur SMALLINT,
+   disponibilité BOOLEAN,
+   mot_de_passe_livreur VARCHAR(50),
+   PRIMARY KEY(ID_livreur)
 );
 
 CREATE TABLE ADRESSE(
    id_adresse VARCHAR(50),
    code_postal VARCHAR(50),
    nom_ville VARCHAR(50),
-   complément_d_adresse VARCHAR(50),
+   complément_d_adresse VARCHAR(20),
    étage SMALLINT,
    numéro_appartement DECIMAL(15,0),
-   id_client SMALLINT NOT NULL,
+   id_client VARCHAR(10) NOT NULL,
    PRIMARY KEY(id_adresse),
    FOREIGN KEY(id_client) REFERENCES CLIENT(id_client)
 );
 
-CREATE TABLE lisent(
-   id_client SMALLINT,
-   ID_MENU VARCHAR(50),
-   PRIMARY KEY(id_client, ID_MENU),
+CREATE TABLE lit(
+   id_client VARCHAR(10),
+   id_menu VARCHAR(50),
+   PRIMARY KEY(id_client, id_menu),
    FOREIGN KEY(id_client) REFERENCES CLIENT(id_client),
-   FOREIGN KEY(ID_MENU) REFERENCES MENU(ID_MENU)
+   FOREIGN KEY(id_menu) REFERENCES MENU(id_menu)
 );
 
-CREATE TABLE Transmettre(
-   ID_RESTO VARCHAR(50),
-   id_cuistot SMALLINT,
-   ID_Livreur VARCHAR(50),
-   PRIMARY KEY(ID_RESTO, id_cuistot, ID_Livreur),
-   FOREIGN KEY(ID_RESTO) REFERENCES ENTREPRISE(ID_RESTO),
-   FOREIGN KEY(id_cuistot) REFERENCES CUISTOT(id_cuistot),
-   FOREIGN KEY(ID_Livreur) REFERENCES Livreur(ID_Livreur)
+CREATE TABLE emploie(
+   ID_resto VARCHAR(50),
+   id_cuisinier VARCHAR(10),
+   ID_livreur VARCHAR(50),
+   PRIMARY KEY(ID_resto, id_cuisinier, ID_livreur),
+   FOREIGN KEY(ID_resto) REFERENCES RESTAURANT(ID_resto),
+   FOREIGN KEY(id_cuisinier) REFERENCES CUISINIER_(id_cuisinier),
+   FOREIGN KEY(ID_livreur) REFERENCES LIVREUR(ID_livreur)
 );
 
-CREATE TABLE Transférer(
-   ID_RESTO VARCHAR(50),
-   ID_comande INT,
-   PRIMARY KEY(ID_RESTO, ID_comande),
-   FOREIGN KEY(ID_RESTO) REFERENCES ENTREPRISE(ID_RESTO),
-   FOREIGN KEY(ID_comande) REFERENCES COMMANDE(ID_comande)
+CREATE TABLE réceptionne(
+   ID_resto VARCHAR(50),
+   ID_commande VARCHAR(10),
+   PRIMARY KEY(ID_resto, ID_commande),
+   FOREIGN KEY(ID_resto) REFERENCES RESTAURANT(ID_resto),
+   FOREIGN KEY(ID_commande) REFERENCES COMMANDE(ID_commande)
 );
 
 CREATE TABLE parcourt(
-   ID_TRAJET INT,
-   ID_Livreur VARCHAR(50),
-   PRIMARY KEY(ID_TRAJET, ID_Livreur),
-   FOREIGN KEY(ID_TRAJET) REFERENCES TRAJET(ID_TRAJET),
-   FOREIGN KEY(ID_Livreur) REFERENCES Livreur(ID_Livreur)
+   id_trajet VARCHAR(10),
+   ID_livreur VARCHAR(50),
+   PRIMARY KEY(id_trajet, ID_livreur),
+   FOREIGN KEY(id_trajet) REFERENCES TRAJET(id_trajet),
+   FOREIGN KEY(ID_livreur) REFERENCES LIVREUR(ID_livreur)
 );
 
 CREATE TABLE contient(
-   ID_MENU VARCHAR(50),
-   ID_INGREDIENT_ INT,
-   PRIMARY KEY(ID_MENU, ID_INGREDIENT_),
-   FOREIGN KEY(ID_MENU) REFERENCES MENU(ID_MENU),
-   FOREIGN KEY(ID_INGREDIENT_) REFERENCES INGREDIENT(ID_INGREDIENT_)
+   id_menu VARCHAR(50),
+   id_ingredient VARCHAR(10),
+   PRIMARY KEY(id_menu, id_ingredient),
+   FOREIGN KEY(id_menu) REFERENCES MENU(id_menu),
+   FOREIGN KEY(id_ingredient) REFERENCES INGREDIENT(id_ingredient)
 );
 
 CREATE TABLE livre(
-   id_client SMALLINT,
-   ID_Livreur VARCHAR(50),
-   PRIMARY KEY(id_client, ID_Livreur),
+   id_client VARCHAR(10),
+   ID_livreur VARCHAR(50),
+   PRIMARY KEY(id_client, ID_livreur),
    FOREIGN KEY(id_client) REFERENCES CLIENT(id_client),
-   FOREIGN KEY(ID_Livreur) REFERENCES Livreur(ID_Livreur)
+   FOREIGN KEY(ID_livreur) REFERENCES LIVREUR(ID_livreur)
 );
 
 CREATE TABLE passe(
-   id_client SMALLINT,
-   ID_comande INT,
-   PRIMARY KEY(id_client, ID_comande),
+   id_client VARCHAR(10),
+   ID_commande VARCHAR(10),
+   PRIMARY KEY(id_client, ID_commande),
    FOREIGN KEY(id_client) REFERENCES CLIENT(id_client),
-   FOREIGN KEY(ID_comande) REFERENCES COMMANDE(ID_comande)
+   FOREIGN KEY(ID_commande) REFERENCES COMMANDE(ID_commande)
 );
 
-ALTER TABLE client
-ADD ville VARCHAR(50);
-
-ALTER TABLE COMMANDE
-ADD numero_client VARCHAR(50);
-
-ALTER TABLE COMMANDE
-ADD ingredient1 VARCHAR(50);
-
-ALTER TABLE client
-MODIFY COLUMN code_Postal VARCHAR(50);
-
-ALTER TABLE client
-MODIFY COLUMN tel VARCHAR(50);
-
-ALTER TABLE CUISTOT
-MODIFY COLUMN code_postal_cuistot VARCHAR(50);
-
-ALTER TABLE CUISTOT
-MODIFY COLUMN tel_cuistot VARCHAR(50);
-
-INSERT INTO Client (id_client, nom, prénom, rue, numero1, code_Postal, ville, tel, email, metro_le_plus_proche)
-VALUES 
-('1', 'Durand', 'Medhy', 'Rue Cardinet', '15', '75017', 'Paris','1234567890','Mdurand@gmail.com','Cardinet');
-
-INSERT INTO COMMANDE ( ID_comande, numero_cuisiner, numero_client, nom, prix, quantite, type_plat, date_de_fabrication, date_de_péremption, régime, nature, ingredient1, volume1, ingredient2, volume2, ingredient3, volume3
-)
-VALUES
-('1','1','1','raclette','10','6','plat','10/01/2025','15/01/2025','NULL','Française','raclette fromage','250g','pommes de terre','200g','jambon','200g');
-
-INSERT INTO COMMANDE ( ID_comande, numero_cuisiner, numero_client, nom, prix, quantite, type_plat, date_de_fabrication, date_de_péremption, régime, nature, ingredient1, volume1, ingredient2, volume2, ingredient3, volume3
-)
-VALUES
-('2','1','1','salade de fruit','5','6','dessert','10/01/2025','15/01/2025','végétarien','Indifférent','fraise','100g','kiwi','100g','sucre','10g');
-
-INSERT INTO CUISTOT (id_cuistot, Nom_cuistot, prénom_cuistot, rue_cuistot, numero_cuistot, code_postal_cuistot, ville_cuistot, tel_cuistot, email_cuistot, metro_le_plus_proche_cuistot
-) 
-VALUES
-('1','Dupond','Marie','Rue de la Republique','30','75011','Paris','1234567890','Mdupond@gmail.com','République');
-
-SELECT * FROM CUISTOT
-WHERE ville_cuistot = 'Paris';
-
-SELECT * FROM COMMANDE
-WHERE type_plat = 'Italien';
-
-SELECT * FROM CUISTOT
-WHERE tel_cuistot = 123456789;
-
-SELECT * FROM CUISTOT
-WHERE tel_cuistot = 1234567890;
-
-UPDATE COMMANDE
-SET prix = 14.50
-WHERE ID_comande = 1;
-
-SELECT * FROM COMMANDE
-WHERE prix = 14.50;
-
-SELECT * FROM CUISTOT
-WHERE code_postal_cuistot > 75000;
-
-SELECT * FROM COMMANDE
-WHERE date_de_péremption > '2025-03-10';
-
-SELECT * FROM COMMANDE
-WHERE nom LIKE '%Pizza%';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+CREATE TABLE prépare(
+   id_cuisinier VARCHAR(10),
+   ID_commande VARCHAR(10),
+   PRIMARY KEY(id_cuisinier, ID_commande),
+   FOREIGN KEY(id_cuisinier) REFERENCES CUISINIER_(id_cuisinier),
+   FOREIGN KEY(ID_commande) REFERENCES COMMANDE(ID_commande)
+);

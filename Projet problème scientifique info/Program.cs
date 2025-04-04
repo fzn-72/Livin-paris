@@ -76,6 +76,8 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("1. Construire et visualiser le graphe du métro");
             Console.WriteLine("2. Calculer la distance entre deux stations de métro");
             Console.WriteLine("3. Trouver le chemin le plus court entre deux stations");
+            Console.WriteLine("4. Ouvrir le menu de gestion de la BDD");
+
 
             string choix = Console.ReadLine();
 
@@ -89,6 +91,9 @@ namespace Projet_problème_scientifique_info
                     break;
                 case "3":
                     CalculDistance.CheminLePlusCourt();
+                    break;
+                case "4":
+                    GestionBDD.MenuBDD();
                     break;
                 default:
                     Console.WriteLine("Option non valide.");
