@@ -72,9 +72,10 @@ namespace Projet_problème_scientifique_info
 
             Console.WriteLine("=== Bienvenue dans l'apllication console Liv'In Paris ===");
             Console.WriteLine();
-            Console.WriteLine("Que souhaitez-vous faire ? Choisissez une option (1 ou 2) : ");
+            Console.WriteLine("Que souhaitez-vous faire ? Choisissez une option (1, 2 ou 3) : ");
             Console.WriteLine("1. Construire et visualiser le graphe du métro");
             Console.WriteLine("2. Calculer la distance entre deux stations de métro");
+            Console.WriteLine("3. Trouver le chemin le plus court entre deux stations");
 
             string choix = Console.ReadLine();
 
@@ -86,13 +87,14 @@ namespace Projet_problème_scientifique_info
                 case "2":
                     CalculDistance.DistanceEntreDeuxStations();
                     break;
+                case "3":
+                    CalculDistance.CheminLePlusCourt();
+                    break;
                 default:
                     Console.WriteLine("Option non valide.");
                     break;
             }
 
-            Console.WriteLine("\nAppuyez sur une touche pour quitter...");
-            Console.ReadKey();
         }
 
         #region Ancienne méthode pour afficher le graphe de l'autre façon
@@ -129,44 +131,40 @@ namespace Projet_problème_scientifique_info
             }
         }*/
         #endregion
-
+        /// <summary>
+        /// Construit et visualise un graphe représentant le réseau de métro à partir de fichiers CSV contenant les nœuds (stations) et les arcs (liaisons).
+        /// </summary>
         static void ConstruireEtVisualiserGrapheMetro()
         {
-            // S'assurer que la culture utilise le point comme séparateur décimal si les CSV l'utilisent
-            // Ou adapter le parsing dans MetroGraphe.cs si les CSV utilisent la virgule
-            // CultureInfo.CurrentCulture = CultureInfo.InvariantCulture; // Option 1: Forcer la culture Invariante (point décimal)
-
-            // Chemins vers les fichiers CSV (vérifiez qu'ils sont corrects)
-            string cheminFichierNoeuds = @"C:\Users\marti\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            string cheminFichierArcs = @"C:\Users\marti\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            
+            string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
 
             try
             {
-                // Créer une instance de MetroGraphe
+                
                 MetroGraphe metroGraphe = new MetroGraphe(cheminFichierNoeuds, cheminFichierArcs);
 
-                // --- MODIFICATION : Appeler ChargerStations et ChargerArcs ---
+                
                 Console.WriteLine("Chargement des stations...");
                 int nbStations = metroGraphe.ChargerStations();
                 Console.WriteLine("Chargement des arcs et création des liens...");
                 int nbArcs = metroGraphe.ChargerArcs();
 
-                // Vérifier si le chargement a réussi
-                if (nbStations > 0 && metroGraphe.LiensNoeuds.Any()) // Vérifier aussi si des liens ont été créés
+                
+                if (nbStations > 0 && metroGraphe.LiensNoeuds.Any()) 
                 {
                     Console.WriteLine($"Chargement terminé: {nbStations} stations, {metroGraphe.LiensNoeuds.Count} liens dans le graphe.");
                     Console.WriteLine("Génération de la visualisation...");
-                    string cheminImage = "graphe_metro.png"; // Nouveau nom de fichier
+                    string cheminImage = "graphe_metro.png"; 
 
-                    // --- MODIFICATION : Utiliser VisualisationMetroAmelioree ---
-                    // Ajuster largeur/hauteur si besoin pour une meilleure lisibilité
                     VisualisationMetroAmelioree visuMetro = new VisualisationMetroAmelioree(metroGraphe, 4000, 3000);
                     visuMetro.DessinerMetro(cheminImage);
 
-                    // Ouvrir l'image
+                    
                     try
                     {
-                        Console.WriteLine($"Image sauvegardée sous: {Path.GetFullPath(cheminImage)}"); // Affiche le chemin complet
+                        Console.WriteLine($"Image sauvegardée sous: {Path.GetFullPath(cheminImage)}"); 
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(cheminImage) { UseShellExecute = true });
                     }
                     catch (Exception ex)
@@ -174,8 +172,7 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine($"Erreur lors de l'ouverture de l'image : {ex.Message}");
                     }
 
-                    // Analyser les propriétés du graphe (si la méthode est fiable)
-                    // metroGraphe.AnalyserProprietesGraphe(); // Commentez si elle pose problème
+                   
                 }
                 else
                 {
@@ -190,3 +187,4 @@ namespace Projet_problème_scientifique_info
         }
     }
 }
+

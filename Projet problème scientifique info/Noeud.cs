@@ -7,16 +7,17 @@ using System.Threading.Tasks;
 namespace Projet_problème_scientifique_info
 {
     /// <summary>
-    /// Un noeud représente un membre de l'association. On identifie un membre par un identifiant (id)
+    /// Un noeud représente un membre de l'association, identifié par un identifiant unique (id).
     /// </summary>
     public class Noeud<T>
     {
         private T id;
 
         /// <summary>
-        /// Le constructeur naturel de la classe Noeud prend en argument l'identifiant unique du noeud 
+        /// Constructeur de la classe Noeud. Initialise un noeud avec un identifiant unique et une valeur.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Identifiant unique du noeud.</param>
+        /// <param name="valeur">Valeur associée au noeud.</param>
         public Noeud(T id, T valeur)
         {
             this.id = id;
@@ -24,7 +25,7 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// Cette propriété permet d'accéder à l'attribut "id" (générique) en lecture (dans d'autres classes)
+        /// Propriété permettant d'accéder à l'attribut "id" (générique) en lecture.
         /// </summary>
         public T Id
         {
@@ -34,8 +35,16 @@ namespace Projet_problème_scientifique_info
             }
         }
 
+        /// <summary>
+        /// Propriété permettant d'accéder ou de modifier la valeur associée au noeud.
+        /// </summary>
         public T Valeur { get; set; }
 
+        /// <summary>
+        /// Redéfinit la méthode Equals pour comparer deux objets Noeud en fonction de leur identifiant.
+        /// </summary>
+        /// <param name="obj">Objet à comparer avec le noeud actuel.</param>
+        /// <returns>True si les identifiants sont égaux, sinon False.</returns>
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())
@@ -45,10 +54,13 @@ namespace Projet_problème_scientifique_info
             return EqualityComparer<T>.Default.Equals(id, other.id);
         }
 
+        /// <summary>
+        /// Redéfinit la méthode GetHashCode pour obtenir un code de hachage basé sur l'identifiant du noeud.
+        /// </summary>
+        /// <returns>Code de hachage pour l'identifiant du noeud.</returns>
         public override int GetHashCode()
         {
             return EqualityComparer<T>.Default.GetHashCode(id);
         }
-
     }
 }
