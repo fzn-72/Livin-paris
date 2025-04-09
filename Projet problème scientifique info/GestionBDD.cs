@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MySql.Data;
 using System.Data.SqlClient;
 using Mysqlx.Crud;
+using System.ComponentModel;
 
 namespace Projet_problème_scientifique_info
 {
@@ -25,56 +26,55 @@ namespace Projet_problème_scientifique_info
         private static string connectionString = "Server=localhost;Database=livinparis;Uid=root;Pwd=REDACTED;";
         public static void MenuBDD()
         {
-            // Créer la table admin si elle n'existe pas
-            InitialiserTableAdmin();
+            //InitialiserTableAdmin();
             AfficherMenuPrincipal();
         }
 
-        #region Initialisation
-        static void InitialiserTableAdmin()
-        {
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
+        //#region Initialisation
+        //static void InitialiserTableAdmin()
+        //{
+        //    try
+        //    {
+        //        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        //        {
+        //            connection.Open();
 
-                    // Vérifier si la table existe
-                    string checkTable = "SHOW TABLES LIKE 'ADMIN'";
-                    MySqlCommand cmdCheck = new MySqlCommand(checkTable, connection);
-                    bool tableExists = cmdCheck.ExecuteScalar() != null;
+        //            // Vérifier si la table existe
+        //            string checkTable = "SHOW TABLES LIKE 'ADMIN'";
+        //            MySqlCommand cmdCheck = new MySqlCommand(checkTable, connection);
+        //            bool tableExists = cmdCheck.ExecuteScalar() != null;
 
-                    if (!tableExists)
-                    {
-                        // Créer la table
-                        string createTable = @"CREATE TABLE ADMIN (
-                            id_admin INT AUTO_INCREMENT PRIMARY KEY,
-                            nom VARCHAR(50),
-                            prenom VARCHAR(50),
-                            email VARCHAR(50),
-                            mot_de_passe VARCHAR(50)
-                        )";
-                        MySqlCommand cmdCreate = new MySqlCommand(createTable, connection);
-                        cmdCreate.ExecuteNonQuery();
+        //            if (!tableExists)
+        //            {
+        //                // Créer la table
+        //                string createTable = @"CREATE TABLE ADMIN (
+        //                    id_admin INT AUTO_INCREMENT PRIMARY KEY,
+        //                    nom VARCHAR(50),
+        //                    prenom VARCHAR(50),
+        //                    email VARCHAR(50),
+        //                    mot_de_passe VARCHAR(50)
+        //                )";
+        //                MySqlCommand cmdCreate = new MySqlCommand(createTable, connection);
+        //                cmdCreate.ExecuteNonQuery();
 
-                        // Créer le compte admin
-                        string insertAdmin = @"INSERT INTO ADMIN (nom, prenom, email, mot_de_passe)
-                                            VALUES ('Administrateur', 'Système', @Email, @MotDePasse)";
-                        MySqlCommand cmdInsert = new MySqlCommand(insertAdmin, connection);
-                        cmdInsert.Parameters.AddWithValue("@Email", adminEmail);
-                        cmdInsert.Parameters.AddWithValue("@MotDePasse", adminPassword);
-                        cmdInsert.ExecuteNonQuery();
+        //                // Créer le compte admin
+        //                string insertAdmin = @"INSERT INTO ADMIN (nom, prenom, email, mot_de_passe)
+        //                                    VALUES ('Administrateur', 'Système', @Email, @MotDePasse)";
+        //                MySqlCommand cmdInsert = new MySqlCommand(insertAdmin, connection);
+        //                cmdInsert.Parameters.AddWithValue("@Email", adminEmail);
+        //                cmdInsert.Parameters.AddWithValue("@MotDePasse", adminPassword);
+        //                cmdInsert.ExecuteNonQuery();
 
-                        Console.WriteLine("Base de données initialisée avec succès.");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur lors de l'initialisation de la base de données : {ex.Message}");
-            }
-        }
-        #endregion
+        //                Console.WriteLine("Base de données initialisée avec succès.");
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Erreur lors de l'initialisation de la base de données : {ex.Message}");
+        //    }
+        //}
+        //#endregion
 
         #region Menu principal
         static void AfficherMenuPrincipal()
@@ -84,26 +84,61 @@ namespace Projet_problème_scientifique_info
             while (continuer)
             {
                 Console.Clear();
-                AfficherTitre("Liv'InParis");
+                AfficherTitre("          Liv'InParis          ");
                 AfficherTitre("SYSTÈME DE GESTION DE LIVRAISON DE REPAS");
 
+                Console.WriteLine("Bienvenue. Veuillez choisir un module pour voir les options associées.");
+                Console.WriteLine("1. MODULE PROFIL : Se connecter ou créer un compte");
+                Console.WriteLine("2. MODULE COMMANDE : Afficher les détails d'une commande");
+                Console.WriteLine("3. MODULE STATISTIQUES : Bilans généraux");
+                Console.WriteLine("4. MODULE AUTRE : En cours de développement, vous pourrez bientôt profiter de votre nouvel espace");
+                Console.Write("\nChoisissez une option : ");
+                string choix1 = Console.ReadLine();
+
+                // Options administratives uniquement si connecté en tant qu'admin
+                //if (utilisateurConnecteType == "admin")
+                //{
+                //    Console.WriteLine("\n--- Options administratives ---");
+                //    Console.WriteLine("4. Lister tous les clients");
+                //    Console.WriteLine("5. Lister toutes les commandes");
+                //    Console.WriteLine("6. Supprimer un client");
+                //}
+
+                switch (choix1)
+                {
+                    case "1":
+                        ModuleProfil();
+                        break;
+                    case "2":
+                        ModuleCommande();
+                        break;
+                    case "3":
+                        ModuleStats();
+                        break;
+                    case "4":
+                        ModuleAutre();
+                        break;
+                    default:
+                        AfficherMessageErreur("Option invalide.");
+                        break;
+                }
+            }
+        }
+        #endregion
+
+        #region MODULE profil
+        static void ModuleProfil()
+        {
+            bool continuer = true;
+            while (continuer)
+            {
                 Console.WriteLine("1. Se connecter");
                 Console.WriteLine("2. Créer un compte");
                 Console.WriteLine("3. Quitter");
-
-                // Options administratives uniquement si connecté en tant qu'admin
-                if (utilisateurConnecteType == "admin")
-                {
-                    Console.WriteLine("\n--- Options administratives ---");
-                    Console.WriteLine("4. Lister tous les clients");
-                    Console.WriteLine("5. Lister toutes les commandes");
-                    Console.WriteLine("6. Supprimer un client");
-                }
-
                 Console.Write("\nChoisissez une option : ");
-                string choix = Console.ReadLine();
+                string choix2 = Console.ReadLine();
 
-                switch (choix)
+                switch (choix2)
                 {
                     case "1":
                         SeConnecter();
@@ -114,24 +149,24 @@ namespace Projet_problème_scientifique_info
                     case "3":
                         continuer = false;
                         break;
-                    case "4":
-                        if (utilisateurConnecteType == "admin")
-                            ListerClients();
-                        else
-                            AfficherMessageErreur("Vous devez être connecté en tant qu'administrateur pour accéder à cette option.");
-                        break;
-                    case "5":
-                        if (utilisateurConnecteType == "admin")
-                            ListerCommandes();
-                        else
-                            AfficherMessageErreur("Vous devez être connecté en tant qu'administrateur pour accéder à cette option.");
-                        break;
-                    case "6":
-                        if (utilisateurConnecteType == "admin")
-                            SupprimerClient();
-                        else
-                            AfficherMessageErreur("Vous devez être connecté en tant qu'administrateur pour accéder à cette option.");
-                        break;
+                    //case "4":
+                    //    if (utilisateurConnecteType == "admin")
+                    //        ListerClients();
+                    //    else
+                    //        AfficherMessageErreur("Vous devez être connecté en tant qu'administrateur pour accéder à cette option.");
+                    //    break;
+                    //case "5":
+                    //    if (utilisateurConnecteType == "admin")
+                    //        ListerCommandes();
+                    //    else
+                    //        AfficherMessageErreur("Vous devez être connecté en tant qu'administrateur pour accéder à cette option.");
+                    //    break;
+                    //case "6":
+                    //    if (utilisateurConnecteType == "admin")
+                    //        SupprimerClient();
+                    //    else
+                    //        AfficherMessageErreur("Vous devez être connecté en tant qu'administrateur pour accéder à cette option.");
+                    //    break;
                     default:
                         AfficherMessageErreur("Option invalide.");
                         break;
@@ -139,6 +174,27 @@ namespace Projet_problème_scientifique_info
             }
         }
         #endregion
+
+        #region MODULE commande
+        static void ModuleCommande()
+        {
+
+        }
+        #endregion
+
+        #region MODULE stats
+        static void ModuleStats()
+        {
+
+        }
+        #endregion
+
+        #region MODULE autre
+        static void ModuleAutre()
+        {
+
+        }
+        #endregion 
 
         #region Méthode pour se connecter
         static void SeConnecter()
@@ -3865,7 +3921,7 @@ namespace Projet_problème_scientifique_info
                     {
                         Console.WriteLine("Cuisinier créé avec succès !");
 
-                       
+
                         // Assign cook to restaurant if a restaurant was selected
                         if (restaurants.Count > 0)
                         {
@@ -4548,9 +4604,9 @@ namespace Projet_problème_scientifique_info
         #region Méthodes d'affichage
         static void AfficherTitre(string titre)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"=== {titre} ===");
-            Console.WriteLine(new string('=', titre.Length + 8));
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine($"--- {titre} ---");
+            Console.WriteLine(new string('-', titre.Length + 8));
             Console.ResetColor();
             Console.WriteLine();
         }
