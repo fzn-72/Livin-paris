@@ -538,5 +538,133 @@ namespace Projet_problème_scientifique_info
             
         }
 
+
+        #region Algo de Welsh-Powell
+        /// <summary>
+        /// Implémente l'algorithme de Welsh-Powell pour colorer un graphe.
+        /// Cet algorithme attribue des couleurs aux sommets de manière à ce que deux sommets adjacents
+        /// n'aient jamais la même couleur, tout en essayant de minimiser le nombre de couleurs utilisées.
+        /// </summary>
+        /// <returns>Un dictionnaire associant chaque sommet à sa couleur (représentée par un entier).</returns>
+        public Dictionary<int, int> ColorerGrapheWelshPowell()
+        {
+            Console.WriteLine("Début de la coloration Welsh-Powell...");
+
+            // Dictionnaire pour stocker la couleur de chaque sommet
+            Dictionary<int, int> couleurs = new Dictionary<int, int>();
+
+            // Initialiser tous les sommets avec la couleur -1 (non coloré)
+            foreach (var sommet in Stations.Keys)
+            {
+                couleurs[sommet] = -1;
+            }
+
+            // Créer un dictionnaire pour stocker le degré de chaque sommet
+            Dictionary<int, int> degres = new Dictionary<int, int>();
+
+            // Calculer le degré de chaque sommet
+            foreach (var sommet in Stations.Keys)
+            {
+                // Compter le nombre de liens pour ce sommet
+                int degre = 0;
+                foreach (var lien in LiensNoeuds)
+                {
+                    if (lien.Noeud1.Id == sommet || lien.Noeud2.Id == sommet)
+                    {
+                        degre++;
+                    }
+                }
+                degres[sommet] = degre;
+
+                // Debug
+                Console.WriteLine($"Station {sommet} ({Stations[sommet].Nom}) a un degré de {degre}");
+            }
+
+            // Trier les sommets par ordre décroissant de degré
+            List<int> sommetsTries = Stations.Keys.ToList();
+            sommetsTries.Sort((a, b) => degres[b].CompareTo(degres[a]));
+
+            // Debug
+            Console.WriteLine("Ordre de traitement des stations:");
+            foreach (var sommet in sommetsTries)
+            {
+                Console.WriteLine($"Station {sommet} ({Stations[sommet].Nom}) - Degré: {degres[sommet]}");
+            }
+
+            // Couleur actuelle
+            int couleurActuelle = 0;
+
+            // Tant qu'il reste des sommets non colorés
+            while (sommetsTries.Any(s => couleurs[s] == -1))
+            {
+                Console.WriteLine($"Traitement de la couleur {couleurActuelle}");
+
+                // Pour chaque sommet non coloré dans l'ordre de degré décroissant
+                foreach (var sommet in sommetsTries)
+                {
+                    // Si le sommet n'est pas encore coloré
+                    if (couleurs[sommet] == -1)
+                    {
+                        // Vérifier si on peut attribuer la couleur actuelle
+                        bool peutColorer = true;
+
+                        // Récupérer tous les voisins du sommet
+                        List<int> voisins = new List<int>();
+                        foreach (var lien in LiensNoeuds)
+                        {
+                            if (lien.Noeud1.Id == sommet)
+                            {
+                                voisins.Add(lien.Noeud2.Id);
+                            }
+                            else if (lien.Noeud2.Id == sommet)
+                            {
+                                voisins.Add(lien.Noeud1.Id);
+                            }
+                        }
+
+                        // Vérifier tous les voisins du sommet
+                        foreach (var voisin in voisins)
+                        {
+                            // Si un voisin a déjà la couleur actuelle, on ne peut pas l'utiliser
+                            if (couleurs.ContainsKey(voisin) && couleurs[voisin] == couleurActuelle)
+                            {
+                                peutColorer = false;
+                                Console.WriteLine($"  Station {sommet} ({Stations[sommet].Nom}) ne peut pas être colorée en {couleurActuelle} car voisine de {voisin} ({Stations[voisin].Nom})");
+                                break;
+                            }
+                        }
+
+                        // Si aucun voisin n'a la couleur actuelle, on l'attribue à ce sommet
+                        if (peutColorer)
+                        {
+                            couleurs[sommet] = couleurActuelle;
+                            Console.WriteLine($"  Station {sommet} ({Stations[sommet].Nom}) colorée en {couleurActuelle}");
+                        }
+                    }
+                }
+
+                // Passer à la couleur suivante
+                couleurActuelle++;
+            }
+
+            // Vérification finale
+            int erreurs = 0;
+            foreach (var lien in LiensNoeuds)
+            {
+                int id1 = lien.Noeud1.Id;
+                int id2 = lien.Noeud2.Id;
+
+                if (couleurs[id1] == couleurs[id2])
+                {
+                    erreurs++;
+                    Console.WriteLine($"ERREUR: Stations voisines avec même couleur: {id1} ({Stations[id1].Nom}) et {id2} ({Stations[id2].Nom}) - Couleur: {couleurs[id1]}");
+                }
+            }
+
+            Console.WriteLine($"Coloration terminée. {couleurActuelle} couleurs utilisées. {erreurs} erreurs détectées.");
+
+            return couleurs;
+        }
+        #endregion
     }
 }

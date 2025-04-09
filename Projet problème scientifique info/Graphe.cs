@@ -353,5 +353,25 @@ namespace Projet_problème_scientifique_info
             }
             Console.WriteLine();
         }
+
+        /// <summary>
+        /// Trie les sommets du graphe par ordre décroissant de degré.
+        /// Le degré d'un sommet est le nombre de connexions qu'il possède.
+        /// </summary>
+        /// <returns>Une liste des sommets triés par ordre décroissant de degré.</returns>
+        public List<T> TrierSommetsParDegre()
+        {
+            Dictionary<T, int> degres = new Dictionary<T, int>();
+
+            foreach (var sommet in listeAdjacence.Keys)
+            {
+                degres[sommet] = listeAdjacence[sommet].Count;
+            }
+
+            List<T> sommetsTries = listeAdjacence.Keys.ToList();
+            sommetsTries.Sort((a, b) => degres[b].CompareTo(degres[a]));
+
+            return sommetsTries;
+        }
     }
 }
