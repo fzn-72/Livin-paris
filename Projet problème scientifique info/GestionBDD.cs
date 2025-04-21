@@ -13,7 +13,6 @@ namespace Projet_problème_scientifique_info
 {
     public class GestionBDD
     {
-        // Variables pour stocker les informations de l'utilisateur connecté
         private static string utilisateurConnecteId = "";
         private static string utilisateurConnecteNom = "";
         private static string utilisateurConnectePrenom = "";
@@ -26,6 +25,11 @@ namespace Projet_problème_scientifique_info
         }
 
         #region Menu principal
+
+        /// <summary>
+        /// Affiche le menu principal avec les différents modules disponibles (profil, commandes, statistiques, autres),
+        /// puis redirige l'utilisateur vers le module sélectionné en fonction de son choix.
+        /// </summary>
         static void AfficherMenuPrincipal()
         {
             Console.Clear();
@@ -38,6 +42,7 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("2. MODULE COMMANDES : Afficher les détails d'une commande");
             Console.WriteLine("3. MODULE STATISTIQUES : Bilans généraux");
             Console.WriteLine("4. MODULE AUTRE : En cours de développement, vous pourrez bientôt profiter de votre nouvel espace");
+            Console.WriteLine("5. A propos de l'application");
             Console.Write("\nChoisissez une option : ");
             string choix1 = Console.ReadLine();
 
@@ -55,6 +60,9 @@ namespace Projet_problème_scientifique_info
                 case "4":
                     ModuleAutre();
                     break;
+                case "5":
+                    AproposDeLAppli();
+                    break;
                 default:
                     AfficherMessageErreur("Option invalide.");
                     break;
@@ -64,6 +72,11 @@ namespace Projet_problème_scientifique_info
 
 
         #region MODULE profil
+
+        /// <summary>
+        /// Gère le module profil : permet à l'utilisateur de se connecter, créer un compte ou quitter le module (le redirige vers les méthodes correspondantes).
+        /// Affiche le sous-menu en boucle jusqu'à ce que l'utilisateur choisisse de quitter.
+        /// </summary>
         static void ModuleProfil()
         {
             bool continuer = true;
@@ -103,6 +116,10 @@ namespace Projet_problème_scientifique_info
 
         #region MODULE stats
 
+        /// <summary>
+        /// Gère le module statistiques : propose différentes analyses (livraisons, commandes, moyennes, etc.)
+        /// et exécute l'affichage correspondant selon le choix de l'utilisateur, jusqu’à retour au menu principal.
+        /// </summary>
         static void ModuleStats()
         {
             bool continuer = true;
@@ -711,7 +728,76 @@ namespace Projet_problème_scientifique_info
         {
             Console.WriteLine("Cette fonctionnalité sera bientôt disponible. Merci pour votre compréhension.");
         }
-        #endregion 
+        #endregion
+
+        #region A propos de l'application
+
+        static void AproposDeLAppli()
+        {
+            Console.Clear();
+            Console.WriteLine("Que souhaitez-vous faire ?");
+            Console.WriteLine("\n1. Obtenir un mot sur l'application");
+            Console.WriteLine("2. Voir le mode d'emploi de l'application");
+            Console.WriteLine("3. Voir la fiche contacts");
+            Console.Write("\nChoisissez une option : ");
+
+            string choix1 = Console.ReadLine();
+            switch (choix1)
+            {
+                case "1":
+                    MotSurAppli();
+                    break;
+                case "2":
+                    FonctionnementAppli();
+                    break;
+                case "3":
+                    InformationsContact();
+                    break;
+                default:
+                    AfficherMessageErreur("Option invalide.");
+                    break;
+            }
+        }
+
+        static void MotSurAppli()
+        {
+            Console.Clear();
+            Console.WriteLine("-Liv’in Paris propose des services de partages de repas entre voisins plus ou moins distants mais toujours dans Paris intramuros.");
+            Console.WriteLine("\n-L'application est en constante amélioration. En effet, nous proposons régulièrement de nouvelles mises à jour apportant de nouvelles fonctionnalités ou corrigeant certains bugs.");
+            Console.WriteLine("\nL'application est basée sur la bonne foi des personnes. Notre équipe supervise régulièrement les nouvelles inscriptions, les nouvelles commandes et beaucoup d'autres informations.");
+            Console.WriteLine("La base conserve l’historique de toutes les transactions réalisées entre un cuisinier et un client afin de pouvoir identifier les plus grands cuisiniers par mois, par an … et réorganiser au besoin les transactions " +
+                "en fonction des trajets effectués, des repas livrés, de la fréquence …  et des retours des clients. En fonction de ces retours, il est possible qu’un client ou un cuisinier puisse être radié de la plateforme.");
+            Console.WriteLine("\nDe même, en cas d'activté suspecte ou de mauvais comportement, nous nous réserverons également le droit de vous bannir de la plateforme. ");
+            Console.WriteLine("\n-Nous envisageons un développement au-delà de Paris intramuros dans quelques semaines. Merci pour votre compréhension. ");    
+        }
+
+        static void FonctionnementAppli()
+        {
+            Console.WriteLine("-Vous pouvez rejoindre Liv'in Paris en tant que client, cuisinier ou livreur. Si vous souhaitez rallier nos rangs et devenir administrateur de l'application, n'hésitez pas à envoyer votre candidature.");
+            Console.WriteLine("\nIl faut s’inscrire auprès de l’application en déclinant son identité (nom, prénom, adresse, téléphone, adresse email...). En fonction du rôle souhaité, des informations supplémentaires peuvent vous être " +
+                "demandées (restaurant d'assignation pour un cuisinier, référent entreprise pour un client ...etc)");
+            Console.WriteLine("\n-Pour information, un cuisinier peut devenir client et inversement ou être les 2 à la fois de manière simultanée. Un client peut être un particulier, ou une entreprise locale.");
+            Console.WriteLine("\n-Un cuisinier partage sur le sit le plat confectionné en précisant pour chacun des mets s’il s’agit d’une entrée, du plat principal ou d'un dessert.");
+            Console.WriteLine("\nLe cuisinier se doit d’assurer la livraison de son plat. Il prend pour cela contact avec un livreur. Celui-ci peut combiner plusieurs livraisons si nécessaire en fonction des zones de livraisons.");
+            Console.WriteLine("\n-Pour faciliter les transactions, l’application met à la disposition des livreurs une fonction qui va calculer le plus court chemin entre les 2 adresses : celle du cuisinier et celle du client. " +
+                "Dans un premier temps, par soucis de simplification, seul le cas des lignes de métros est traité. Au fil du développement de l'application, de nouvelles options seront proposées (vélos, bus, transiliens, RER...)");
+            Console.WriteLine("\n-Le client choisit un restaurant disponible sur l'application et effectue sa commande en choisissant son ou ses plats. Les plats peuvent être génériques " +
+                "et obéir à une recette déjà enregistrée ou bien être une déclinaison d’une recette déjà existante.");
+            Console.WriteLine("\n-Pour information, la transaction peut être simple ou multiple. En effet, il est possible qu’au sein d’une même commande, le client puisse avoir plusieurs lignes de commandes." +
+                "Chaque ligne de commande peut avoir une date et un lieu de livraison différent. En revanche, la transaction financière est réalisée une fois pour toute avant la première livraison.");
+            
+        }
+
+        static void InformationsContact()
+        {
+            Console.Clear();
+            Console.WriteLine("Cette application a été développée au premier semestre 2025 par : NORAT Faizan, NAUDY-NORMAND Thomas et PASQUIER Martin dans le cadre du module 'PSI' de 2ème année");
+            Console.WriteLine("\nPour une question sur son fonctionnement, une suggestion d'amélioration ou une plainte, merci de nous contacter à l'une des adresses suivantes : " +
+                "\nfaizan.norat@edu.devinvi.fr\nthomas.naudy-normand@edu.devinci.fr\nmartin.pasquier@edu.devinci.fr");
+            Console.WriteLine("\nSi vous souhaitez nous rejoindre, merci de présenter vos motivations dans une courte lettre jointe à votre CV. Nous reviendrons vers vous dans les plus brefs délais.");
+
+        }
+        #endregion
 
 
         #region Méthode pour se connecter
@@ -735,14 +821,14 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Si c'est un admin, vérifier les identifiants
+                // Si c'est un admin, on vérifie ses identifiants
                 if (typeCompte == "4")
                 {
                     using (MySqlConnection connection = new MySqlConnection(connectionString))
                     {
                         connection.Open();
-                        string query = "SELECT id_admin, nom, prenom FROM ADMIN WHERE email = @Email AND mot_de_passe = @MotDePasse";
-                        MySqlCommand cmd = new MySqlCommand(query, connection);
+                        string requete = "SELECT id_admin, nom, prenom FROM ADMIN WHERE email = @Email AND mot_de_passe = @MotDePasse";
+                        MySqlCommand cmd = new MySqlCommand(requete, connection);
                         cmd.Parameters.AddWithValue("@Email", email);
                         cmd.Parameters.AddWithValue("@MotDePasse", motDePasse);
 
@@ -773,7 +859,7 @@ namespace Projet_problème_scientifique_info
                     string id = "";
                     string nom = "";
                     string prenom = "";
-                    string mdp = "mot_de_passe"; // Colonne pour le mot de passe
+                    string mdp = "mot_de_passe"; 
 
                     switch (typeCompte)
                     {
@@ -818,12 +904,10 @@ namespace Projet_problème_scientifique_info
                     {
                         if (reader.Read())
                         {
-                            // Stocker les informations de l'utilisateur connecté
                             utilisateurConnecteId = reader[id].ToString();
                             utilisateurConnecteNom = reader[nom].ToString();
                             utilisateurConnectePrenom = reader[prenom].ToString();
 
-                            // Afficher le menu correspondant au type d'utilisateur
                             switch (utilisateurConnecteType)
                             {
                                 case "client":
@@ -1750,7 +1834,6 @@ namespace Projet_problème_scientifique_info
 
 
         #region Méthodes pour le menu client 
-        // Méthodes pour le menu client
         static void VoirMesCommandes(string clientId)
         {
             Console.Clear();
@@ -2266,9 +2349,8 @@ namespace Projet_problème_scientifique_info
 
 
         /// <summary>
-        /// Affiche les commandes à préparer pour un cuisinier spécifique, en distinguant les commandes non assignées et celles déjà assignées.
+        /// Affiche les commandes à préparer pour un cuisinier spécifique, en distinguant les commandes non assignées de celles déjà assignées.
         /// </summary>
-        /// <param name="cuisinierId">L'identifiant du cuisinier</param>
         static void VoirCommandesAPreparer(string cuisinierId)
         {
             Console.Clear();
@@ -2280,8 +2362,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Obtenir les restaurants où travaille le cuisinier
-                    string getRestosQuery = "SELECT id_resto FROM EMPLOIE WHERE id_cuisinier = @CuisinierId";
+                    string getRestosQuery = "SELECT id_resto FROM EMPLOIE WHERE id_cuisinier = @CuisinierId"; // Obtenir les restaurants où travaille le cuisinier
                     MySqlCommand getRestosCmd = new MySqlCommand(getRestosQuery, connection);
                     getRestosCmd.Parameters.AddWithValue("@CuisinierId", cuisinierId);
 
@@ -2294,7 +2375,6 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Afficher un message si le cuisinier n'est assigné à aucun restaurant
                     if (restaurantIds.Count == 0)
                     {
                         Console.WriteLine("Vous n'êtes assigné à aucun restaurant. Veuillez contacter l'administrateur.");
@@ -2303,10 +2383,8 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Afficher d'abord les commandes non assignées
                     Console.WriteLine("=== COMMANDES NON ASSIGNÉES DE VOS RESTAURANTS ===");
 
-                    // Construire la requête pour les commandes non assignées des restaurants du cuisinier
                     string unassignedOrdersQuery = @"
                 SELECT c.ID_commande, c.nom, c.quantite, c.type_plat, c.prix,
                        cl.nom AS nom_client, cl.prénom AS prenom_client,
@@ -2330,7 +2408,7 @@ namespace Projet_problème_scientifique_info
                         if (reader.HasRows)
                         {
                             hasUnassignedOrders = true;
-                            Console.WriteLine("ID\tDate\t\tPlat\t\tQté\tPrix\t\tClient\t\tRestaurant");
+                            Console.WriteLine("ID\tDate\t\tNom du plat\t\tQté\tPrix\t\tClient\t\tRestaurant");
                             Console.WriteLine("-------------------------------------------------------------------------");
 
                             while (reader.Read())
@@ -2347,7 +2425,6 @@ namespace Projet_problème_scientifique_info
                                 string restaurant = reader.IsDBNull(reader.GetOrdinal("nom_resto")) ? "N/A" : reader["nom_resto"].ToString();
                                 string dateCommande = reader.IsDBNull(reader.GetOrdinal("date_commande")) ?
                                     "N/A" : reader["date_commande"].ToString();
-
                                 Console.WriteLine($"{id}\t{dateCommande}\t{nom,-15}{quantite}\t{prix}\t{client,-20}{restaurant}");
                             }
                         }
@@ -2357,7 +2434,6 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Si des commandes non assignées existent, demander si le cuisinier veut en prendre une
                     if (hasUnassignedOrders)
                     {
                         Console.Write("\nVoulez-vous prendre en charge une commande ? (O/N) : ");
@@ -2381,12 +2457,10 @@ namespace Projet_problème_scientifique_info
 
                             if (orderExists != null)
                             {
-                                // Assigner la commande à ce cuisinier
                                 string assignQuery = "INSERT INTO PRÉPARE (id_cuisinier, ID_commande) VALUES (@IdCuisinier, @IdCommande)";
                                 MySqlCommand assignCmd = new MySqlCommand(assignQuery, connection);
                                 assignCmd.Parameters.AddWithValue("@IdCuisinier", cuisinierId);
                                 assignCmd.Parameters.AddWithValue("@IdCommande", idCommande);
-
                                 try
                                 {
                                     assignCmd.ExecuteNonQuery();
@@ -2399,12 +2473,12 @@ namespace Projet_problème_scientifique_info
                             }
                             else
                             {
-                                Console.WriteLine("Cette commande n'existe pas ou n'appartient pas à l'un de vos restaurants.");
+                                Console.WriteLine("Cette commande n'existe pas ou n'appartient pas au restaurant où vous êtes assigné(e).");
                             }
                         }
                     }
 
-                    // Afficher maintenant les commandes déjà assignées à ce cuisinier
+                    // Afficher les commandes déjà assignées à ce cuisinier
                     Console.WriteLine("\n=== VOS COMMANDES À PRÉPARER ===");
 
                     string assignedOrdersQuery = @"
@@ -2464,6 +2538,11 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
             Console.ReadKey();
         }
+
+        /// <summary>
+        /// Permet d’ajouter un nouveau plat à un menu en sélectionnant un restaurant, en saisissant les détails du plat,
+        /// puis en enregistrant ces données dans la base. Affiche un message de confirmation ou d'erreur selon le résultat.
+        /// </summary>
         static void AjouterPlatAuMenu()
         {
             Console.Clear();
@@ -2471,7 +2550,6 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-
                 Console.WriteLine("Liste des restaurants disponibles :");
                 List<(string id, string nom, string type, decimal capacite)> restaurants = ObtenirListeRestaurantsDetails();
 
@@ -2489,15 +2567,13 @@ namespace Projet_problème_scientifique_info
                 Console.Write("\nChoisissez un restaurant (ID) : ");
                 string idResto = Console.ReadLine();
 
-                // Vérifier si le restaurant existe
-                var restaurantSelectionne = restaurants.Find(r => r.id == idResto);
+                var restaurantSelectionne = restaurants.Find(r => r.id == idResto); // Vérifier si le restaurant existe
                 if (restaurantSelectionne == default)
                 {
                     AfficherMessageErreur("Restaurant non trouvé.");
                     return;
                 }
 
-                // Saisir les informations du plat
                 Console.WriteLine("\n--- Informations du plat ---");
 
                 Console.Write("ID du menu : ");
@@ -2515,7 +2591,7 @@ namespace Projet_problème_scientifique_info
                 Console.Write("Boisson : ");
                 string boisson = Console.ReadLine();
 
-                Console.Write("Régime correspondant (standard, végétarien, etc.) : ");
+                Console.Write("Régime particulier (standard, végétarien, etc.) : ");
                 string regime = Console.ReadLine();
 
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -2555,6 +2631,10 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Affiche la liste des clients ayant été servis par un cuisinier donné, avec leurs coordonnées,
+        /// le nombre de commandes passées et la date de la dernière commande, en les récupérant depuis la BDD.
+        /// </summary>
         static void VoirClientsServis(string cuisinierId)
         {
             Console.Clear();
@@ -2605,7 +2685,7 @@ namespace Projet_problème_scientifique_info
                         }
                         else
                         {
-                            Console.WriteLine("Vous n'avez encore servi aucun client.");
+                            Console.WriteLine("Vous n'avez servi encore aucun client ou la base n'a pas encore été actualisée.");
                         }
                     }
                 }
@@ -2619,6 +2699,11 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+
+        /// <summary>
+        /// Affiche les plats préparés par un cuisinier, triés par fréquence de préparation,
+        /// en indiquant le type de plat, le nombre total de préparations et la quantité préparée.
+        /// </summary>
         static void VoirPlatsCuisinesByFrequence(string cuisinierId)
         {
             Console.Clear();
@@ -2677,12 +2762,15 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Permet à un cuisinier de consulter ses commandes en attente de préparation, puis de choisir d’en modifier 
+        /// ou d’en annuler une. Seules les commandes sans date de fabrication (= pas encore prêtes) sont concernées.
+        /// </summary>
         static void ModifierOuAnnulerCommande(string cuisinierId)
         {
             Console.Clear();
             AfficherTitre("MODIFIER OU ANNULER UNE COMMANDE");
 
-            // Afficher les commandes à préparer
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -2773,6 +2861,10 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Permet de modifier les détails d'une commande existante (nom du plat, quantité, prix, type de plat).
+        /// Les valeurs actuelles sont proposées par défaut, et le cuisinier peut choisir de les modifier.
+        /// </summary>
         static void ModifierCommande(string idCommande)
         {
             Console.Clear();
@@ -2859,6 +2951,10 @@ namespace Projet_problème_scientifique_info
             }
         }
 
+        /// <summary>
+        /// Permet d'annuler une commande spécifique après confirmation.
+        /// Supprime les entrées associées dans les tables PASSE, PRÉPARE, RÉCEPTIONNE et COMMANDE.
+        /// </summary>
         static void AnnulerCommande(string idCommande)
         {
             Console.Clear();
@@ -2904,20 +3000,16 @@ namespace Projet_problème_scientifique_info
                                 cmdDeletePasse.Parameters.AddWithValue("@IdCommande", idCommande);
                                 cmdDeletePasse.ExecuteNonQuery();
 
-
                                 string deletePrepare = "DELETE FROM PRÉPARE WHERE ID_commande = @IdCommande";
                                 MySqlCommand cmdDeletePrepare = new MySqlCommand(deletePrepare, connection);
                                 cmdDeletePrepare.Parameters.AddWithValue("@IdCommande", idCommande);
                                 cmdDeletePrepare.ExecuteNonQuery();
                                 
-
-                                // Supprimer les relations dans RÉCEPTIONNE
                                 string deleteReceptionne = "DELETE FROM RÉCEPTIONNE WHERE ID_commande = @IdCommande";
                                 MySqlCommand cmdDeleteReceptionne = new MySqlCommand(deleteReceptionne, connection);
                                 cmdDeleteReceptionne.Parameters.AddWithValue("@IdCommande", idCommande);
                                 cmdDeleteReceptionne.ExecuteNonQuery();
 
-                                // Supprimer la commande
                                 string deleteCommande = "DELETE FROM COMMANDE WHERE ID_commande = @IdCommande";
                                 MySqlCommand cmdDeleteCommande = new MySqlCommand(deleteCommande, connection);
                                 cmdDeleteCommande.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -3034,7 +3126,7 @@ namespace Projet_problème_scientifique_info
                         assignCmd.Parameters.AddWithValue("@IdCommande", idCommande);
                         assignCmd.ExecuteNonQuery();
 
-                        Console.WriteLine("Commande assignée à vous-même.");
+                        Console.WriteLine("La commande vous a été assignée.");
                     }
 
                     // Marquer la commande comme préparée
@@ -3063,6 +3155,10 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Gère le menu interactif de gestion des ingrédients. Permet d'afficher, ajouter, 
+        /// modifier, supprimer un ingrédient ou de retourner au menu principal.
+        /// </summary>
         static void GererIngredients()
         {
             bool retourMenu = false;
@@ -3104,6 +3200,10 @@ namespace Projet_problème_scientifique_info
             }
         }
 
+        /// <summary>
+        /// Affiche la liste complète des ingrédients présents dans la base de données. Les informations affichées incluent 
+        /// l'ID, le nom, le régime, l'origine, le type, la présence d'allergènes, la quantité, le stock et la date de péremption.
+        /// </summary>
         static void AfficherListeIngredients()
         {
             Console.Clear();
@@ -3162,6 +3262,11 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
+
+        /// <summary>
+        /// Permet d'ajouter un nouvel ingrédient dans la base de données. Le cuisinier entre les informations 
+        /// suivantes : ID, nom, régime alimentaire, origine, type d'ingrédient, allergène, quantité, stock et date de péremption.
+        /// </summary>
         static void AjouterIngredient()
         {
             Console.Clear();
@@ -3239,6 +3344,12 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
+
+        /// <summary>
+        /// Permet de modifier un ingrédient existant dans la base de données. Le cuisinier entre l'ID de l'ingrédient 
+        /// qu'il souhaite modifier, puis il peut modifier les informations suivantes : nom, régime alimentaire, origine, 
+        /// type, allergène, quantité, stock et date de péremption.
+        /// </summary>
         static void ModifierIngredient()
         {
             Console.Clear();
@@ -3359,6 +3470,10 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Permet de supprimer un ingrédient de la base de données. Le cuisinier entre l'ID de l'ingrédient qu'il souhaite supprimer, 
+        /// et il doit confirmer la suppression. Si l'ingrédient existe, il sera supprimé de la base de données.
+        /// </summary>
         static void SupprimerIngredient()
         {
             Console.Clear();
@@ -3450,9 +3565,9 @@ namespace Projet_problème_scientifique_info
                                 "JOIN EMPLOIE e ON re.id_resto = e.ID_resto " +
                                 "WHERE l.ID_livreur = @LivreurId " +
                                 "AND e.ID_livreur = @LivreurId " +
-                                "AND c.date_de_fabrication IS NOT NULL " +  // Commande préparée
-                                "AND c.date_paiement IS NOT NULL " +        // Commande payée
-                                "AND c.date_livraison IS NULL " +           // Pas encore livrée
+                                "AND c.date_de_fabrication IS NOT NULL " +  // S'assurer que la commande est préparée
+                                "AND c.date_paiement IS NOT NULL " +        // S'assurer que la commande est payée
+                                "AND c.date_livraison IS NULL " +           // S'assurer que la commande n'est pas encore livrée
                                 "ORDER BY c.date_de_fabrication ASC";
                     
                     MySqlCommand cmd = new MySqlCommand(requete, connection);
@@ -3499,6 +3614,11 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+
+        /// <summary>
+        /// Affiche l'historique des itinéraires d'un livreur en récupérant les trajets associés depuis la base de données.
+        /// Montre les informations principales (date, départ, arrivée, distance, durée) ou un message s’il n’y a aucun trajet.
+        /// </summary>
         static void ConsulterItineraire(string livreurId)
         {
             Console.Clear();
@@ -3635,6 +3755,10 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Affiche les évaluations d'un livreur en récupérant sa note moyenne depuis la BDD sur MySQL.
+        /// En cas d'erreur ou d'absence d'évaluation, un message est affiché, et l'utilisateur peut revenir au menu.
+        /// </summary>
         static void VoirEvaluations(string livreurId)
         {
             Console.Clear();
@@ -3676,38 +3800,38 @@ namespace Projet_problème_scientifique_info
 
 
         #region Méthodes utilitaires
-        static List<(string id, string nom)> ObtenirListeRestaurants()
-        {
-            var restaurants = new List<(string id, string nom)>();
+        //static List<(string id, string nom)> ObtenirListeRestaurants()
+        //{
+        //    var restaurants = new List<(string id, string nom)>();
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
+        //    try
+        //    {
+        //        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        //        {
+        //            connection.Open();
 
-                    string query = "SELECT id_resto, nom_resto FROM RESTAURANT";
+        //            string query = "SELECT id_resto, nom_resto FROM RESTAURANT";
 
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
+        //            MySqlCommand cmd = new MySqlCommand(query, connection);
 
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            string id = reader["id_resto"].ToString();
-                            string nom = reader["nom_resto"].ToString();
-                            restaurants.Add((id, nom));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur : {ex.Message}");
-            }
+        //            using (MySqlDataReader reader = cmd.ExecuteReader())
+        //            {
+        //                while (reader.Read())
+        //                {
+        //                    string id = reader["id_resto"].ToString();
+        //                    string nom = reader["nom_resto"].ToString();
+        //                    restaurants.Add((id, nom));
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Erreur : {ex.Message}");
+        //    }
 
-            return restaurants;
-        }
+        //    return restaurants;
+        //}
 
         static List<(string id, string nom, string type, decimal capacite)> ObtenirListeRestaurantsDetails()
         {
@@ -4565,37 +4689,14 @@ namespace Projet_problème_scientifique_info
         /// Assigne une commande à un cuisinier travaillant dans le restaurant spécifié.
         /// Utilise la relation EMPLOIE pour trouver les cuisiniers d'un restaurant.
         /// </summary>
-        /// <param name="idCommande">ID de la commande à assigner</param>
-        /// <param name="idResto">ID du restaurant concerné</param>
-        /// <param name="connection">Connexion MySQL active</param>
         /// <summary>
         /// Assigne une commande à un cuisinier travaillant dans le restaurant spécifié.
         /// Utilise la relation EMPLOIE pour trouver les cuisiniers d'un restaurant.
         /// </summary>
-        /// <param name="idCommande">ID de la commande à assigner</param>
-        /// <param name="idResto">ID du restaurant concerné</param>
-        /// <param name="connection">Connexion MySQL active</param>
         static void AssignerCommandeACuisinier(int idCommande, string idResto, MySqlConnection connection)
         {
             try
             {
-            //    // Vérifier si la table PRÉPARE existe
-            //    string checkTable = "SHOW TABLES LIKE 'PRÉPARE'";
-            //    MySqlCommand tableCmd = new MySqlCommand(checkTable, connection);
-            //    bool prepareExists = tableCmd.ExecuteScalar() != null;
-
-            //    if (!prepareExists)
-            //    {
-            //        // Créer la table PRÉPARE si elle n'existe pas
-            //        string createTable = @"CREATE TABLE PRÉPARE (
-            //    id_cuisinier VARCHAR(50),
-            //    ID_commande INT,
-            //    PRIMARY KEY (id_cuisinier, ID_commande)
-            //)";
-            //        MySqlCommand createCmd = new MySqlCommand(createTable, connection);
-            //        createCmd.ExecuteNonQuery();
-            //    }
-
                 // Trouver un cuisinier qui travaille dans ce restaurant
                 string findCookQuery = "SELECT id_cuisinier FROM EMPLOIE WHERE ID_resto = @IdResto LIMIT 1";
                 MySqlCommand findCookCmd = new MySqlCommand(findCookQuery, connection);
@@ -4675,13 +4776,6 @@ namespace Projet_problème_scientifique_info
         /// <summary>
         /// Crée une nouvelle commande dans la base de données et l'associe à un restaurant.
         /// </summary>
-        /// <param name="idClient">ID du client qui passe la commande</param>
-        /// <param name="idResto">ID du restaurant qui reçoit la commande</param>
-        /// <param name="nomPlat">Nom du plat commandé</param>
-        /// <param name="prix">Prix du plat</param>
-        /// <param name="quantite">Quantité commandée</param>
-        /// <param name="typePlat">Type de plat (entrée, plat principal, etc.)</param>
-        /// <returns>ID de la commande créée, ou 0 en cas d'échec</returns>
         static int CreerNouvelleCommande(string idClient, string idResto, string nomPlat, decimal prix, int quantite, string typePlat)
         {
             try
@@ -4760,6 +4854,11 @@ namespace Projet_problème_scientifique_info
         #endregion
 
         #region Méthodes d'affichage
+
+        /// <summary>
+        /// Affiche un titre encadré avec une couleur bleue pour le mettre en valeur (grâce à System.ConsoleColor), suivi d'une ligne de séparation adaptée à sa longueur.
+        /// Cette méthode est appelée à plusieurs reprises dans les différents menus afin d'obtenir un affichage plus clair.
+        /// </summary>
         static void AfficherTitre(string titre)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -4769,6 +4868,9 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine();
         }
 
+        /// <summary>
+        /// Affiche un message d'erreur (entré en paramètre de la méthode) en rouge, suivi d'un autre message invitant l'utilisateur à appuyer sur une touche pour continuer.
+        /// </summary>
         static void AfficherMessageErreur(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;

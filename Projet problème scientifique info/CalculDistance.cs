@@ -22,9 +22,9 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public static void DistanceEntreDeuxStations()
         {
-            string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            //string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
 
-            
             if (!File.Exists(chemin))
             {
                 Console.WriteLine("Erreur: Le fichier " + chemin + " n'existe pas.");
@@ -32,7 +32,7 @@ namespace Projet_problème_scientifique_info
             }
 
             Console.WriteLine("Entrez le nom de deux stations dont vous voulez connaître la distance de l'une à l'autre.");
-            Console.WriteLine("La saisie se fait sans accents (grave, aigu, circonflexe), sans cédille et sans tréma, et en respectant les espaces");
+            Console.WriteLine("La saisie se fait sans accents (grave, aigu, circonflexe), sans cédille et sans tréma, et en respectant les espaces et les tirets (pour les noms de métros composés)");
             Console.WriteLine();
             Console.Write("Station 1 : ");
             string station1 = Console.ReadLine();
@@ -423,11 +423,12 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public static void CheminLePlusCourt()
         {
-            
-            string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            //string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            //string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
 
-            
+
             if (!File.Exists(cheminFichierNoeuds))
             {
                 Console.WriteLine($"Erreur: Le fichier {cheminFichierNoeuds} n'existe pas.");
