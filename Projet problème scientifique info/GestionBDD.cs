@@ -11,7 +11,10 @@ using System.ComponentModel;
 
 namespace Projet_problème_scientifique_info
 {
-    public class GestionBDD
+    /// <summary>
+    /// Point d'entrée principal du programme. Accueille l'utilisateur sur l'application et le redirige vers la classe contenant toutes les méthodes correspondant à l'option qu'il a choisi. 
+    /// </summary>
+    internal class GestionBDD
     {
         private static string utilisateurConnecteId = "";
         private static string utilisateurConnecteNom = "";
@@ -19,15 +22,15 @@ namespace Projet_problème_scientifique_info
         private static string utilisateurConnecteType = "";
 
         private static string connectionString = "Server=localhost;Database=livinparis;Uid=root;Pwd=REDACTED;";
-        public static void MenuBDD()
+
+        static void Main(string[] args)
         {
             AfficherMenuPrincipal();
         }
 
         #region Menu principal
-
         /// <summary>
-        /// Affiche le menu principal avec les différents modules disponibles (profil, commandes, statistiques, autres),
+        /// Affiche le menu principal avec les différents modules disponibles (profil, commandes, statistiques, trajets, autres),
         /// puis redirige l'utilisateur vers le module sélectionné en fonction de son choix.
         /// </summary>
         static void AfficherMenuPrincipal()
@@ -39,29 +42,33 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("Bienvenue. \nVeuillez choisir un module pour voir les options associées.");
             Console.WriteLine();
             Console.WriteLine("1. MODULE PROFIL : Se connecter ou créer un compte");
-            Console.WriteLine("2. MODULE COMMANDES : Afficher les détails d'une commande");
-            Console.WriteLine("3. MODULE STATISTIQUES : Bilans généraux");
-            Console.WriteLine("4. MODULE AUTRE : En cours de développement, vous pourrez bientôt profiter de votre nouvel espace");
-            Console.WriteLine("5. A propos de l'application");
+            Console.WriteLine("2. MODULE COMMANDES : Afficher les détails d'une commande : bientôt disponible");
+            Console.WriteLine("3. MODULE STATISTIQUES : Bilans généraux sur les clients, les cuisiniers, les livraisons et les commandes");
+            Console.WriteLine("4. MODULE TRAJETS : Calcul de plus court chemin, calcul de distance et visualisation de graphe ");
+            Console.WriteLine("5. MODULE AUTRE : En cours de développement, vous pourrez bientôt profiter de votre nouvel espace");
+            Console.WriteLine("6. A propos de l'application");
             Console.Write("\nChoisissez une option : ");
             string choix1 = Console.ReadLine();
 
             switch (choix1)
             {
                 case "1":
-                    ModuleProfil();
+                    ModuleProfil.MenuPrincipalProfil();
                     break;
                 case "2":
-                    ModuleCommandes();
+                    MenuPrincipalCommandes();
                     break;
                 case "3":
-                    ModuleStats();
+                    ModuleStats.MenuPrincipalStats();
                     break;
-                case "4":
-                    ModuleAutre();
+                case "4":   
+                    ModuleTrajets.MenuPrincipalTrajets(); 
                     break;
                 case "5":
-                    AproposDeLAppli();
+                    MenuPrincipalAutre();
+                    break;
+                case "6":
+                    ModuleInfosAppli.AproposDeLAppli();
                     break;
                 default:
                     AfficherMessageErreur("Option invalide.");
@@ -70,874 +77,24 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-
-        #region MODULE profil
-
-        /// <summary>
-        /// Gère le module profil : permet à l'utilisateur de se connecter, créer un compte ou quitter le module (le redirige vers les méthodes correspondantes).
-        /// Affiche le sous-menu en boucle jusqu'à ce que l'utilisateur choisisse de quitter.
-        /// </summary>
-        static void ModuleProfil()
-        {
-            bool continuer = true;
-            while (continuer)
-            {
-                Console.WriteLine("1. Se connecter");
-                Console.WriteLine("2. Créer un compte");
-                Console.WriteLine("3. Quitter");
-                Console.Write("\nChoisissez une option : ");
-                string choix2 = Console.ReadLine();
-
-                switch (choix2)
-                {
-                    case "1":
-                        SeConnecter();
-                        break;
-                    case "2":
-                        CreerCompte();
-                        break;
-                    case "3":
-                        continuer = false;
-                        break;
-                    default:
-                        AfficherMessageErreur("Option invalide.");
-                        break;
-                }
-            }
-        }
-        #endregion
 
         #region MODULE commandes
-        static void ModuleCommandes()
+        static void MenuPrincipalCommandes()
         {
 
         }
-        #endregion
-
-        #region MODULE stats
-
-        /// <summary>
-        /// Gère le module statistiques : propose différentes analyses (livraisons, commandes, moyennes, etc.)
-        /// et exécute l'affichage correspondant selon le choix de l'utilisateur, jusqu’à retour au menu principal.
-        /// </summary>
-        static void ModuleStats()
-        {
-            bool continuer = true;
-
-            while (continuer)
-            {
-                Console.Clear();
-                AfficherTitre("MODULE STATISTIQUES");
-                Console.WriteLine("Choisissez une option :");
-                Console.WriteLine("1. Afficher le nombre de livraisons par cuisinier");
-                Console.WriteLine("2. Afficher les commandes par période");
-                Console.WriteLine("3. Afficher la moyenne des prix des commandes");
-                Console.WriteLine("4. Afficher la moyenne des comptes clients");
-                Console.WriteLine("5. Afficher les commandes par client selon la nationalité des plats et la période");
-                Console.WriteLine("6. Retour au menu principal");
-
-                Console.Write("\nVotre choix : ");
-                string choix = Console.ReadLine();
-
-                switch (choix)
-                {
-                    case "1":
-                        AfficherLivraisonsParCuisinier();
-                        break;
-                    case "2":
-                        AfficherCommandesParPeriode();
-                        break;
-                    case "3":
-                        AfficherMoyennePrixCommandes();
-                        break;
-                    case "4":
-                        AfficherMoyenneComptesClients();
-                        break;
-                    case "5":
-                        AfficherCommandesParNationalite();
-                        break;
-                    case "6":
-                        continuer = false;
-                        break;
-                    default:
-                        AfficherMessageErreur("Option invalide.");
-                        break;
-                }
-            }
-        }
-
-        static void AfficherLivraisonsParCuisinier()
-        {
-            Console.Clear();
-            AfficherTitre("NOMBRE DE LIVRAISONS PAR CUISINIER");
-
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-                    string query = @"
-                SELECT c.id_cuisinier, c.nom_cuisinier, c.prénom_cuisinier, 
-                       COUNT(p.ID_commande) AS nombre_livraisons,
-                       r.nom_resto
-                FROM CUISINIER c
-                LEFT JOIN PRÉPARE p ON c.id_cuisinier = p.id_cuisinier
-                LEFT JOIN COMMANDE cmd ON p.ID_commande = cmd.ID_commande
-                LEFT JOIN RÉCEPTIONNE re ON cmd.ID_commande = re.ID_commande
-                LEFT JOIN RESTAURANT r ON re.id_resto = r.id_resto
-                WHERE cmd.date_livraison IS NOT NULL
-                GROUP BY c.id_cuisinier, c.nom_cuisinier, c.prénom_cuisinier, r.nom_resto
-                ORDER BY nombre_livraisons DESC";
-
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            Console.WriteLine("ID\tNom\t\tPrénom\t\tRestaurant\t\tNombre de livraisons");
-                            Console.WriteLine("-------------------------------------------------------------------------");
-
-                            while (reader.Read())
-                            {
-                                string id = reader["id_cuisinier"].ToString();
-                                string nom = reader.IsDBNull(reader.GetOrdinal("nom_cuisinier")) ? "N/A" : reader["nom_cuisinier"].ToString();
-                                string prenom = reader.IsDBNull(reader.GetOrdinal("prénom_cuisinier")) ? "N/A" : reader["prénom_cuisinier"].ToString();
-                                string restaurant = reader.IsDBNull(reader.GetOrdinal("nom_resto")) ? "N/A" : reader["nom_resto"].ToString();
-                                int nombreLivraisons = reader.IsDBNull(reader.GetOrdinal("nombre_livraisons")) ? 0 : Convert.ToInt32(reader["nombre_livraisons"]);
-
-                                Console.WriteLine($"{id}\t{nom,-15}{prenom,-15}{restaurant,-20}{nombreLivraisons}");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Aucune livraison trouvée.");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AfficherMessageErreur($"Erreur : {ex.Message}");
-            }
-
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
-            Console.ReadKey();
-        }
-
-        static void AfficherCommandesParPeriode()
-        {
-            Console.Clear();
-            AfficherTitre("COMMANDES PAR PÉRIODE");
-
-            Console.WriteLine("Choisissez une période :");
-            Console.WriteLine("1. Aujourd'hui");
-            Console.WriteLine("2. Cette semaine");
-            Console.WriteLine("3. Ce mois-ci");
-            Console.WriteLine("4. Période personnalisée");
-            Console.Write("\nVotre choix : ");
-            string choixPeriode = Console.ReadLine();
-
-            string dateDebut = DateTime.Now.ToString("yyyy-MM-dd");
-            string dateFin = DateTime.Now.ToString("yyyy-MM-dd");
-
-            switch (choixPeriode)
-            {
-                case "1": // Aujourd'hui
-                    break;
-                case "2": // Cette semaine
-                          // Premier jour de la semaine (lundi)
-                    dateDebut = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek + (int)DayOfWeek.Monday).ToString("yyyy-MM-dd");
-                    break;
-                case "3": // Ce mois-ci
-                    dateDebut = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("yyyy-MM-dd");
-                    break;
-                case "4": // Période personnalisée
-                    Console.Write("\nDate de début (YYYY-MM-DD) : ");
-                    dateDebut = Console.ReadLine();
-                    Console.Write("Date de fin (YYYY-MM-DD) : ");
-                    dateFin = Console.ReadLine();
-                    break;
-                default:
-                    AfficherMessageErreur("Option invalide.");
-                    return;
-            }
-
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string query = @"
-                SELECT c.ID_commande, c.nom, c.prix, c.quantite, c.date_commande,
-                       cl.nom AS nom_client, cl.prénom AS prenom_client,
-                       r.nom_resto
-                FROM COMMANDE c
-                JOIN PASSE p ON c.ID_commande = p.ID_commande
-                JOIN CLIENT cl ON p.id_client = cl.id_client
-                LEFT JOIN RÉCEPTIONNE re ON c.ID_commande = re.ID_commande
-                LEFT JOIN RESTAURANT r ON re.id_resto = r.id_resto
-                WHERE c.date_commande BETWEEN @DateDebut AND @DateFin
-                ORDER BY c.date_commande DESC";
-
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@DateDebut", dateDebut);
-                    cmd.Parameters.AddWithValue("@DateFin", dateFin);
-
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            Console.WriteLine($"\nCommandes du {dateDebut} au {dateFin} :");
-                            Console.WriteLine("ID\tDate\t\tPlat\t\tPrix\tQté\tClient\t\tRestaurant");
-                            Console.WriteLine("-------------------------------------------------------------------------");
-
-                            int totalCommandes = 0;
-                            while (reader.Read())
-                            {
-                                string id = reader["ID_commande"].ToString();
-                                string nom = reader.IsDBNull(reader.GetOrdinal("nom")) ? "N/A" : reader["nom"].ToString();
-                                string prix = reader.IsDBNull(reader.GetOrdinal("prix")) ? "N/A" : reader["prix"].ToString();
-                                int quantite = reader.IsDBNull(reader.GetOrdinal("quantite")) ? 0 : Convert.ToInt32(reader["quantite"]);
-
-                                string nomClient = reader.IsDBNull(reader.GetOrdinal("nom_client")) ? "N/A" : reader["nom_client"].ToString();
-                                string prenomClient = reader.IsDBNull(reader.GetOrdinal("prenom_client")) ? "" : reader["prenom_client"].ToString();
-                                string client = $"{nomClient} {prenomClient}";
-
-                                string restaurant = reader.IsDBNull(reader.GetOrdinal("nom_resto")) ? "N/A" : reader["nom_resto"].ToString();
-                                string dateCommande = reader.IsDBNull(reader.GetOrdinal("date_commande")) ?
-                                    "N/A" : Convert.ToDateTime(reader["date_commande"]).ToString("yyyy-MM-dd");
-
-                                Console.WriteLine($"{id}\t{dateCommande}\t{nom,-15}{prix}\t{quantite}\t{client,-20}{restaurant}");
-                                totalCommandes++;
-                            }
-
-                            Console.WriteLine($"\nNombre total de commandes : {totalCommandes}");
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Aucune commande trouvée pour la période du {dateDebut} au {dateFin}.");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AfficherMessageErreur($"Erreur : {ex.Message}");
-            }
-
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
-            Console.ReadKey();
-        }
-
-        static void AfficherMoyennePrixCommandes()
-        {
-            Console.Clear();
-            AfficherTitre("MOYENNE DES PRIX DES COMMANDES");
-
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-                    string query = @"
-                    SELECT 
-                        AVG(CAST(SUBSTRING_INDEX(prix, ' ', 1) AS DECIMAL(10,2))) AS prix_moyen,
-                        MIN(CAST(SUBSTRING_INDEX(prix, ' ', 1) AS DECIMAL(10,2))) AS prix_min,
-                        MAX(CAST(SUBSTRING_INDEX(prix, ' ', 1) AS DECIMAL(10,2))) AS prix_max,
-                        COUNT(*) AS nombre_commandes,
-                        DATE_FORMAT(date_commande, '%Y-%m') AS mois
-                    FROM COMMANDE
-                    WHERE prix REGEXP '^[0-9]+(\\.[0-9]+)? '
-                    GROUP BY DATE_FORMAT(date_commande, '%Y-%m')
-                    ORDER BY mois DESC";
-
-
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            Console.WriteLine("Période\t\tNombre de commandes\tPrix moyen\tPrix minimum\tPrix maximum");
-                            Console.WriteLine("-------------------------------------------------------------------------");
-
-                            decimal prixMoyenGlobal = 0;
-                            int totalCommandes = 0;
-
-                            while (reader.Read())
-                            {
-                                string mois = reader.IsDBNull(reader.GetOrdinal("mois")) ? "N/A" : reader["mois"].ToString();
-                                decimal prixMoyen = reader.IsDBNull(reader.GetOrdinal("prix_moyen")) ? 0 : Convert.ToDecimal(reader["prix_moyen"]);
-                                decimal prixMin = reader.IsDBNull(reader.GetOrdinal("prix_min")) ? 0 : Convert.ToDecimal(reader["prix_min"]);
-                                decimal prixMax = reader.IsDBNull(reader.GetOrdinal("prix_max")) ? 0 : Convert.ToDecimal(reader["prix_max"]);
-                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
-
-                                Console.WriteLine($"{mois}\t\t{nombreCommandes}\t\t\t{prixMoyen:F2} euros\t{prixMin:F2} euros\t{prixMax:F2} euros");
-
-                                prixMoyenGlobal += prixMoyen * nombreCommandes;
-                                totalCommandes += nombreCommandes;
-                            }
-
-                            if (totalCommandes > 0)
-                            {
-                                prixMoyenGlobal /= totalCommandes;
-                                Console.WriteLine($"\nPrix moyen global : {prixMoyenGlobal:F2} euros");
-                                Console.WriteLine($"Nombre total de commandes : {totalCommandes}");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Aucune commande trouvée.");
-                        }
-                    }
-
-                    // Afficher également la moyenne par type de plat
-                    Console.WriteLine("\n--- MOYENNE PAR TYPE DE PLAT ---");
-
-                    string queryByType = @"
-                    SELECT 
-                        type_plat,
-                        AVG(CAST(SUBSTRING_INDEX(prix, ' ', 1) AS DECIMAL(10,2))) AS prix_moyen,
-                        COUNT(*) AS nombre_commandes
-                    FROM COMMANDE
-                    WHERE type_plat IS NOT NULL AND prix REGEXP '^[0-9]+(\\.[0-9]+)? '
-                    GROUP BY type_plat
-                    ORDER BY prix_moyen DESC";
-    
-                    MySqlCommand cmdByType = new MySqlCommand(queryByType, connection);
-
-                    using (MySqlDataReader reader = cmdByType.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            Console.WriteLine("Type de plat\t\tNombre de commandes\tPrix moyen");
-                            Console.WriteLine("----------------------------------------------------------");
-
-                            while (reader.Read())
-                            {
-                                string typePlat = reader.IsDBNull(reader.GetOrdinal("type_plat")) ? "Non spécifié" : reader["type_plat"].ToString();
-                                decimal prixMoyen = reader.IsDBNull(reader.GetOrdinal("prix_moyen")) ? 0 : Convert.ToDecimal(reader["prix_moyen"]);
-                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
-
-                                Console.WriteLine($"{typePlat,-20}\t{nombreCommandes}\t\t\t{prixMoyen:F2} euros");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AfficherMessageErreur($"Erreur : {ex.Message}");
-            }
-
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
-            Console.ReadKey();
-        }
-
-        static void AfficherMoyenneComptesClients()
-        {
-            Console.Clear();
-            AfficherTitre("MOYENNE DES COMPTES CLIENTS");
-
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string query = @"
-                    SELECT 
-                        cl.id_client,
-                        cl.nom,
-                        cl.prénom,
-                        COUNT(c.ID_commande) AS nombre_commandes,
-                        SUM(CAST(SUBSTRING_INDEX(c.prix, ' ', 1) AS DECIMAL(10,2)) * c.quantite) AS montant_total,
-                        AVG(CAST(SUBSTRING_INDEX(c.prix, ' ', 1) AS DECIMAL(10,2)) * c.quantite) AS montant_moyen,
-                        MAX(c.date_commande) AS derniere_commande
-                    FROM CLIENT cl
-                    LEFT JOIN PASSE p ON cl.id_client = p.id_client
-                    LEFT JOIN COMMANDE c ON p.ID_commande = c.ID_commande
-                    WHERE c.prix REGEXP '^[0-9]+(\\.[0-9]+)? '
-                    GROUP BY cl.id_client, cl.nom, cl.prénom
-                    ORDER BY montant_total DESC";
-                    
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            Console.WriteLine("ID\tNom\t\tPrénom\t\tNb Commandes\tTotal\t\tMoyenne\t\tDernière commande");
-                            Console.WriteLine("-------------------------------------------------------------------------------------------");
-
-                            decimal totalGlobal = 0;
-                            int totalClients = 0;
-                            int totalCommandes = 0;
-
-                            while (reader.Read())
-                            {
-                                string id = reader["id_client"].ToString();
-                                string nom = reader.IsDBNull(reader.GetOrdinal("nom")) ? "N/A" : reader["nom"].ToString();
-                                string prenom = reader.IsDBNull(reader.GetOrdinal("prénom")) ? "N/A" : reader["prénom"].ToString();
-                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
-                                decimal montantTotal = reader.IsDBNull(reader.GetOrdinal("montant_total")) ? 0 : Convert.ToDecimal(reader["montant_total"]);
-                                decimal montantMoyen = reader.IsDBNull(reader.GetOrdinal("montant_moyen")) ? 0 : Convert.ToDecimal(reader["montant_moyen"]);
-                                string derniereCommande = reader.IsDBNull(reader.GetOrdinal("derniere_commande")) ? "Jamais" : Convert.ToDateTime(reader["derniere_commande"]).ToString("yyyy-MM-dd");
-
-                                Console.WriteLine($"{id}\t{nom,-15}{prenom,-15}{nombreCommandes}\t\t{montantTotal:F2} euros\t{montantMoyen:F2} euros\t{derniereCommande}");
-
-                                if (nombreCommandes > 0)
-                                {
-                                    totalGlobal += montantTotal;
-                                    totalClients++;
-                                    totalCommandes += nombreCommandes;
-                                }
-                            }
-
-                            if (totalClients > 0)
-                            {
-                                decimal moyenneParClient = totalGlobal / totalClients;
-                                decimal moyenneParCommande = totalGlobal / totalCommandes;
-
-                                Console.WriteLine("\n--- STATISTIQUES GLOBALES ---");
-                                Console.WriteLine($"Montant total de toutes les commandes : {totalGlobal:F2} euros");
-                                Console.WriteLine($"Nombre total de clients actifs : {totalClients}");
-                                Console.WriteLine($"Nombre total de commandes : {totalCommandes}");
-                                Console.WriteLine($"Dépense moyenne par client : {moyenneParClient:F2} euros");
-                                Console.WriteLine($"Montant moyen par commande : {moyenneParCommande:F2} euros");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Aucun client trouvé.");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AfficherMessageErreur($"Erreur : {ex.Message}");
-            }
-
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
-            Console.ReadKey();
-        }
-
-        static void AfficherCommandesParNationalite()
-        {
-            Console.Clear();
-            AfficherTitre("COMMANDES PAR NATIONALITÉ DES PLATS");
-
-            Console.Write("ID du client (laisser vide pour tous les clients) : ");
-            string idClient = Console.ReadLine();
-
-            Console.Write("Nationalité/Type de cuisine (laisser vide pour tous les types) : ");
-            string typeCuisine = Console.ReadLine();
-
-            Console.Write("Date de début (YYYY-MM-DD, laisser vide pour toutes les dates) : ");
-            string dateDebut = Console.ReadLine();
-
-            Console.Write("Date de fin (YYYY-MM-DD, laisser vide pour aujourd'hui) : ");
-            string dateFin = Console.ReadLine();
-
-            // Valeurs par défaut
-            if (string.IsNullOrWhiteSpace(dateDebut))
-            {
-                dateDebut = "2000-01-01"; // Date passée par défaut
-            }
-
-            if (string.IsNullOrWhiteSpace(dateFin))
-            {
-                dateFin = DateTime.Now.ToString("yyyy-MM-dd"); // Aujourd'hui par défaut
-            }
-
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string query = @"
-                SELECT c.ID_commande, c.nom, c.prix, c.quantite, c.type_plat, c.date_commande,
-                       cl.id_client, cl.nom AS nom_client, cl.prénom AS prenom_client,
-                       r.nom_resto, r.type_resto
-                FROM COMMANDE c
-                JOIN PASSE p ON c.ID_commande = p.ID_commande
-                JOIN CLIENT cl ON p.id_client = cl.id_client
-                LEFT JOIN RÉCEPTIONNE re ON c.ID_commande = re.ID_commande
-                LEFT JOIN RESTAURANT r ON re.id_resto = r.id_resto
-                WHERE c.date_commande BETWEEN @DateDebut AND @DateFin";
-
-                    if (!string.IsNullOrWhiteSpace(idClient))
-                    {
-                        query += " AND cl.id_client = @IdClient";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(typeCuisine))
-                    {
-                        query += " AND (r.type_resto LIKE @TypeCuisine OR c.type_plat LIKE @TypeCuisine)";
-                    }
-
-                    query += " ORDER BY c.date_commande DESC";
-
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@DateDebut", dateDebut);
-                    cmd.Parameters.AddWithValue("@DateFin", dateFin);
-
-                    if (!string.IsNullOrWhiteSpace(idClient))
-                    {
-                        cmd.Parameters.AddWithValue("@IdClient", idClient);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(typeCuisine))
-                    {
-                        cmd.Parameters.AddWithValue("@TypeCuisine", "%" + typeCuisine + "%");
-                    }
-
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            Console.WriteLine($"\nCommandes du {dateDebut} au {dateFin} :");
-                            Console.WriteLine("ID\tDate\t\tPlat\t\tType\t\tPrix\tQté\tClient\t\tRestaurant (Type)");
-                            Console.WriteLine("--------------------------------------------------------------------------------------------------");
-
-                            int totalCommandes = 0;
-                            decimal montantTotal = 0;
-
-                            while (reader.Read())
-                            {
-                                string id = reader["ID_commande"].ToString();
-                                string nom = reader.IsDBNull(reader.GetOrdinal("nom")) ? "N/A" : reader["nom"].ToString();
-                                string prix = reader.IsDBNull(reader.GetOrdinal("prix")) ? "N/A" : reader["prix"].ToString();
-                                int quantite = reader.IsDBNull(reader.GetOrdinal("quantite")) ? 0 : Convert.ToInt32(reader["quantite"]);
-                                string typePlat = reader.IsDBNull(reader.GetOrdinal("type_plat")) ? "N/A" : reader["type_plat"].ToString();
-
-                                string idClientDb = reader["id_client"].ToString();
-                                string nomClient = reader.IsDBNull(reader.GetOrdinal("nom_client")) ? "N/A" : reader["nom_client"].ToString();
-                                string prenomClient = reader.IsDBNull(reader.GetOrdinal("prenom_client")) ? "" : reader["prenom_client"].ToString();
-                                string client = $"{idClientDb}: {nomClient} {prenomClient}";
-
-                                string restaurant = reader.IsDBNull(reader.GetOrdinal("nom_resto")) ? "N/A" : reader["nom_resto"].ToString();
-                                string typeResto = reader.IsDBNull(reader.GetOrdinal("type_resto")) ? "N/A" : reader["type_resto"].ToString();
-                                string dateCommande = reader.IsDBNull(reader.GetOrdinal("date_commande")) ?
-                                    "N/A" : Convert.ToDateTime(reader["date_commande"]).ToString("yyyy-MM-dd");
-
-                                Console.WriteLine($"{id}\t{dateCommande}\t{nom,-15}{typePlat,-15}{prix}\t{quantite}\t{client,-20}{restaurant} ({typeResto})");
-                                totalCommandes++;
-
-                                // Extraire le montant numérique du prix (si format texte)
-                                if (prix.Contains("euro"))
-                                {
-                                    decimal prixNum;
-                                    if (decimal.TryParse(prix.Split(' ')[0], out prixNum))
-                                    {
-                                        montantTotal += prixNum * quantite;
-                                    }
-                                }
-                                else
-                                {
-                                    decimal prixNum;
-                                    if (decimal.TryParse(prix, out prixNum))
-                                    {
-                                        montantTotal += prixNum * quantite;
-                                    }
-                                }
-                            }
-
-                            Console.WriteLine($"\nNombre total de commandes : {totalCommandes}");
-                            Console.WriteLine($"Montant total : {montantTotal:F2} euros");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Aucune commande trouvée correspondant aux critères.");
-                        }
-                    }
-
-                    // Afficher un résumé par type de cuisine
-                    if (string.IsNullOrWhiteSpace(typeCuisine))
-                    {
-                        Console.WriteLine("\n--- RÉSUMÉ PAR TYPE DE CUISINE ---");
-
-                        string summaryQuery = @"
-                    SELECT 
-                        COALESCE(r.type_resto, c.type_plat, 'Non spécifié') AS type_cuisine,
-                        COUNT(c.ID_commande) AS nombre_commandes,
-                        SUM(c.quantite) AS quantite_totale
-                    FROM COMMANDE c
-                    JOIN PASSE p ON c.ID_commande = p.ID_commande
-                    LEFT JOIN RÉCEPTIONNE re ON c.ID_commande = re.ID_commande
-                    LEFT JOIN RESTAURANT r ON re.id_resto = r.id_resto
-                    WHERE c.date_commande BETWEEN @DateDebut AND @DateFin";
-
-                        if (!string.IsNullOrWhiteSpace(idClient))
-                        {
-                            summaryQuery += " AND p.id_client = @IdClient";
-                        }
-
-                        summaryQuery += " GROUP BY type_cuisine ORDER BY nombre_commandes DESC";
-
-                        MySqlCommand summaryCmd = new MySqlCommand(summaryQuery, connection);
-                        summaryCmd.Parameters.AddWithValue("@DateDebut", dateDebut);
-                        summaryCmd.Parameters.AddWithValue("@DateFin", dateFin);
-
-                        if (!string.IsNullOrWhiteSpace(idClient))
-                        {
-                            summaryCmd.Parameters.AddWithValue("@IdClient", idClient);
-                        }
-
-                        using (MySqlDataReader summaryReader = summaryCmd.ExecuteReader())
-                        {
-                            if (summaryReader.HasRows)
-                            {
-                                Console.WriteLine("Type de cuisine\t\tNombre de commandes\tQuantité totale");
-                                Console.WriteLine("----------------------------------------------------------");
-
-                                while (summaryReader.Read())
-                                {
-                                    string typedeCuisine = summaryReader["type_cuisine"].ToString();
-                                    int nombreCommandes = Convert.ToInt32(summaryReader["nombre_commandes"]);
-                                    int quantiteTotale = Convert.ToInt32(summaryReader["quantite_totale"]);
-
-                                    Console.WriteLine($"{typedeCuisine,-20}\t{nombreCommandes}\t\t\t{quantiteTotale}");
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("Aucune donnée de résumé disponible.");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AfficherMessageErreur($"Erreur : {ex.Message}");
-            }
-
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
-            Console.ReadKey();
-        }
-
         #endregion
 
         #region MODULE autre
-        static void ModuleAutre()
+        static void MenuPrincipalAutre()
         {
             Console.WriteLine("Cette fonctionnalité sera bientôt disponible. Merci pour votre compréhension.");
         }
         #endregion
 
-        #region A propos de l'application
-
-        static void AproposDeLAppli()
-        {
-            Console.Clear();
-            Console.WriteLine("Que souhaitez-vous faire ?");
-            Console.WriteLine("\n1. Obtenir un mot sur l'application");
-            Console.WriteLine("2. Voir le mode d'emploi de l'application");
-            Console.WriteLine("3. Voir la fiche contacts");
-            Console.Write("\nChoisissez une option : ");
-
-            string choix1 = Console.ReadLine();
-            switch (choix1)
-            {
-                case "1":
-                    MotSurAppli();
-                    break;
-                case "2":
-                    FonctionnementAppli();
-                    break;
-                case "3":
-                    InformationsContact();
-                    break;
-                default:
-                    AfficherMessageErreur("Option invalide.");
-                    break;
-            }
-        }
-
-        static void MotSurAppli()
-        {
-            Console.Clear();
-            Console.WriteLine("-Liv’in Paris propose des services de partages de repas entre voisins plus ou moins distants mais toujours dans Paris intramuros.");
-            Console.WriteLine("\n-L'application est en constante amélioration. En effet, nous proposons régulièrement de nouvelles mises à jour apportant de nouvelles fonctionnalités ou corrigeant certains bugs.");
-            Console.WriteLine("\nL'application est basée sur la bonne foi des personnes. Notre équipe supervise régulièrement les nouvelles inscriptions, les nouvelles commandes et beaucoup d'autres informations.");
-            Console.WriteLine("La base conserve l’historique de toutes les transactions réalisées entre un cuisinier et un client afin de pouvoir identifier les plus grands cuisiniers par mois, par an … et réorganiser au besoin les transactions " +
-                "en fonction des trajets effectués, des repas livrés, de la fréquence …  et des retours des clients. En fonction de ces retours, il est possible qu’un client ou un cuisinier puisse être radié de la plateforme.");
-            Console.WriteLine("\nDe même, en cas d'activté suspecte ou de mauvais comportement, nous nous réserverons également le droit de vous bannir de la plateforme. ");
-            Console.WriteLine("\n-Nous envisageons un développement au-delà de Paris intramuros dans quelques semaines. Merci pour votre compréhension. ");    
-        }
-
-        static void FonctionnementAppli()
-        {
-            Console.WriteLine("-Vous pouvez rejoindre Liv'in Paris en tant que client, cuisinier ou livreur. Si vous souhaitez rallier nos rangs et devenir administrateur de l'application, n'hésitez pas à envoyer votre candidature.");
-            Console.WriteLine("\nIl faut s’inscrire auprès de l’application en déclinant son identité (nom, prénom, adresse, téléphone, adresse email...). En fonction du rôle souhaité, des informations supplémentaires peuvent vous être " +
-                "demandées (restaurant d'assignation pour un cuisinier, référent entreprise pour un client ...etc)");
-            Console.WriteLine("\n-Pour information, un cuisinier peut devenir client et inversement ou être les 2 à la fois de manière simultanée. Un client peut être un particulier, ou une entreprise locale.");
-            Console.WriteLine("\n-Un cuisinier partage sur le sit le plat confectionné en précisant pour chacun des mets s’il s’agit d’une entrée, du plat principal ou d'un dessert.");
-            Console.WriteLine("\nLe cuisinier se doit d’assurer la livraison de son plat. Il prend pour cela contact avec un livreur. Celui-ci peut combiner plusieurs livraisons si nécessaire en fonction des zones de livraisons.");
-            Console.WriteLine("\n-Pour faciliter les transactions, l’application met à la disposition des livreurs une fonction qui va calculer le plus court chemin entre les 2 adresses : celle du cuisinier et celle du client. " +
-                "Dans un premier temps, par soucis de simplification, seul le cas des lignes de métros est traité. Au fil du développement de l'application, de nouvelles options seront proposées (vélos, bus, transiliens, RER...)");
-            Console.WriteLine("\n-Le client choisit un restaurant disponible sur l'application et effectue sa commande en choisissant son ou ses plats. Les plats peuvent être génériques " +
-                "et obéir à une recette déjà enregistrée ou bien être une déclinaison d’une recette déjà existante.");
-            Console.WriteLine("\n-Pour information, la transaction peut être simple ou multiple. En effet, il est possible qu’au sein d’une même commande, le client puisse avoir plusieurs lignes de commandes." +
-                "Chaque ligne de commande peut avoir une date et un lieu de livraison différent. En revanche, la transaction financière est réalisée une fois pour toute avant la première livraison.");
-            
-        }
-
-        static void InformationsContact()
-        {
-            Console.Clear();
-            Console.WriteLine("Cette application a été développée au premier semestre 2025 par : NORAT Faizan, NAUDY-NORMAND Thomas et PASQUIER Martin dans le cadre du module 'PSI' de 2ème année");
-            Console.WriteLine("\nPour une question sur son fonctionnement, une suggestion d'amélioration ou une plainte, merci de nous contacter à l'une des adresses suivantes : " +
-                "\nfaizan.norat@edu.devinvi.fr\nthomas.naudy-normand@edu.devinci.fr\nmartin.pasquier@edu.devinci.fr");
-            Console.WriteLine("\nSi vous souhaitez nous rejoindre, merci de présenter vos motivations dans une courte lettre jointe à votre CV. Nous reviendrons vers vous dans les plus brefs délais.");
-
-        }
-        #endregion
-
-
-        #region Méthode pour se connecter
-        static void SeConnecter()
-        {
-            Console.Clear();
-            AfficherTitre("CONNEXION");
-
-            Console.WriteLine("1. Client");
-            Console.WriteLine("2. Cuisinier");
-            Console.WriteLine("3. Livreur");
-            Console.WriteLine("4. Administrateur");
-            Console.Write("\nChoisissez votre type de compte : ");
-            string typeCompte = Console.ReadLine();
-
-            Console.Write("Email : ");
-            string email = Console.ReadLine();
-
-            Console.Write("Mot de passe : ");
-            string motDePasse = Console.ReadLine();
-
-            try
-            {
-                // Si c'est un admin, on vérifie ses identifiants
-                if (typeCompte == "4")
-                {
-                    using (MySqlConnection connection = new MySqlConnection(connectionString))
-                    {
-                        connection.Open();
-                        string requete = "SELECT id_admin, nom, prenom FROM ADMIN WHERE email = @Email AND mot_de_passe = @MotDePasse";
-                        MySqlCommand cmd = new MySqlCommand(requete, connection);
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        cmd.Parameters.AddWithValue("@MotDePasse", motDePasse);
-
-                        using (MySqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                utilisateurConnecteId = reader["id_admin"].ToString();
-                                utilisateurConnecteNom = reader["nom"].ToString();
-                                utilisateurConnectePrenom = reader["prenom"].ToString();
-                                utilisateurConnecteType = "admin";
-                                AfficherMenuAdmin();
-                            }
-                            else
-                            {
-                                AfficherMessageErreur("Échec de la connexion. Email ou mot de passe incorrect.");
-                            }
-                        }
-                    }
-                    return;
-                }
-
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-                    string table = "";
-                    string mail = "";
-                    string id = "";
-                    string nom = "";
-                    string prenom = "";
-                    string mdp = "mot_de_passe"; 
-
-                    switch (typeCompte)
-                    {
-                        case "1":
-                            table = "CLIENT";
-                            mail = "email";
-                            id = "id_client";
-                            nom = "nom";
-                            prenom = "prénom";
-                            utilisateurConnecteType = "client";
-                            break;
-                        case "2":
-                            table = "CUISINIER";
-                            mail = "email_cuisinier";
-                            id = "id_cuisinier";
-                            nom = "nom_cuisinier";
-                            prenom = "prénom_cuisinier";
-                            mdp = "mot_de_passe";
-                            utilisateurConnecteType = "cuisinier";
-                            break;
-                        case "3":
-                            table = "LIVREUR";
-                            mail = "email_livreur";
-                            id = "ID_livreur";
-                            nom = "nom_livreur";
-                            prenom = "prénom_livreur";
-                            mdp = "mot_de_passe_livreur";
-                            utilisateurConnecteType = "livreur";
-                            break;
-                        default:
-                            AfficherMessageErreur("Type de compte invalide.");
-                            return;
-                    }
-
-                    string requete = $"SELECT * FROM {table} WHERE {mail} = @Email AND {mdp} = @MotDePasse";
-                    
-                    MySqlCommand cmd = new MySqlCommand(requete, connection);
-                    cmd.Parameters.AddWithValue("@Email", email);
-                    cmd.Parameters.AddWithValue("@MotDePasse", motDePasse);
-
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            utilisateurConnecteId = reader[id].ToString();
-                            utilisateurConnecteNom = reader[nom].ToString();
-                            utilisateurConnectePrenom = reader[prenom].ToString();
-
-                            switch (utilisateurConnecteType)
-                            {
-                                case "client":
-                                    AfficherMenuClient();
-                                    break;
-                                case "cuisinier":
-                                    AfficherMenuCuisinier();
-                                    break;
-                                case "livreur":
-                                    AfficherMenuLivreur();
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            AfficherMessageErreur("Échec de la connexion. Email ou mot de passe incorrect.");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AfficherMessageErreur($"Erreur : {ex.Message}");
-            }
-        }
-        #endregion 
-
 
         #region Menu admin
-        static void AfficherMenuAdmin()
+        public static void AfficherMenuAdmin()
         {
             bool continuer = true;
 
@@ -1647,7 +804,7 @@ namespace Projet_problème_scientifique_info
         #endregion
 
         #region Menu client
-        static void AfficherMenuClient()
+        public static void AfficherMenuClient()
         {
             bool continuer = true;
 
@@ -1709,7 +866,7 @@ namespace Projet_problème_scientifique_info
         #endregion
 
         #region Menu cuisinier
-        static void AfficherMenuCuisinier()
+        public static void AfficherMenuCuisinier()
         {
             bool continuer = true;
 
@@ -1777,7 +934,7 @@ namespace Projet_problème_scientifique_info
         #endregion
 
         #region Menu livreur
-        static void AfficherMenuLivreur()
+        public static void AfficherMenuLivreur()
         {
             bool continuer = true;
 
@@ -3799,7 +2956,7 @@ namespace Projet_problème_scientifique_info
         #endregion
 
 
-        #region Méthodes utilitaires
+        #region Méthodes utiles
         //static List<(string id, string nom)> ObtenirListeRestaurants()
         //{
         //    var restaurants = new List<(string id, string nom)>();
@@ -3833,7 +2990,7 @@ namespace Projet_problème_scientifique_info
         //    return restaurants;
         //}
 
-        static List<(string id, string nom, string type, decimal capacite)> ObtenirListeRestaurantsDetails()
+        public static List<(string id, string nom, string type, decimal capacite)> ObtenirListeRestaurantsDetails()
         {
             var restaurants = new List<(string id, string nom, string type, decimal capacite)>();
 
@@ -4001,374 +3158,8 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-        #region Méthodes existantes
-        static void CreerCompte()
-        {
-            Console.Clear();
-            AfficherTitre("CRÉATION DE COMPTE");
-
-            Console.WriteLine("1. Client");
-            Console.WriteLine("2. Cuisinier");
-            Console.WriteLine("3. Livreur");
-            Console.Write("\nChoisissez le type de compte à créer : ");
-            string typeCompte = Console.ReadLine();
-
-            switch (typeCompte)
-            {
-                case "1":
-                    CreerCompteClient();
-                    break;
-                case "2":
-                    CreerCompteCuisinier();
-                    break;
-                case "3":
-                    CreerCompteLivreur();
-                    break;
-                default:
-                    AfficherMessageErreur("Type de compte invalide.");
-                    break;
-            }
-
-            Console.WriteLine("Appuyez sur une touche pour continuer...");
-            Console.ReadKey();
-        }
-
-        static void CreerCompteClient()
-        {
-            Console.WriteLine("\n=== CRÉATION DE COMPTE CLIENT ===");
-
-            Console.Write("Type de client (1: Particulier, 2: Entreprise locale) : ");
-            string typeClient = Console.ReadLine();
-            bool estEntreprise = typeClient == "2";
-
-            Console.Write("IdClient : ");
-            string id = Console.ReadLine();
-
-            Console.Write("Nom : ");
-            string nom = Console.ReadLine();
-
-            Console.Write("Prénom : ");
-            string prenom = Console.ReadLine();
-
-            // Additional fields for business clients
-            string nomEntreprise = "";
-            string nomReferent = "";
-
-            if (estEntreprise)
-            {
-                Console.Write("Nom de l'entreprise : ");
-                nomEntreprise = Console.ReadLine();
-
-                Console.Write("Nom du référent de commande : ");
-                nomReferent = Console.ReadLine();
-            }
-
-            Console.Write("Rue : ");
-            string rue = Console.ReadLine();
-
-            Console.Write("Code postal : ");
-            string codePostal = Console.ReadLine();
-
-            Console.Write("Téléphone : ");
-            string tel = Console.ReadLine();
-
-            Console.Write("Email : ");
-            string email = Console.ReadLine();
-
-            Console.Write("Mot de passe : ");
-            string motDePasse = Console.ReadLine();
-
-            Console.Write("Métro le plus proche : ");
-            string metro = Console.ReadLine();
-
-            // Pas besoin de demander la ville car tout le monde habite à Paris
-            string ville = "Paris";
-
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string checkTypeColumn = "SHOW COLUMNS FROM CLIENT LIKE 'type_client'";
-                    MySqlCommand typeColumnCmd = new MySqlCommand(checkTypeColumn, connection);
-                    bool typeColumnExists = typeColumnCmd.ExecuteScalar() != null;
-
-                    //if (!typeColumnExists)
-                    //{
-                    //    string addTypeColumnQuery = "ALTER TABLE CLIENT ADD COLUMN type_client VARCHAR(20)";
-                    //    MySqlCommand addTypeColumnCmd = new MySqlCommand(addTypeColumnQuery, connection);
-                    //    addTypeColumnCmd.ExecuteNonQuery();
-                    //    Console.WriteLine("Colonne type_client ajoutée à la table CLIENT.");
-                    //}
-
-                    // Check if the nom_entreprise column exists
-                    string checkEntrepriseColumn = "SHOW COLUMNS FROM CLIENT LIKE 'nom_entreprise'";
-                    MySqlCommand entrepriseColumnCmd = new MySqlCommand(checkEntrepriseColumn, connection);
-                    bool entrepriseColumnExists = entrepriseColumnCmd.ExecuteScalar() != null;
-
-                    //if (!entrepriseColumnExists)
-                    //{
-                    //    // Add nom_entreprise column
-                    //    string addEntrepriseColumnQuery = "ALTER TABLE CLIENT ADD COLUMN nom_entreprise VARCHAR(100)";
-                    //    MySqlCommand addEntrepriseColumnCmd = new MySqlCommand(addEntrepriseColumnQuery, connection);
-                    //    addEntrepriseColumnCmd.ExecuteNonQuery();
-                    //    Console.WriteLine("Colonne nom_entreprise ajoutée à la table CLIENT.");
-                    //}
-
-                    // Check if the nom_referent column exists
-                    string checkReferentColumn = "SHOW COLUMNS FROM CLIENT LIKE 'nom_referent'";
-                    MySqlCommand referentColumnCmd = new MySqlCommand(checkReferentColumn, connection);
-                    bool referentColumnExists = referentColumnCmd.ExecuteScalar() != null;
-
-                    //if (!referentColumnExists)
-                    //{
-                    //    // Add nom_referent column
-                    //    string addReferentColumnQuery = "ALTER TABLE CLIENT ADD COLUMN nom_referent VARCHAR(100)";
-                    //    MySqlCommand addReferentColumnCmd = new MySqlCommand(addReferentColumnQuery, connection);
-                    //    addReferentColumnCmd.ExecuteNonQuery();
-                    //    Console.WriteLine("Colonne nom_referent ajoutée à la table CLIENT.");
-                    //}
-
-                    // Vérifier si la colonne mot_de_passe existe
-                    string checkColumn = "SHOW COLUMNS FROM CLIENT LIKE 'mot_de_passe'";
-                    MySqlCommand columnCmd = new MySqlCommand(checkColumn, connection);
-                    bool columnExists = columnCmd.ExecuteScalar() != null;
-
-                    //if (!columnExists)
-                    //{
-                    //    // Ajouter la colonne mot_de_passe
-                    //    string addColumnQuery = "ALTER TABLE CLIENT ADD COLUMN mot_de_passe VARCHAR(50)";
-                    //    MySqlCommand addColumnCmd = new MySqlCommand(addColumnQuery, connection);
-                    //    addColumnCmd.ExecuteNonQuery();
-                    //    Console.WriteLine("Colonne mot_de_passe ajoutée à la table CLIENT.");
-                    //}
-
-                    string query = "INSERT INTO CLIENT (id_client, nom, prénom, rue, code_Postal, tel, email, mot_de_passe, " +
-                                  "metro_le_plus_proche, ville, type_client, nom_entreprise, nom_referent) " +
-                                  "VALUES (@Id, @Nom, @Prénom, @Rue, @CodePostal, @Tel, @Email, @MotDePasse, @Metro, @Ville, " +
-                                  "@TypeClient, @NomEntreprise, @NomReferent)";
-
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.Parameters.AddWithValue("@Nom", nom);
-                    cmd.Parameters.AddWithValue("@Prénom", prenom);
-                    cmd.Parameters.AddWithValue("@Rue", rue);
-                    cmd.Parameters.AddWithValue("@CodePostal", codePostal);
-                    cmd.Parameters.AddWithValue("@Tel", tel);
-                    cmd.Parameters.AddWithValue("@Email", email);
-                    cmd.Parameters.AddWithValue("@MotDePasse", motDePasse);
-                    cmd.Parameters.AddWithValue("@Metro", metro);
-                    cmd.Parameters.AddWithValue("@Ville", ville);
-                    cmd.Parameters.AddWithValue("@TypeClient", estEntreprise ? "Entreprise" : "Particulier");
-                    cmd.Parameters.AddWithValue("@NomEntreprise", nomEntreprise);
-                    cmd.Parameters.AddWithValue("@NomReferent", nomReferent);
-
-                    int result = cmd.ExecuteNonQuery();
-                    if (result > 0)
-                    {
-                        Console.WriteLine("Client créé avec succès !");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Échec de la création du client.");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AfficherMessageErreur($"Erreur : {ex.Message}");
-            }
-        }
-
-        static void CreerCompteCuisinier()
-        {
-            Console.WriteLine("\n=== CRÉATION DE COMPTE CUISINIER ===");
-
-            Console.Write("ID Cuisinier : ");
-            string id = Console.ReadLine();
-
-            Console.Write("Nom : ");
-            string nom = Console.ReadLine();
-
-            Console.Write("Prénom : ");
-            string prenom = Console.ReadLine();
-
-            Console.Write("Rue : ");
-            string rue = Console.ReadLine();
-
-            Console.Write("Code postal : ");
-            string codePostal = Console.ReadLine();
-
-            Console.Write("Ville : ");
-            string ville = Console.ReadLine();
-
-            Console.Write("Téléphone : ");
-            string tel = Console.ReadLine();
-
-            Console.Write("Email : ");
-            string email = Console.ReadLine();
-
-            Console.Write("Mot de passe : ");
-            string motDePasse = Console.ReadLine();
-
-            Console.Write("Métro le plus proche : ");
-            string metro = Console.ReadLine();
-
-            Console.WriteLine("\nDans quel restaurant travaillez-vous ?");
-            List<(string id, string nom, string type, decimal capacite)> restaurants = ObtenirListeRestaurantsDetails();
-
-            if (restaurants.Count == 0)
-            {
-                Console.WriteLine("Aucun restaurant disponible. Votre profil cuisinier sera créé sans assignation à un restaurant.");
-            }
-            else
-            {
-                Console.WriteLine("Liste des restaurants disponibles :");
-                foreach (var resto in restaurants)
-                {
-                    Console.WriteLine($"{resto.id}. {resto.nom} - {resto.type}");
-                }
-
-                Console.Write("\nChoisissez un restaurant (ID) : ");
-                string idResto = Console.ReadLine();
-            }
-
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string query = "INSERT INTO CUISINIER (id_cuisinier, nom_cuisinier, prénom_cuisinier, rue_cuisinier, " +
-                                "code_postal_cuisinier, ville_cuisinier, tel_cuisinier, email_cuisinier, mot_de_passe, metro_le_plus_proche_cuisinier) " +
-                                "VALUES (@Id, @Nom, @Prenom, @Rue, @CodePostal, @Ville, @Tel, @Email, @MotDePasse, @Metro)";
-                    
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.Parameters.AddWithValue("@Nom", nom);
-                    cmd.Parameters.AddWithValue("@Prenom", prenom);
-                    cmd.Parameters.AddWithValue("@Rue", rue);
-                    cmd.Parameters.AddWithValue("@CodePostal", codePostal);
-                    cmd.Parameters.AddWithValue("@Ville", ville);
-                    cmd.Parameters.AddWithValue("@Tel", tel);
-                    cmd.Parameters.AddWithValue("@Email", email);
-                    cmd.Parameters.AddWithValue("@MotDePasse", motDePasse);
-                    cmd.Parameters.AddWithValue("@Metro", metro);
-
-                    int result = cmd.ExecuteNonQuery();
-
-                    if (result > 0)
-                    {
-                        Console.WriteLine("Cuisinier créé avec succès !");
-
-                        if (restaurants.Count > 0)
-                        {
-                            Console.Write("\nChoisissez un restaurant (ID) : ");
-                            string idResto = Console.ReadLine();
-
-                            var restaurantSelectionne = restaurants.Find(r => r.id == idResto);
-                            if (restaurantSelectionne != default)
-                            {
-                                string assignQuery = "INSERT INTO EMPLOIE (id_cuisinier, id_resto) VALUES (@IdCuisinier, @IdResto)";
-                                MySqlCommand assignCmd = new MySqlCommand(assignQuery, connection);
-                                assignCmd.Parameters.AddWithValue("@IdCuisinier", id);
-                                assignCmd.Parameters.AddWithValue("@IdResto", idResto);
-
-                                try
-                                {
-                                    assignCmd.ExecuteNonQuery();
-                                    Console.WriteLine($"Cuisinier assigné au restaurant {restaurantSelectionne.nom} avec succès !");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine($"Erreur lors de l'assignation au restaurant : {ex.Message}");
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("Restaurant non trouvé. Le cuisinier a été créé sans assignation à un restaurant.");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Échec de la création du cuisinier.");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AfficherMessageErreur($"Erreur : {ex.Message}");
-            }
-        }
-
-        static void CreerCompteLivreur()
-        {
-            Console.WriteLine("\n=== CRÉATION DE COMPTE LIVREUR ===");
-
-            Console.Write("ID Livreur : ");
-            string id = Console.ReadLine();
-
-            Console.Write("Nom : ");
-            string nom = Console.ReadLine();
-
-            Console.Write("Prénom : ");
-            string prenom = Console.ReadLine();
-
-            Console.Write("Email : ");
-            string email = Console.ReadLine();
-
-            Console.Write("Mot de passe : ");
-            string motDePasse = Console.ReadLine();
-
-            Console.Write("Téléphone : ");
-            string tel = Console.ReadLine();
-
-            Console.Write("Date d'inscription (YYYY-MM-DD) : ");
-            string dateInscription = Console.ReadLine();
-
-            Console.Write("Disponibilité (1 pour disponible, 0 pour indisponible) : ");
-            string disponibiliteStr = Console.ReadLine();
-            bool disponibilite = disponibiliteStr == "1";
-
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string query = "INSERT INTO LIVREUR (ID_livreur, nom_livreur, prénom_livreur, email_livreur, mot_de_passe_livreur, tel_livreur, date_inscription, disponibilité) " +
-                                "VALUES (@Id, @Nom, @Prenom, @Email, @MotDePasse, @Tel, @Inscription, @Disponibilite)";
-                
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.Parameters.AddWithValue("@Nom", nom);
-                    cmd.Parameters.AddWithValue("@Prenom", prenom);
-                    cmd.Parameters.AddWithValue("@Email", email);
-                    cmd.Parameters.AddWithValue("@MotDePasse", motDePasse);
-                    cmd.Parameters.AddWithValue("@Tel", tel);
-                    cmd.Parameters.AddWithValue("@Inscription", dateInscription);
-                    cmd.Parameters.AddWithValue("@Disponibilite", disponibilite);
-
-                    int result = cmd.ExecuteNonQuery();
-
-                    if (result > 0)
-                    {
-                        Console.WriteLine("Livreur créé avec succès !");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Échec de la création du livreur.");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AfficherMessageErreur($"Erreur : {ex.Message}");
-            }
-        }
-
+        #region Méthodes supplémentaires
+        
         static void ListerClients(bool pauseAfter = true)
         {
             Console.Clear();
@@ -4859,7 +3650,7 @@ namespace Projet_problème_scientifique_info
         /// Affiche un titre encadré avec une couleur bleue pour le mettre en valeur (grâce à System.ConsoleColor), suivi d'une ligne de séparation adaptée à sa longueur.
         /// Cette méthode est appelée à plusieurs reprises dans les différents menus afin d'obtenir un affichage plus clair.
         /// </summary>
-        static void AfficherTitre(string titre)
+        public static void AfficherTitre(string titre)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine($"--- {titre} ---");
@@ -4871,7 +3662,7 @@ namespace Projet_problème_scientifique_info
         /// <summary>
         /// Affiche un message d'erreur (entré en paramètre de la méthode) en rouge, suivi d'un autre message invitant l'utilisateur à appuyer sur une touche pour continuer.
         /// </summary>
-        static void AfficherMessageErreur(string message)
+        public static void AfficherMessageErreur(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(message);

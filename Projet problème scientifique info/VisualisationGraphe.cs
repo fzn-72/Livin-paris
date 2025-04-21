@@ -21,6 +21,7 @@ namespace Projet_problème_scientifique_info
         private Dictionary<T, Point> positionsNoeuds;
         private Random random;
 
+        #region Constructeur de la classe VisualisationGraphe
         /// <summary>
         /// Constructeur de la classe VisualisationGraphe. Il initialise les propriétés nécessaires pour la visualisation du graphe, 
         /// y compris le graphe lui-même, la largeur et la hauteur de l'image, ainsi que la génération des positions des nœuds en utilisant 
@@ -38,7 +39,10 @@ namespace Projet_problème_scientifique_info
             this.random = new Random();
             GenererPositionsOptimisees(); /// Utilisation de la méthode optimisée pour générer les positions
         }
+        #endregion
 
+
+        #region Attribution d'une position à un noeud
         /// <summary>
         /// Génère les positions des nœuds de manière aléatoire dans la zone définie par la largeur et la hauteur. 
         /// Chaque nœud est assigné une position (x, y) générée aléatoirement à l'intérieur de la zone de dessin.
@@ -52,7 +56,10 @@ namespace Projet_problème_scientifique_info
                 positionsNoeuds[noeud] = new Point(x, y);
             }
         }
+        #endregion
 
+
+        #region Génération des meilleures positions possibles pour les noeuds
         /// <summary>
         /// Génère les positions des nœuds en utilisant une disposition optimisée. 
         /// Cette méthode crée une instance de la classe DispositionGraphe pour calculer et attribuer les positions des nœuds en fonction de la taille du graphe et de la zone de dessin.
@@ -63,7 +70,10 @@ namespace Projet_problème_scientifique_info
             DispositionGraphe<T> disposition = new DispositionGraphe<T>(graphe, largeur, hauteur);
             positionsNoeuds = disposition.CalculerPositions();
         }
+        #endregion
 
+
+        #region Construction du graphe avec coloration et affichage au format PNG
         /// <summary>
         /// Dessine le graphe en créant une image à partir des positions des nœuds et des liens. 
         /// Les nœuds sont représentés par des cercles bleus, et les liens sont dessinés comme des lignes noires. 
@@ -98,5 +108,6 @@ namespace Projet_problème_scientifique_info
                 bitmap.Save(cheminFichier, ImageFormat.Png);
             }
         }
+        #endregion
     }
 }

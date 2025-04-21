@@ -405,6 +405,7 @@ using System.Drawing.Drawing2D;
 
 namespace Projet_problème_scientifique_info
 {
+
     /// <summary>
     /// Classe améliorée pour visualiser le réseau de métro parisien.
     /// Gère les stations uniques (basées sur le nom), l'espacement des nœuds via "nudging",
@@ -942,9 +943,9 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("Dessin des stations et noms terminé.");
         }
 
+        #region Coloation des liens au plus proche des couleurs officielles
         /// <summary>
         /// Retourne un dictionnaire associant les numéros de ligne (string) à leurs couleurs officielles (Color).
-        /// Peut être étendue pour inclure RER, Tramways, etc.
         /// </summary>
         private Dictionary<string, Color> GetCouleursLignes()
         {
@@ -978,7 +979,9 @@ namespace Projet_problème_scientifique_info
                 {"X", Color.Transparent}
             };
         }
+        #endregion
 
+        #region Détection importance d'une station 
         /// <summary>
         /// Détermine si une station est importante.
         /// </summary>
@@ -987,9 +990,10 @@ namespace Projet_problème_scientifique_info
         {
             var stationsImportantes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Chatelet", "Saint-Lazare", "Gare de Lyon", "Republique", "Montparnasse Bienvenue"
+                "Chatelet", "Saint-Lazare", "Gare de Lyon", "Republique", "Montparnasse-Bienvenue"
             };
             return stationsImportantes.Contains(nomStation);
         }
+        #endregion
     }
 }

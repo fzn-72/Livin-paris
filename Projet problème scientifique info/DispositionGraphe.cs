@@ -16,8 +16,9 @@ namespace Projet_problème_scientifique_info
         private int hauteur;
         private Dictionary<T, Point> positionsNoeuds;
 
+        #region Constructeur de la classe DispositionGraphe
         /// <summary>
-        /// Constructeur de la classe DispositionGraphe. Il initialise les propriétés nécessaires pour calculer la disposition des nœuds, 
+        /// Constructeur qui initialise les propriétés nécessaires pour calculer la disposition des nœuds, 
         /// en prenant le graphe, la largeur et la hauteur de la zone de dessin comme paramètres. Un dictionnaire vide est créé pour stocker les positions des nœuds.
         /// </summary>
         /// <param name="graphe"></param>
@@ -30,7 +31,9 @@ namespace Projet_problème_scientifique_info
             this.hauteur = hauteur;
             this.positionsNoeuds = new Dictionary<T, Point>();
         }
+        #endregion
 
+        #region Calcul des positions des noeuds 
         /// <summary>
         /// Calcule les positions des nœuds du graphe en les disposant de manière circulaire autour du centre de la zone de dessin. 
         /// Chaque nœud est positionné selon un angle calculé uniformément réparti autour du cercle. Les positions sont ensuite retournées sous forme de dictionnaire.
@@ -58,5 +61,6 @@ namespace Projet_problème_scientifique_info
 
             return positionsNoeuds;
         }
+        #endregion 
     }
 }

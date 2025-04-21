@@ -332,6 +332,7 @@ namespace Projet_problème_scientifique_info
         private string cheminFichierNoeuds;
         private string cheminFichierArcs;
 
+        #region Constructeur de la classe MetroGraphe qui fait appel à celui de la classe Graphe
         public MetroGraphe(string cheminFichierNoeuds, string cheminFichierArcs)
             : base() // Appelle le constructeur de Graphe<int>()
         {
@@ -339,21 +340,29 @@ namespace Projet_problème_scientifique_info
             this.cheminFichierArcs = cheminFichierArcs;
             this.stations = new Dictionary<int, Station>();
         }
+        #endregion
 
-        public Dictionary<int, Station> Stations => stations;
+        public Dictionary<int, Station> Stations
+        {
+            get
+            {
+                return stations;
+            }
+        }
 
+        #region Obtenir les stations et les regrouper par nom
         /// <summary>
         /// Retourne un dictionnaire groupant les stations par leur nom unique (ignorant la casse).
         /// </summary>
-        /// <returns>Dictionnaire avec Nom comme clé et Liste de Stations comme valeur.</returns>
         public Dictionary<string, List<Station>> GetStationsByName()
         {
             return stations.Values
                 .GroupBy(s => s.Nom.Trim(), StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
+        #endregion
 
-
+        #region Chargement des stations 
         public int ChargerStations()
         {
             // Utiliser CultureInfo.InvariantCulture pour forcer le point comme séparateur décimal
@@ -427,7 +436,9 @@ namespace Projet_problème_scientifique_info
                 return 0;
             }
         }
+        #endregion
 
+        #region Chargement des arcs
         public int ChargerArcs()
         {
             int nbLiensCrees = 0;
@@ -511,7 +522,9 @@ namespace Projet_problème_scientifique_info
                 return 0;
             }
         }
+        #endregion
 
+        #region Ajout de lien entre noeuds
         /// <summary>
         /// Ajoute un lien pondéré entre deux nœuds.
         /// </summary>
@@ -534,10 +547,9 @@ namespace Projet_problème_scientifique_info
             Noeud<int> n1 = new Noeud<int>(noeud1, noeud1);
             Noeud<int> n2 = new Noeud<int>(noeud2, noeud2);
             Lien<int> nouveauLien = new Lien<int>(n1, n2, poids);
-            LiensNoeuds.Add(nouveauLien);
-            
+            LiensNoeuds.Add(nouveauLien);  
         }
-
+        #endregion
 
         #region Algo de Welsh-Powell
         /// <summary>
@@ -548,7 +560,7 @@ namespace Projet_problème_scientifique_info
         /// <returns>Un dictionnaire associant chaque sommet à sa couleur (représentée par un entier).</returns>
         public Dictionary<int, int> ColorerGrapheWelshPowell()
         {
-            Console.WriteLine("Début de la coloration Welsh-Powell...");
+            Console.WriteLine("Début de la coloration de Welsh-Powell...");
 
             // Dictionnaire pour stocker la couleur de chaque sommet
             Dictionary<int, int> couleurs = new Dictionary<int, int>();

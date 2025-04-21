@@ -21,15 +21,12 @@ namespace Projet_problème_scientifique_info
 
         [TestMethod]
         public void TestLienInitialisation()
-        {
-           
+        {          
             var noeud1 = new Noeud<int>(1, 10);
             var noeud2 = new Noeud<int>(2, 20);
             int poids = 5;
-
           
             var lien = new Lien<int>(noeud1, noeud2, poids);
-
             
             Assert.AreEqual(noeud1, lien.Noeud1);
             Assert.AreEqual(noeud2, lien.Noeud2);
@@ -38,8 +35,7 @@ namespace Projet_problème_scientifique_info
 
         [TestMethod]
         public void TestStationToString()
-        {
-            
+        {     
             int id = 1;
             string ligne = "Ligne 1";
             string nom = "Station Test";
@@ -47,12 +43,10 @@ namespace Projet_problème_scientifique_info
             double latitude = 48.85;
             string commune = "Paris";
             string codeInsee = "75056";
-
-        
+       
             var station = new Station(id, ligne, nom, longitude, latitude, commune, codeInsee);
             string result = station.ToString();
-
-            
+          
             Assert.AreEqual($"Station {id}: {nom} (Ligne {ligne})", result);
         }
 
@@ -73,12 +67,10 @@ namespace Projet_problème_scientifique_info
 
         [TestMethod]
         public void TestConstructeurAvecNoeuds()
-        {
-            
+        {          
             int nbNoeuds = 5;
             Graphe<int> graphe = new Graphe<int>(nbNoeuds);
-
-            
+           
             Assert.AreEqual(nbNoeuds, graphe.ListeAdjacence.Count);
             Assert.AreEqual(nbNoeuds, graphe.MatriceAdjacence.GetLength(0));
         }

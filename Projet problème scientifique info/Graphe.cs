@@ -15,6 +15,7 @@ namespace Projet_problème_scientifique_info
         private int nbNoeuds;
         private List<Lien<T>> liensNoeuds;
 
+        #region Constructeur 
         /// <summary>
         /// Constructeur par défaut de la classe Graphe. Initialise un graphe vide.
         /// </summary>
@@ -23,10 +24,11 @@ namespace Projet_problème_scientifique_info
             listeAdjacence = new Dictionary<T, List<T>>();
             liensNoeuds = new List<Lien<T>>();
         }
+        #endregion
 
-        #region Autre constructeur
+        #region Constructeur clone
         /// <summary>
-        /// Constructeur de la classe Graphe. Initialise un graphe avec un nombre donné de nœuds.
+        /// Constructeur clone de la classe Graphe. Initialise un graphe avec un nombre donné de nœuds.
         /// Crée une liste d'adjacence vide, une matrice d'adjacence de dimensions appropriées, et une liste de liens entre nœuds.
         /// </summary>
         /// <param name="nbNoeuds">Nombre de nœuds dans le graphe.</param>
@@ -71,6 +73,7 @@ namespace Projet_problème_scientifique_info
             }
         }
 
+        #region Ajout de liens
         /// <summary>
         /// Ajoute un lien entre les nœuds noeud1 et noeud2 dans la structure du graphe.
         /// Vérifie et initialise les listes d'adjacence si nécessaire, puis ajoute la connexion en évitant les doublons.
@@ -109,7 +112,10 @@ namespace Projet_problème_scientifique_info
             Lien<T> nouveauLien = new Lien<T>(noeud1Obj, noeud2Obj);
             liensNoeuds.Add(nouveauLien);
         }
+        #endregion
 
+
+        #region Chargement liens depuis fichier
         /// <summary>
         /// Charge les liens du graphe depuis un fichier spécifié.
         /// Chaque ligne du fichier doit contenir deux entiers séparés par un espace, représentant deux nœuds à relier.
@@ -133,7 +139,10 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
+        #endregion
 
+
+        #region Parcours BFS 
         /// <summary>
         /// Effectue un parcours en largeur (BFS) dans le graphe à partir d'un sommet de départ spécifié.
         /// Explore tous les nœuds atteignables en partant du sommet donné, en parcourant chaque niveau de voisinage avant de passer au suivant.
@@ -166,7 +175,10 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
+        #endregion
 
+
+        #region Parcours DFS
         /// <summary>
         /// Effectue un parcours en profondeur (DFS) du graphe à partir d'un sommet donné.
         /// Les sommets sont visités dans l'ordre où ils sont rencontrés, et chaque sommet est marqué comme visité pour éviter les cycles.
@@ -204,7 +216,10 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
+        #endregion
 
+
+        #region Vérification de la connexité du grahe
         /// <summary>
         /// Vérifie si le graphe est connexe, c'est-à-dire si tous les sommets sont accessibles à partir de n'importe quel sommet.
         /// Utilise un parcours en largeur (BFS) pour explorer les sommets du graphe et vérifier si tous les sommets sont visités.
@@ -238,16 +253,16 @@ namespace Projet_problème_scientifique_info
 
             return visite.Count == listeAdjacence.Count;
         }
+        #endregion
+
+
+        #region Vérification cycle dans le graphe
 
         /// <summary>
         /// Vérifie si un cycle existe dans le graphe en utilisant une recherche en profondeur (DFS).
         /// Explore les nœuds du graphe en profondeur tout en suivant les arêtes. Si elle rencontre un nœud déjà visité
         /// qui n'est pas le parent immédiat du nœud courant, cela indique la présence d'un cycle.
         /// </summary>
-        /// <param name="noeud">Nœud actuel dans le parcours.</param>
-        /// <param name="parent">Parent du nœud actuel.</param>
-        /// <param name="visite">Dictionnaire des nœuds visités.</param>
-        /// <returns>True si un cycle est détecté, sinon False.</returns>
         private bool ContientCycleDFS(T noeud, T parent, Dictionary<T, bool> visite)
         {
             visite[noeud] = true;
@@ -267,6 +282,7 @@ namespace Projet_problème_scientifique_info
             }
             return false;
         }
+
 
         /// <summary>
         /// Vérifie si le graphe contient un cycle en utilisant une recherche en profondeur (DFS).
@@ -290,7 +306,10 @@ namespace Projet_problème_scientifique_info
             }
             return false;
         }
+        #endregion
 
+
+        #region Vérification autres propriétes du graphe
         /// <summary>
         /// Analyse les propriétés du graphe, telles que son ordre (nombre de sommets), sa taille (nombre d'arêtes),
         /// s'il est orienté et s'il est pondéré. Affiche ces informations dans la console.
@@ -353,10 +372,12 @@ namespace Projet_problème_scientifique_info
             }
             Console.WriteLine();
         }
+        #endregion
 
+
+        #region Tri des sommets 
         /// <summary>
-        /// Trie les sommets du graphe par ordre décroissant de degré.
-        /// Le degré d'un sommet est le nombre de connexions qu'il possède.
+        /// Trie les sommets du graphe par ordre décroissant de degré. Le degré d'un sommet est le nombre de connexions qu'il possède.
         /// </summary>
         /// <returns>Une liste des sommets triés par ordre décroissant de degré.</returns>
         public List<T> TrierSommetsParDegre()
@@ -373,5 +394,6 @@ namespace Projet_problème_scientifique_info
 
             return sommetsTries;
         }
+        #endregion
     }
 }

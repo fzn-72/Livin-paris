@@ -7,10 +7,7 @@ using System.Threading.Tasks;
 namespace Projet_problème_scientifique_info
 {
     /// <summary>
-    /// Un lien représente une connexion entre deux membres (noeuds) de l'association. Ainsi, dans cette classe, seuls deux noeuds sont initialisés, 
-    /// représentant deux membres différents de l'association. Un poids est aussi attribué à chaque lien. On suppose par défaut que ce poids est nul 
-    /// (graphe non pondéré). Le sujet indique que "Les relations entre les membres de l’association sont supposées réciproques". Ainsi, s'il existe 
-    /// un lien entre le membre A et le membre B, il y en a aussi un entre B et A; ce qui implique que le graphe représentant la situation sera non-orienté.
+    /// 
     /// </summary>
     public class Lien<T>
     {

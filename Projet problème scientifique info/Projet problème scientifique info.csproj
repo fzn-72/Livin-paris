@@ -106,11 +106,14 @@
     <Compile Include="CalculDistance.cs" />
     <Compile Include="GestionBDD.cs" />
     <Compile Include="Graphe.cs" />
-    <Compile Include="GrapheSkiaForm.cs" />
+    <Compile Include="DispositionGraphe.cs" />
+    <Compile Include="ModuleInfosAppli.cs" />
     <Compile Include="Lien.cs" />
     <Compile Include="MetroGraphe.cs" />
+    <Compile Include="ModuleProfil.cs" />
+    <Compile Include="ModuleStats.cs" />
     <Compile Include="Noeud.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="ModuleTrajets.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Station.cs" />
     <Compile Include="VisualisationGraphe.cs" />

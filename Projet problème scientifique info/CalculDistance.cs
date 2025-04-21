@@ -38,7 +38,6 @@ namespace Projet_problème_scientifique_info
             string station1 = Console.ReadLine();
             Console.Write("Station 2 : ");
             string station2 = Console.ReadLine();
-
             
             (double lat1, double long1) = AcquisitionCoordonnees(chemin, station1);
             (double lat2, double long2) = AcquisitionCoordonnees(chemin, station2);
@@ -571,9 +570,11 @@ namespace Projet_problème_scientifique_info
 
 
         #endregion
+
+
+        #region Lecture du fichier CSV et chargement des stations
         /// <summary>
-        /// Charge la liste des stations depuis le fichier CSV des noeuds
-        /// en ignorant les lignes mal formatées.
+        /// Charge la liste des stations depuis le fichier CSV des noeuds en ignorant les lignes mal formatées.
         /// </summary>
         private static List<Station> ChargerStationsDirectement(string cheminFichier)
         {
@@ -624,27 +625,29 @@ namespace Projet_problème_scientifique_info
             }
             return stations;
         }
+        #endregion
 
 
+        #region Recherche de station par son nom dans la liste (crée précédemment à partir du fichier) des stations
         /// <summary>
-        /// Trouve une station par son nom (recherche insensible à la casse)
-        /// dans la liste des stations chargées.
+        /// Trouve une station par son nom (recherche insensible à la casse) dans la liste des stations chargées.
         /// </summary>
         private static Station TrouverStation(List<Station> stations, string nom)
         {
             return stations.FirstOrDefault(s => s.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
         }
+        #endregion
 
+
+        #region Construction du graphe en entier
         /// <summary>
-        /// Construit le graphe complet (noeuds et liens) à partir des stations
-        /// et des connexions du fichier CSV des arcs.
+        /// Construit le graphe complet (noeuds et liens) à partir des stations et des connexions du fichier CSV des arcs.
         /// </summary>
         private static (List<Noeud<int>>, List<Lien<int>>) ConstruireGrapheComplet(List<Station> stations, string cheminFichierArcs)
         {
             var noeuds = new List<Noeud<int>>();
             var liens = new List<Lien<int>>();
             var mapIdToNoeud = new Dictionary<int, Noeud<int>>();
-
          
             foreach (var station in stations)
             {
@@ -652,8 +655,7 @@ namespace Projet_problème_scientifique_info
                 noeuds.Add(noeud);
                 mapIdToNoeud[station.Id] = noeud;
             }
-
-           
+        
             try
             {
                 string[] lignes = File.ReadAllLines(cheminFichierArcs);
@@ -672,7 +674,6 @@ namespace Projet_problème_scientifique_info
                         {
                             var noeud1 = mapIdToNoeud[id1];
                             var noeud2 = mapIdToNoeud[id2];
-
                            
                             var station1 = stations.Find(s => s.Id == id1);
                             var station2 = stations.Find(s => s.Id == id2);
@@ -722,15 +723,13 @@ namespace Projet_problème_scientifique_info
                         {
                             var noeud1 = mapIdToNoeud[station1.Id];
                             var noeud2 = mapIdToNoeud[station2.Id];
-
-                          
+                        
                             liens.Add(new Lien<int>(noeud1, noeud2, 100));
                         }
                     }
                 }
             }
-
-          
+         
             var stationsParLigne = new Dictionary<string, List<Station>>();
             foreach (var station in stations)
             {
@@ -754,11 +753,9 @@ namespace Projet_problème_scientifique_info
                     {
                         var noeud1 = mapIdToNoeud[station1.Id];
                         var noeud2 = mapIdToNoeud[station2.Id];
-
                         
                         double distance = Haversine(station1.Latitude, station1.Longitude, station2.Latitude, station2.Longitude);
                         int poids = Math.Max((int)(distance * 1000), 1);
-
                        
                         bool lienExiste = liens.Any(l =>
                             (l.Noeud1 == noeud1 && l.Noeud2 == noeud2) ||
@@ -771,13 +768,14 @@ namespace Projet_problème_scientifique_info
                     }
                 }
             }
-
             return (noeuds, liens);
         }
+        #endregion
 
+
+        #region Construction d'un graphe d'adjacence améliorant la vérification de la connectivité entre noeuds 
         /// <summary>
-        /// Construit un graphe d'adjacence à partir des noeuds et liens
-        /// pour faciliter les vérifications de connectivité.
+        /// Construit un graphe d'adjacence à partir des noeuds et liens pour faciliter les vérifications de connectivité.
         /// </summary>
         private static Dictionary<Noeud<int>, List<Noeud<int>>> ConstruireGrapheAdjacence(List<Noeud<int>> noeuds, List<Lien<int>> liens)
         {
@@ -793,13 +791,14 @@ namespace Projet_problème_scientifique_info
                 graphe[lien.Noeud1].Add(lien.Noeud2);
                 graphe[lien.Noeud2].Add(lien.Noeud1); 
             }
-
             return graphe;
         }
+        #endregion
 
+
+        #region Vérification de la connexion entre deux noeuds (parcours BFS)
         /// <summary>
-        /// Vérifie si deux noeuds sont connectés dans le graphe
-        /// en utilisant un parcours en largeur (BFS).
+        /// Vérifie si deux noeuds sont connectés dans le graphe en utilisant un parcours en largeur (BFS).
         /// </summary>
         private static bool VerifierConnectivite(Dictionary<Noeud<int>, List<Noeud<int>>> graphe, Noeud<int> depart, Noeud<int> arrivee)
         {
@@ -827,13 +826,14 @@ namespace Projet_problème_scientifique_info
                     }
                 }
             }
-
             return false;
         }
+        #endregion
 
+
+        #region Ajout de connexions pour bien relier les stations 
         /// <summary>
-        /// Ajoute des connexions supplémentaires au graphe pour assurer
-        /// la connectivité entre toutes les stations.
+        /// Ajoute des connexions supplémentaires au graphe pour assurer la connectivité entre toutes les stations.
         /// </summary>
         private static void AjouterConnexionsSupplementaires(List<Station> stations, List<Noeud<int>> noeuds, List<Lien<int>> liens, Dictionary<Noeud<int>, List<Noeud<int>>> grapheAdjacence)
         {
@@ -856,8 +856,7 @@ namespace Projet_problème_scientifique_info
                         {
                             var noeud1 = mapIdToNoeud[station1.Id];
                             var noeud2 = mapIdToNoeud[station2.Id];
-
-                           
+                         
                             if (!grapheAdjacence[noeud1].Contains(noeud2))
                             {
                                 double distance = Haversine(station1.Latitude, station1.Longitude, station2.Latitude, station2.Longitude);
@@ -872,7 +871,6 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-
             for (int i = 0; i < stations.Count; i++)
             {
                 for (int j = i + 1; j < stations.Count; j++)
@@ -884,12 +882,10 @@ namespace Projet_problème_scientifique_info
                     {
                         var noeud1 = mapIdToNoeud[station1.Id];
                         var noeud2 = mapIdToNoeud[station2.Id];
-
                     
                         if (!grapheAdjacence[noeud1].Contains(noeud2))
                         {
                             double distance = Haversine(station1.Latitude, station1.Longitude, station2.Latitude, station2.Longitude);
-
                          
                             if (distance < 0.5)
                             {
@@ -904,10 +900,12 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
+        #endregion
 
+
+        #region Affichage du chemin et coloration du graphe métro
         /// <summary>
-        /// Affiche le chemin trouvé entre deux stations avec des couleurs
-        /// différentes pour chaque ligne de métro et indique les changements.
+        /// Affiche le chemin trouvé entre deux stations avec des couleurs différentes pour chaque ligne de métro et indique les changements.
         /// </summary>
         private static void AfficherChemin(List<Noeud<int>> chemin, List<Station> stations)
         {
@@ -916,10 +914,8 @@ namespace Projet_problème_scientifique_info
                 Console.WriteLine("Chemin vide ou incomplet.");
                 return;
             }
-
          
             var stationsParId = stations.ToDictionary(s => s.Id);
-
             
             int nbStations = chemin.Count;
             int nbChangements = 0;
@@ -937,12 +933,10 @@ namespace Projet_problème_scientifique_info
                     lignePrecedente = station.Ligne;
                 }
             }
-
-         
+        
             Console.Clear();
             Console.WriteLine($"Le chemin le plus court comporte {nbStations} stations avec {nbChangements} changement(s) :\n");
-
-         
+        
             var couleursLignes = new Dictionary<string, ConsoleColor>
             {
                 {"1", ConsoleColor.Yellow},
@@ -963,12 +957,9 @@ namespace Projet_problème_scientifique_info
                 {"14", ConsoleColor.Magenta}
             };
 
-
             ConsoleColor couleurParDefaut = ConsoleColor.White;
-
-         
+        
             ConsoleColor couleurOriginale = Console.ForegroundColor;
-
     
             lignePrecedente = "";
 
@@ -976,8 +967,7 @@ namespace Projet_problème_scientifique_info
             {
                 int idStation = chemin[i].Id;
                 if (stationsParId.TryGetValue(idStation, out Station station))
-                {
-         
+                {      
                     if (station.Ligne != lignePrecedente)
                     {
                         if (couleursLignes.TryGetValue(station.Ligne, out ConsoleColor couleurLigne))
@@ -988,32 +978,26 @@ namespace Projet_problème_scientifique_info
                         {
                             Console.ForegroundColor = couleurParDefaut;
                         }
-
               
                         if (i > 0)
                         {
                             int idStationPrecedente = chemin[i - 1].Id;
                             if (stationsParId.TryGetValue(idStationPrecedente, out Station stationPrecedente))
                             {
-                
                                 Console.ForegroundColor = couleurLigne;
                                 Console.Write($"\n\n (Changement de la ligne {stationPrecedente.Ligne} à la {station.Ligne}) \n");
                             }
                         }
                     }
 
-        
                     Console.Write($"{station.Nom}");
 
-      
                     if (i < chemin.Count - 1)
                     {
                         Console.Write(" -> ");
                     }
 
-            
                     lignePrecedente = station.Ligne;
-
                 
                     if (couleursLignes.TryGetValue(lignePrecedente, out ConsoleColor couleurLigneSuivante))
                     {
@@ -1024,12 +1008,11 @@ namespace Projet_problème_scientifique_info
                         Console.ForegroundColor = couleurParDefaut;
                     }
                 }
-            }
-
-           
+            }         
             Console.ForegroundColor = couleurOriginale;
             Console.WriteLine();
         }
+        #endregion
 
     }
 }
