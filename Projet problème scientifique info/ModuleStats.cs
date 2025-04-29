@@ -1,27 +1,20 @@
 ﻿using MySql.Data.MySqlClient;
+using Projet_problème_scientifique_info;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data;
 
 namespace Projet_problème_scientifique_info
 {
-    public class ModuleStats
+    /// <summary>
+    /// Classe gérant les statistiques du système de livraison de repas
+    /// </summary>
+    internal class ModuleStats
     {
-
-        private static string utilisateurConnecteId = "";
-        private static string utilisateurConnecteNom = "";
-        private static string utilisateurConnectePrenom = "";
-        private static string utilisateurConnecteType = "";
-
-        private static string connectionString = "Server=localhost;Database=livinparis;Uid=root;Pwd=REDACTED;";
-
-        #region Menu principal de la classe ModuleStats
+        private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
 
         /// <summary>
-        /// Gère le module statistiques : propose différentes analyses (livraisons, commandes, moyennes, etc.)
-        /// et exécute l'affichage correspondant selon le choix de l'utilisateur, jusqu’à retour au menu principal.
+        /// Affiche le menu principal des statistiques
         /// </summary>
         public static void MenuPrincipalStats()
         {
@@ -31,45 +24,838 @@ namespace Projet_problème_scientifique_info
             {
                 Console.Clear();
                 GestionBDD.AfficherTitre("MODULE STATISTIQUES");
-                Console.WriteLine("Choisissez une option :");
-                Console.WriteLine("1. Afficher le nombre de livraisons par cuisinier");
-                Console.WriteLine("2. Afficher les commandes par période");
-                Console.WriteLine("3. Afficher la moyenne des prix des commandes");
-                Console.WriteLine("4. Afficher la moyenne des comptes clients");
-                Console.WriteLine("5. Afficher les commandes par client selon la nationalité des plats et la période");
-                Console.WriteLine("6. Retour au menu principal");
 
-                Console.Write("\nVotre choix : ");
-                string choix = Console.ReadLine();
-
-                switch (choix)
+                // Afficher les options en fonction du type d'utilisateur
+                if (SessionUtilisateur.EstConnecte())
                 {
-                    case "1":
-                        AfficherLivraisonsParCuisinier();
-                        break;
-                    case "2":
-                        AfficherCommandesParPeriode();
-                        break;
-                    case "3":
-                        AfficherMoyennePrixCommandes();
-                        break;
-                    case "4":
-                        AfficherMoyenneComptesClients();
-                        break;
-                    case "5":
-                        AfficherCommandesParNationalite();
-                        break;
-                    case "6":
-                        continuer = false;
-                        break;
-                    default:
-                        GestionBDD.AfficherMessageErreur("Option invalide.");
-                        break;
+                    if (SessionUtilisateur.TypeUtilisateur == "client")
+                    {
+                        Console.WriteLine("1. Afficher l'historique de mes commandes");
+                        Console.WriteLine("2. Afficher mes plats préférés");
+                        Console.WriteLine("3. Afficher mes cuisiniers préférés");
+                        Console.WriteLine("4. Afficher mes dépenses totales");
+                        Console.WriteLine("5. Retour au menu principal");
+                        Console.Write("\nChoisissez une option : ");
+                        string choix = Console.ReadLine();
+
+                        switch (choix)
+                        {
+                            case "1":
+                                AfficherHistoriqueCommandesClient(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "2":
+                                AfficherPlatsPreferesClient(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "3":
+                                AfficherCuisiniersPreferesClient(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "4":
+                                AfficherDepensesTotalesClient(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "5":
+                                continuer = false;
+                                break;
+                            default:
+                                GestionBDD.AfficherMessageErreur("Option invalide.");
+                                break;
+                        }
+                    }
+                    else if (SessionUtilisateur.TypeUtilisateur == "cuisinier")
+                    {
+                        Console.WriteLine("1. Afficher mes commandes en cours");
+                        Console.WriteLine("2. Afficher mes plats les plus populaires");
+                        Console.WriteLine("3. Afficher mes évaluations");
+                        Console.WriteLine("4. Afficher mes clients fréquents");
+                        Console.WriteLine("5. Afficher mes statistiques de vente");
+                        Console.WriteLine("6. Retour au menu principal");
+                        Console.Write("\nChoisissez une option : ");
+                        string choix = Console.ReadLine();
+
+                        switch (choix)
+                        {
+                            case "1":
+                                AfficherCommandesEnCoursCuisinier(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "2":
+                                AfficherPlatsPopulairesCuisinier(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "3":
+                                AfficherEvaluationsCuisinier(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "4":
+                                AfficherClientsFrequentsCuisinier(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "5":
+                                AfficherStatistiquesVenteCuisinier(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "6":
+                                continuer = false;
+                                break;
+                            default:
+                                GestionBDD.AfficherMessageErreur("Option invalide.");
+                                break;
+                        }
+                    }
+                    else if (SessionUtilisateur.TypeUtilisateur == "admin")
+                    {
+                        Console.WriteLine("1. Afficher le nombre de livraisons par cuisinier");
+                        Console.WriteLine("2. Afficher les commandes selon une période de temps");
+                        Console.WriteLine("3. Afficher la moyenne des prix des commandes");
+                        Console.WriteLine("4. Afficher la moyenne des comptes clients");
+                        Console.WriteLine("5. Afficher les commandes par nationalité et période");
+                        Console.WriteLine("6. Afficher les meilleurs cuisiniers par période");
+                        Console.WriteLine("7. Afficher les statistiques globales");
+                        Console.WriteLine("8. Retour au menu principal");
+                        Console.Write("\nChoisissez une option : ");
+                        string choix = Console.ReadLine();
+
+                        switch (choix)
+                        {
+                            case "1":
+                                AfficherLivraisonsParCuisinier();
+                                break;
+                            case "2":
+                                AfficherCommandesParPeriode();
+                                break;
+                            case "3":
+                                AfficherMoyennePrixCommandes();
+                                break;
+                            case "4":
+                                AfficherMoyenneComptesClients();
+                                break;
+                            case "5":
+                                AfficherCommandesClientParNationaliteEtPeriode();
+                                break;
+                            case "6":
+                                AfficherMeilleursCuisiniersParPeriode();
+                                break;
+                            case "7":
+                                AfficherStatistiquesGlobales();
+                                break;
+                            case "8":
+                                continuer = false;
+                                break;
+                            default:
+                                GestionBDD.AfficherMessageErreur("Option invalide.");
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    // Utilisateur non connecté
+                    Console.WriteLine("1. Afficher les statistiques générales");
+                    Console.WriteLine("2. Afficher les meilleurs cuisiniers");
+                    Console.WriteLine("3. Afficher les plats les plus populaires");
+                    Console.WriteLine("4. Retour au menu principal");
+                    Console.Write("\nChoisissez une option : ");
+                    string choix = Console.ReadLine();
+
+                    switch (choix)
+                    {
+                        case "1":
+                            AfficherStatistiquesGenerales();
+                            break;
+                        case "2":
+                            AfficherMeilleursCuisiniers();
+                            break;
+                        case "3":
+                            AfficherPlatsPopulaires();
+                            break;
+                        case "4":
+                            continuer = false;
+                            break;
+                        default:
+                            GestionBDD.AfficherMessageErreur("Option invalide.");
+                            break;
+                    }
                 }
             }
         }
 
-        static void AfficherLivraisonsParCuisinier()
+        #region Statistiques pour clients
+
+        /// <summary>
+        /// Affiche l'historique des commandes d'un client
+        /// </summary>
+        private static void AfficherHistoriqueCommandesClient(string idClient)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("HISTORIQUE DE MES COMMANDES");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = @"
+                        SELECT c.id_commande, c.date_commande, c.prix_total_commande, c.statut_commande,
+                               COUNT(lc.id_ligne) AS nombre_plats
+                        FROM COMMANDE c
+                        JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+                        WHERE c.id_client = @IdClient
+                        GROUP BY c.id_commande, c.date_commande, c.prix_total_commande, c.statut_commande
+                        ORDER BY c.date_commande DESC";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@IdClient", idClient);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-5} {1,-20} {2,-15} {3,-15} {4,-10}",
+                                "ID", "Date", "Prix", "Statut", "Nb plats");
+                            Console.WriteLine(new string('-', 65));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_commande"].ToString();
+                                string date = reader.IsDBNull(reader.GetOrdinal("date_commande")) ? "N/A" : reader["date_commande"].ToString();
+                                string prix = reader.IsDBNull(reader.GetOrdinal("prix_total_commande")) ? "N/A" : reader["prix_total_commande"].ToString();
+                                string statut = reader.IsDBNull(reader.GetOrdinal("statut_commande")) ? "N/A" : reader["statut_commande"].ToString();
+                                int nombrePlats = reader.IsDBNull(reader.GetOrdinal("nombre_plats")) ? 0 : Convert.ToInt32(reader["nombre_plats"]);
+
+                                Console.WriteLine("{0,-5} {1,-20} {2,-15} {3,-15} {4,-10}",
+                                    id, date, prix, statut, nombrePlats);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Vous n'avez pas encore passé de commande.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les plats préférés d'un client (les plus commandés)
+        /// </summary>
+        private static void AfficherPlatsPreferesClient(string idClient)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MES PLATS PRÉFÉRÉS");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = @"
+                        SELECT p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat,
+                               COUNT(lc.id_ligne) AS nombre_commandes
+                        FROM COMMANDE c
+                        JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+                        JOIN PLAT p ON lc.id_plat = p.id_plat
+                        WHERE c.id_client = @IdClient
+                        GROUP BY p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat
+                        ORDER BY nombre_commandes DESC
+                        LIMIT 10";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@IdClient", idClient);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-5} {1,-25} {2,-15} {3,-15} {4,-10}",
+                                "ID", "Nom", "Type", "Nationalité", "Commandes");
+                            Console.WriteLine(new string('-', 70));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_plat"].ToString();
+                                string nom = reader.IsDBNull(reader.GetOrdinal("nom_plat")) ? "N/A" : reader["nom_plat"].ToString();
+                                string type = reader.IsDBNull(reader.GetOrdinal("type_plat")) ? "N/A" : reader["type_plat"].ToString();
+                                string nationalite = reader.IsDBNull(reader.GetOrdinal("nationalite_plat")) ? "N/A" : reader["nationalite_plat"].ToString();
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+
+                                Console.WriteLine("{0,-5} {1,-25} {2,-15} {3,-15} {4,-10}",
+                                    id, nom, type, nationalite, nombreCommandes);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Vous n'avez pas encore commandé de plats.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les cuisiniers préférés d'un client (les plus commandés)
+        /// </summary>
+        private static void AfficherCuisiniersPreferesClient(string idClient)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MES CUISINIERS PRÉFÉRÉS");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = @"
+                        SELECT cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier, cu.note_moyenne_cuisinier,
+                               COUNT(DISTINCT c.id_commande) AS nombre_commandes
+                        FROM COMMANDE c
+                        JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+                        JOIN PLAT p ON lc.id_plat = p.id_plat
+                        JOIN CUISINIER cu ON p.id_cuisinier = cu.id_cuisinier
+                        WHERE c.id_client = @IdClient
+                        GROUP BY cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier, cu.note_moyenne_cuisinier
+                        ORDER BY nombre_commandes DESC
+                        LIMIT 10";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@IdClient", idClient);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-5} {1,-30} {2,-10} {3,-10}",
+                                "ID", "Nom", "Note", "Commandes");
+                            Console.WriteLine(new string('-', 55));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_cuisinier"].ToString();
+                                string nom = "";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_cuisinier")) && !reader.IsDBNull(reader.GetOrdinal("prenom_cuisinier")))
+                                {
+                                    nom = reader["prenom_cuisinier"].ToString() + " " + reader["nom_cuisinier"].ToString();
+                                }
+                                string note = reader.IsDBNull(reader.GetOrdinal("note_moyenne_cuisinier")) ? "N/A" : reader["note_moyenne_cuisinier"].ToString();
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+
+                                Console.WriteLine("{0,-5} {1,-30} {2,-10} {3,-10}",
+                                    id, nom, note, nombreCommandes);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Vous n'avez pas encore commandé de plats.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les dépenses totales d'un client
+        /// </summary>
+        private static void AfficherDepensesTotalesClient(string idClient)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MES DÉPENSES TOTALES");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Dépenses totales
+                    string queryTotal = @"
+                        SELECT COUNT(id_commande) AS nombre_commandes,
+                               SUM(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS total_depenses
+                        FROM COMMANDE
+                        WHERE id_client = @IdClient";
+
+                    MySqlCommand cmdTotal = new MySqlCommand(queryTotal, connection);
+                    cmdTotal.Parameters.AddWithValue("@IdClient", idClient);
+
+                    using (MySqlDataReader reader = cmdTotal.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+                            decimal totalDepenses = reader.IsDBNull(reader.GetOrdinal("total_depenses")) ? 0 : Convert.ToDecimal(reader["total_depenses"]);
+
+                            Console.WriteLine($"Nombre total de commandes : {nombreCommandes}");
+                            Console.WriteLine($"Dépenses totales : {totalDepenses:F2} euros");
+                            Console.WriteLine($"Dépense moyenne par commande : {(nombreCommandes > 0 ? totalDepenses / nombreCommandes : 0):F2} euros");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucune donnée disponible.");
+                        }
+                    }
+
+                    // Dépenses par mois
+                    Console.WriteLine("\nDépenses par mois :");
+                    string queryMois = @"
+                        SELECT DATE_FORMAT(date_commande, '%Y-%m') AS mois,
+                               COUNT(id_commande) AS nombre_commandes,
+                               SUM(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS total_depenses
+                        FROM COMMANDE
+                        WHERE id_client = @IdClient
+                        GROUP BY mois
+                        ORDER BY mois DESC
+                        LIMIT 12";
+
+                    MySqlCommand cmdMois = new MySqlCommand(queryMois, connection);
+                    cmdMois.Parameters.AddWithValue("@IdClient", idClient);
+
+                    using (MySqlDataReader reader = cmdMois.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-10} {1,-15} {2,-15}",
+                                "Mois", "Commandes", "Dépenses (euros)");
+                            Console.WriteLine(new string('-', 40));
+
+                            while (reader.Read())
+                            {
+                                string mois = reader.IsDBNull(reader.GetOrdinal("mois")) ? "N/A" : reader["mois"].ToString();
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+                                decimal totalDepenses = reader.IsDBNull(reader.GetOrdinal("total_depenses")) ? 0 : Convert.ToDecimal(reader["total_depenses"]);
+
+                                Console.WriteLine("{0,-10} {1,-15} {2,-15:F2}",
+                                    mois, nombreCommandes, totalDepenses);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucune donnée disponible par mois.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        #endregion
+
+        #region Statistiques pour cuisiniers
+
+        /// <summary>
+        /// Affiche les commandes en cours pour un cuisinier
+        /// </summary>
+        private static void AfficherCommandesEnCoursCuisinier(string idCuisinier)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MES COMMANDES EN COURS");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = @"
+                        SELECT c.id_commande, c.date_commande, c.statut_commande, c.prix_total_commande,
+                               cl.nom_client, cl.prenom_client,
+                               p.nom_plat, p.type_plat
+                        FROM COMMANDE c
+                        JOIN CLIENT cl ON c.id_client = cl.id_client
+                        JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+                        JOIN PLAT p ON lc.id_plat = p.id_plat
+                        WHERE p.id_cuisinier = @IdCuisinier
+                        AND c.statut_commande IN ('En préparation', 'En attente', 'Confirmée')
+                        ORDER BY c.date_commande DESC";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-5} {1,-20} {2,-15} {3,-15} {4,-25} {5,-25}",
+                                "ID", "Date", "Statut", "Prix", "Client", "Plat");
+                            Console.WriteLine(new string('-', 105));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_commande"].ToString();
+                                string date = reader.IsDBNull(reader.GetOrdinal("date_commande")) ? "N/A" : reader["date_commande"].ToString();
+                                string statut = reader.IsDBNull(reader.GetOrdinal("statut_commande")) ? "N/A" : reader["statut_commande"].ToString();
+                                string prix = reader.IsDBNull(reader.GetOrdinal("prix_total_commande")) ? "N/A" : reader["prix_total_commande"].ToString();
+
+                                string client = "N/A";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_client")) && !reader.IsDBNull(reader.GetOrdinal("prenom_client")))
+                                {
+                                    client = reader["prenom_client"].ToString() + " " + reader["nom_client"].ToString();
+                                }
+
+                                string plat = reader.IsDBNull(reader.GetOrdinal("nom_plat")) ? "N/A" : reader["nom_plat"].ToString();
+
+                                Console.WriteLine("{0,-5} {1,-20} {2,-15} {3,-15} {4,-25} {5,-25}",
+                                    id, date, statut, prix, client, plat);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Vous n'avez pas de commandes en cours.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les plats les plus populaires d'un cuisinier
+        /// </summary>
+        private static void AfficherPlatsPopulairesCuisinier(string idCuisinier)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MES PLATS LES PLUS POPULAIRES");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = @"
+                        SELECT p.id_plat, p.nom_plat, p.type_plat, p.prix_unitaire_plat,
+                               COUNT(lc.id_ligne) AS nombre_commandes
+                        FROM PLAT p
+                        JOIN LIGNE_COMMANDE lc ON p.id_plat = lc.id_plat
+                        WHERE p.id_cuisinier = @IdCuisinier
+                        GROUP BY p.id_plat, p.nom_plat, p.type_plat, p.prix_unitaire_plat
+                        ORDER BY nombre_commandes DESC
+                        LIMIT 10";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-5} {1,-25} {2,-15} {3,-15} {4,-10}",
+                                "ID", "Nom", "Type", "Prix", "Commandes");
+                            Console.WriteLine(new string('-', 70));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_plat"].ToString();
+                                string nom = reader.IsDBNull(reader.GetOrdinal("nom_plat")) ? "N/A" : reader["nom_plat"].ToString();
+                                string type = reader.IsDBNull(reader.GetOrdinal("type_plat")) ? "N/A" : reader["type_plat"].ToString();
+                                string prix = reader.IsDBNull(reader.GetOrdinal("prix_unitaire_plat")) ? "N/A" : reader["prix_unitaire_plat"].ToString();
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+
+                                Console.WriteLine("{0,-5} {1,-25} {2,-15} {3,-15} {4,-10}",
+                                    id, nom, type, prix, nombreCommandes);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucun de vos plats n'a encore été commandé.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les évaluations d'un cuisinier
+        /// </summary>
+        private static void AfficherEvaluationsCuisinier(string idCuisinier)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MES ÉVALUATIONS");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Afficher la note moyenne
+                    string queryMoyenne = "SELECT note_moyenne_cuisinier FROM CUISINIER WHERE id_cuisinier = @IdCuisinier";
+                    MySqlCommand cmdMoyenne = new MySqlCommand(queryMoyenne, connection);
+                    cmdMoyenne.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
+
+                    object noteMoyenne = cmdMoyenne.ExecuteScalar();
+                    if (noteMoyenne != null && !Convert.IsDBNull(noteMoyenne))
+                    {
+                        Console.WriteLine($"Votre note moyenne : {noteMoyenne}/10\n");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Vous n'avez pas encore reçu d'évaluations.\n");
+                    }
+
+                    // Afficher les évaluations détaillées
+                    string query = @"
+                         SELECT e.id_evaluation, e.note_evaluation, e.commentaire_evaluation, e.date_evaluation,
+                                c.nom_client, c.prenom_client
+                         FROM EVALUATION e
+                         JOIN effectue ef ON e.id_evaluation = ef.id_evaluation
+                         JOIN CLIENT c ON ef.id_client = c.id_client
+                         JOIN reçoit r ON e.id_evaluation = r.id_evaluation
+                         WHERE r.id_cuisinier = @IdCuisinier
+                         ORDER BY e.date_evaluation DESC";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("Évaluations détaillées :");
+                            Console.WriteLine(new string('-', 80));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_evaluation"].ToString();
+                                int note = reader.IsDBNull(reader.GetOrdinal("note_evaluation")) ? 0 : Convert.ToInt32(reader["note_evaluation"]);
+                                string commentaire = reader.IsDBNull(reader.GetOrdinal("commentaire_evaluation")) ? "" : reader["commentaire_evaluation"].ToString();
+                                string date = reader.IsDBNull(reader.GetOrdinal("date_evaluation")) ? "N/A" : reader["date_evaluation"].ToString();
+
+                                string client = "Client anonyme";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_client")) && !reader.IsDBNull(reader.GetOrdinal("prenom_client")))
+                                {
+                                    client = reader["prenom_client"].ToString() + " " + reader["nom_client"].ToString();
+                                }
+
+                                Console.WriteLine($"Évaluation #{id} - {date}");
+                                Console.WriteLine($"Client : {client}");
+                                Console.WriteLine($"Note : {note}/10");
+                                Console.WriteLine($"Commentaire : {commentaire}");
+                                Console.WriteLine(new string('-', 80));
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Vous n'avez pas encore reçu d'évaluations détaillées.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les clients fréquents d'un cuisinier
+        /// </summary>
+        private static void AfficherClientsFrequentsCuisinier(string idCuisinier)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MES CLIENTS FRÉQUENTS");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = @"
+                        SELECT cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client,
+                               COUNT(DISTINCT c.id_commande) AS nombre_commandes
+                        FROM CLIENT cl
+                        JOIN COMMANDE c ON cl.id_client = c.id_client
+                        JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+                        JOIN PLAT p ON lc.id_plat = p.id_plat
+                        WHERE p.id_cuisinier = @IdCuisinier
+                        GROUP BY cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client
+                        ORDER BY nombre_commandes DESC
+                        LIMIT 10";
+
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-5} {1,-30} {2,-30} {3,-10}",
+                                "ID", "Nom", "Email", "Commandes");
+                            Console.WriteLine(new string('-', 75));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_client"].ToString();
+                                string nom = "";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_client")) && !reader.IsDBNull(reader.GetOrdinal("prenom_client")))
+                                {
+                                    nom = reader["prenom_client"].ToString() + " " + reader["nom_client"].ToString();
+                                }
+                                string email = reader.IsDBNull(reader.GetOrdinal("email_client")) ? "N/A" : reader["email_client"].ToString();
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+
+                                Console.WriteLine("{0,-5} {1,-30} {2,-30} {3,-10}",
+                                    id, nom, email, nombreCommandes);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Vous n'avez pas encore de clients.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les statistiques de vente d'un cuisinier
+        /// </summary>
+        private static void AfficherStatistiquesVenteCuisinier(string idCuisinier)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MES STATISTIQUES DE VENTE");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Statistiques globales
+                    string queryGlobal = @"
+                        SELECT COUNT(DISTINCT c.id_commande) AS nombre_commandes,
+                               COUNT(DISTINCT lc.id_ligne) AS nombre_plats_vendus,
+                               SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS chiffre_affaires
+                        FROM COMMANDE c
+                        JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+                        JOIN PLAT p ON lc.id_plat = p.id_plat
+                        WHERE p.id_cuisinier = @IdCuisinier";
+
+                    MySqlCommand cmdGlobal = new MySqlCommand(queryGlobal, connection);
+                    cmdGlobal.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
+
+                    using (MySqlDataReader reader = cmdGlobal.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+                            int nombrePlatsVendus = reader.IsDBNull(reader.GetOrdinal("nombre_plats_vendus")) ? 0 : Convert.ToInt32(reader["nombre_plats_vendus"]);
+                            decimal chiffreAffaires = reader.IsDBNull(reader.GetOrdinal("chiffre_affaires")) ? 0 : Convert.ToDecimal(reader["chiffre_affaires"]);
+
+                            Console.WriteLine("Statistiques globales :");
+                            Console.WriteLine($"Nombre total de commandes : {nombreCommandes}");
+                            Console.WriteLine($"Nombre total de plats vendus : {nombrePlatsVendus}");
+                            Console.WriteLine($"Chiffre d'affaires total : {chiffreAffaires:F2} euros");
+                            Console.WriteLine($"Moyenne par commande : {(nombreCommandes > 0 ? chiffreAffaires / nombreCommandes : 0):F2} euros");
+                        }
+                    }
+
+                    // Statistiques par mois
+                    Console.WriteLine("\nStatistiques par mois :");
+                    string queryMois = @"
+                        SELECT DATE_FORMAT(c.date_commande, '%Y-%m') AS mois,
+                               COUNT(DISTINCT c.id_commande) AS nombre_commandes,
+                               COUNT(DISTINCT lc.id_ligne) AS nombre_plats_vendus,
+                               SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS chiffre_affaires
+                        FROM COMMANDE c
+                        JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+                        JOIN PLAT p ON lc.id_plat = p.id_plat
+                        WHERE p.id_cuisinier = @IdCuisinier
+                        GROUP BY mois
+                        ORDER BY mois DESC
+                        LIMIT 12";
+
+                    MySqlCommand cmdMois = new MySqlCommand(queryMois, connection);
+                    cmdMois.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
+
+                    using (MySqlDataReader reader = cmdMois.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-10} {1,-15} {2,-15} {3,-15}",
+                                "Mois", "Commandes", "Plats vendus", "Chiffre d'affaires (euros)");
+                            Console.WriteLine(new string('-', 55));
+
+                            while (reader.Read())
+                            {
+                                string mois = reader.IsDBNull(reader.GetOrdinal("mois")) ? "N/A" : reader["mois"].ToString();
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+                                int nombrePlatsVendus = reader.IsDBNull(reader.GetOrdinal("nombre_plats_vendus")) ? 0 : Convert.ToInt32(reader["nombre_plats_vendus"]);
+                                decimal chiffreAffaires = reader.IsDBNull(reader.GetOrdinal("chiffre_affaires")) ? 0 : Convert.ToDecimal(reader["chiffre_affaires"]);
+
+                                Console.WriteLine("{0,-10} {1,-15} {2,-15} {3,-15:F2}",
+                                    mois, nombreCommandes, nombrePlatsVendus, chiffreAffaires);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucune donnée disponible par mois.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        #endregion
+
+        #region Statistiques pour administrateurs
+
+        /// <summary>
+        /// Affiche le nombre de livraisons par cuisinier
+        /// </summary>
+        private static void AfficherLivraisonsParCuisinier()
         {
             Console.Clear();
             GestionBDD.AfficherTitre("NOMBRE DE LIVRAISONS PAR CUISINIER");
@@ -79,37 +865,40 @@ namespace Projet_problème_scientifique_info
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
-                    string query = @"
-                SELECT c.id_cuisinier, c.nom_cuisinier, c.prénom_cuisinier, 
-                       COUNT(p.ID_commande) AS nombre_livraisons,
-                       r.nom_resto
-                FROM CUISINIER c
-                LEFT JOIN PRÉPARE p ON c.id_cuisinier = p.id_cuisinier
-                LEFT JOIN COMMANDE cmd ON p.ID_commande = cmd.ID_commande
-                LEFT JOIN RÉCEPTIONNE re ON cmd.ID_commande = re.ID_commande
-                LEFT JOIN RESTAURANT r ON re.id_resto = r.id_resto
-                WHERE cmd.date_livraison IS NOT NULL
-                GROUP BY c.id_cuisinier, c.nom_cuisinier, c.prénom_cuisinier, r.nom_resto
-                ORDER BY nombre_livraisons DESC";
 
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    string requete = @"
+                        SELECT c.id_cuisinier, c.nom_cuisinier, c.prenom_cuisinier, 
+                               COUNT(DISTINCT lc.id_commande) AS nombre_livraisons
+                        FROM CUISINIER c
+                        JOIN PLAT p ON c.id_cuisinier = p.id_cuisinier
+                        JOIN LIGNE_COMMANDE lc ON p.id_plat = lc.id_plat
+                        JOIN COMMANDE cmd ON lc.id_commande = cmd.id_commande
+                        WHERE cmd.date_livraison IS NOT NULL
+                        GROUP BY c.id_cuisinier, c.nom_cuisinier, c.prenom_cuisinier
+                        ORDER BY nombre_livraisons DESC";
+
+                    MySqlCommand cmd = new MySqlCommand(requete, connection);
 
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.HasRows)
                         {
-                            Console.WriteLine("ID\tNom\t\tPrénom\t\tRestaurant\t\tNombre de livraisons");
-                            Console.WriteLine("-------------------------------------------------------------------------");
+                            Console.WriteLine("{0,-5} {1,-30} {2,-20}",
+                                "ID", "Nom", "Nombre de livraisons");
+                            Console.WriteLine(new string('-', 55));
 
                             while (reader.Read())
                             {
                                 string id = reader["id_cuisinier"].ToString();
-                                string nom = reader.IsDBNull(reader.GetOrdinal("nom_cuisinier")) ? "N/A" : reader["nom_cuisinier"].ToString();
-                                string prenom = reader.IsDBNull(reader.GetOrdinal("prénom_cuisinier")) ? "N/A" : reader["prénom_cuisinier"].ToString();
-                                string restaurant = reader.IsDBNull(reader.GetOrdinal("nom_resto")) ? "N/A" : reader["nom_resto"].ToString();
+                                string nom = "";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_cuisinier")) && !reader.IsDBNull(reader.GetOrdinal("prenom_cuisinier")))
+                                {
+                                    nom = reader["prenom_cuisinier"].ToString() + " " + reader["nom_cuisinier"].ToString();
+                                }
                                 int nombreLivraisons = reader.IsDBNull(reader.GetOrdinal("nombre_livraisons")) ? 0 : Convert.ToInt32(reader["nombre_livraisons"]);
 
-                                Console.WriteLine($"{id}\t{nom,-15}{prenom,-15}{restaurant,-20}{nombreLivraisons}");
+                                Console.WriteLine("{0,-5} {1,-30} {2,-20}",
+                                    id, nom, nombreLivraisons);
                             }
                         }
                         else
@@ -124,42 +913,353 @@ namespace Projet_problème_scientifique_info
                 GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
             }
 
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
 
-        static void AfficherCommandesParPeriode()
+        /// <summary>
+        /// Affiche les commandes selon une période de temps spécifiée par l'utilisateur
+        /// </summary>
+        private static void AfficherCommandesParPeriode()
         {
             Console.Clear();
             GestionBDD.AfficherTitre("COMMANDES PAR PÉRIODE");
 
-            Console.WriteLine("Choisissez une période :");
-            Console.WriteLine("1. Aujourd'hui");
-            Console.WriteLine("2. Cette semaine");
-            Console.WriteLine("3. Ce mois-ci");
-            Console.WriteLine("4. Période personnalisée");
-            Console.Write("\nVotre choix : ");
+            Console.WriteLine("Veuillez spécifier la période :");
+            Console.Write("Date de début (YYYY-MM-DD) : ");
+            string dateDebut = Console.ReadLine();
+            Console.Write("Date de fin (YYYY-MM-DD) : ");
+            string dateFin = Console.ReadLine();
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string requete = @"
+                        SELECT c.id_commande, c.date_commande, c.prix_total_commande, c.statut_commande,
+                               cl.nom_client, cl.prenom_client
+                        FROM COMMANDE c
+                        JOIN CLIENT cl ON c.id_client = cl.id_client
+                        WHERE c.date_commande BETWEEN @DateDebut AND @DateFin
+                        ORDER BY c.date_commande DESC";
+
+                    MySqlCommand cmd = new MySqlCommand(requete, connection);
+                    cmd.Parameters.AddWithValue("@DateDebut", dateDebut);
+                    cmd.Parameters.AddWithValue("@DateFin", dateFin);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-5} {1,-20} {2,-15} {3,-15} {4,-30}",
+                                "ID", "Date", "Prix", "Statut", "Client");
+                            Console.WriteLine(new string('-', 85));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_commande"].ToString();
+                                string date = reader.IsDBNull(reader.GetOrdinal("date_commande")) ? "N/A" : reader["date_commande"].ToString();
+                                string prix = reader.IsDBNull(reader.GetOrdinal("prix_total_commande")) ? "N/A" : reader["prix_total_commande"].ToString();
+                                string statut = reader.IsDBNull(reader.GetOrdinal("statut_commande")) ? "N/A" : reader["statut_commande"].ToString();
+
+                                string client = "N/A";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_client")) && !reader.IsDBNull(reader.GetOrdinal("prenom_client")))
+                                {
+                                    client = reader["prenom_client"].ToString() + " " + reader["nom_client"].ToString();
+                                }
+
+                                Console.WriteLine("{0,-5} {1,-20} {2,-15} {3,-15} {4,-30}",
+                                    id, date, prix, statut, client);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucune commande trouvée pour cette période.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche la moyenne des prix des commandes
+        /// </summary>
+        private static void AfficherMoyennePrixCommandes()
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MOYENNE DES PRIX DES COMMANDES");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string requete = @"
+                        SELECT AVG(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS moyenne_prix
+                        FROM COMMANDE";
+
+                    MySqlCommand cmd = new MySqlCommand(requete, connection);
+
+                    object result = cmd.ExecuteScalar();
+                    if (result != null && !Convert.IsDBNull(result))
+                    {
+                        decimal moyennePrix = Convert.ToDecimal(result);
+                        Console.WriteLine($"La moyenne des prix des commandes est de : {moyennePrix:F2} euros");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Aucune commande trouvée pour calculer la moyenne.");
+                    }
+
+                    // Moyenne par mois
+                    Console.WriteLine("\nMoyenne des prix par mois :");
+                    string requeteMois = @"
+                        SELECT DATE_FORMAT(date_commande, '%Y-%m') AS mois,
+                               COUNT(*) AS nombre_commandes,
+                               AVG(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS moyenne_prix
+                        FROM COMMANDE
+                        GROUP BY mois
+                        ORDER BY mois DESC
+                        LIMIT 12";
+
+                    MySqlCommand cmdMois = new MySqlCommand(requeteMois, connection);
+
+                    using (MySqlDataReader reader = cmdMois.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-10} {1,-15} {2,-15}",
+                                "Mois", "Nb commandes", "Moyenne (euros)");
+                            Console.WriteLine(new string('-', 40));
+
+                            while (reader.Read())
+                            {
+                                string mois = reader.IsDBNull(reader.GetOrdinal("mois")) ? "N/A" : reader["mois"].ToString();
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+                                decimal moyennePrix = reader.IsDBNull(reader.GetOrdinal("moyenne_prix")) ? 0 : Convert.ToDecimal(reader["moyenne_prix"]);
+
+                                Console.WriteLine("{0,-10} {1,-15} {2,-15:F2}",
+                                    mois, nombreCommandes, moyennePrix);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucune donnée disponible par mois.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche la moyenne des comptes clients (montant moyen dépensé par client)
+        /// </summary>
+        private static void AfficherMoyenneComptesClients()
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MOYENNE DES COMPTES CLIENTS");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string requete = @"
+                        SELECT cl.id_client, cl.nom_client, cl.prenom_client,
+                               SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS total_depense,
+                               COUNT(c.id_commande) AS nombre_commandes
+                        FROM CLIENT cl
+                        JOIN COMMANDE c ON cl.id_client = c.id_client
+                        GROUP BY cl.id_client, cl.nom_client, cl.prenom_client";
+
+                    MySqlCommand cmd = new MySqlCommand(requete, connection);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            decimal totalDepenses = 0;
+                            int nombreClients = 0;
+
+                            Console.WriteLine("{0,-5} {1,-30} {2,-15} {3,-15}",
+                                "ID", "Nom", "Total dépensé (euros)", "Nb commandes");
+                            Console.WriteLine(new string('-', 65));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_client"].ToString();
+                                string nom = "";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_client")) && !reader.IsDBNull(reader.GetOrdinal("prenom_client")))
+                                {
+                                    nom = reader["prenom_client"].ToString() + " " + reader["nom_client"].ToString();
+                                }
+                                decimal totalDepense = reader.IsDBNull(reader.GetOrdinal("total_depense")) ? 0 : Convert.ToDecimal(reader["total_depense"]);
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+
+                                totalDepenses += totalDepense;
+                                nombreClients++;
+
+                                Console.WriteLine("{0,-5} {1,-30} {2,-15:F2} {3,-15}",
+                                    id, nom, totalDepense, nombreCommandes);
+                            }
+
+                            if (nombreClients > 0)
+                            {
+                                decimal moyenneDepenses = totalDepenses / nombreClients;
+                                Console.WriteLine("\n------------------------------------------------------------------");
+                                Console.WriteLine($"Moyenne des dépenses par client : {moyenneDepenses:F2} euros");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucun client avec des commandes trouvé.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les commandes d'un client selon la nationalité des plats et la période
+        /// </summary>
+        private static void AfficherCommandesClientParNationaliteEtPeriode()
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("COMMANDES PAR NATIONALITÉ ET PÉRIODE");
+
+            Console.Write("ID du client : ");
+            string idClient = Console.ReadLine();
+
+            Console.Write("Nationalité du plat (laisser vide pour toutes) : ");
+            string nationalite = Console.ReadLine();
+
+            Console.WriteLine("Période :");
+            Console.Write("Date de début (YYYY-MM-DD) : ");
+            string dateDebut = Console.ReadLine();
+            Console.Write("Date de fin (YYYY-MM-DD) : ");
+            string dateFin = Console.ReadLine();
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string requete = @"
+                        SELECT c.id_commande, c.date_commande, c.prix_total_commande, c.statut_commande,
+                               p.nom_plat, p.nationalite_plat, p.type_plat
+                        FROM COMMANDE c
+                        JOIN CLIENT cl ON c.id_client = cl.id_client
+                        JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+                        JOIN PLAT p ON lc.id_plat = p.id_plat
+                        WHERE cl.id_client = @IdClient
+                        AND c.date_commande BETWEEN @DateDebut AND @DateFin";
+
+                    if (!string.IsNullOrWhiteSpace(nationalite))
+                    {
+                        requete += " AND p.nationalite_plat = @Nationalite";
+                    }
+
+                    requete += " ORDER BY c.date_commande DESC";
+
+                    MySqlCommand cmd = new MySqlCommand(requete, connection);
+                    cmd.Parameters.AddWithValue("@IdClient", idClient);
+                    cmd.Parameters.AddWithValue("@DateDebut", dateDebut);
+                    cmd.Parameters.AddWithValue("@DateFin", dateFin);
+
+                    if (!string.IsNullOrWhiteSpace(nationalite))
+                    {
+                        cmd.Parameters.AddWithValue("@Nationalite", nationalite);
+                    }
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-5} {1,-20} {2,-25} {3,-15} {4,-15} {5,-15}",
+                                "ID", "Date", "Plat", "Type", "Nationalité", "Prix");
+                            Console.WriteLine(new string('-', 95));
+
+                            while (reader.Read())
+                            {
+                                string id = reader["id_commande"].ToString();
+                                string date = reader.IsDBNull(reader.GetOrdinal("date_commande")) ? "N/A" : reader["date_commande"].ToString();
+                                string nomPlat = reader.IsDBNull(reader.GetOrdinal("nom_plat")) ? "N/A" : reader["nom_plat"].ToString();
+                                string typePlat = reader.IsDBNull(reader.GetOrdinal("type_plat")) ? "N/A" : reader["type_plat"].ToString();
+                                string nationalitePlat = reader.IsDBNull(reader.GetOrdinal("nationalite_plat")) ? "N/A" : reader["nationalite_plat"].ToString();
+                                string prix = reader.IsDBNull(reader.GetOrdinal("prix_total_commande")) ? "N/A" : reader["prix_total_commande"].ToString();
+
+                                Console.WriteLine("{0,-5} {1,-20} {2,-25} {3,-15} {4,-15} {5,-15}",
+                                    id, date, nomPlat, typePlat, nationalitePlat, prix);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucune commande trouvée pour ce client avec ces critères.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les meilleurs cuisiniers par période (mois, année)
+        /// </summary>
+        private static void AfficherMeilleursCuisiniersParPeriode()
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MEILLEURS CUISINIERS PAR PÉRIODE");
+
+            Console.WriteLine("Choisissez la période :");
+            Console.WriteLine("1. Par mois");
+            Console.WriteLine("2. Par année");
+            Console.Write("Votre choix : ");
             string choixPeriode = Console.ReadLine();
 
-            string dateDebut = DateTime.Now.ToString("yyyy-MM-dd");
-            string dateFin = DateTime.Now.ToString("yyyy-MM-dd");
+            string formatDate = "";
+            string labelPeriode = "";
 
             switch (choixPeriode)
             {
-                case "1": // Aujourd'hui
+                case "1":
+                    formatDate = "%Y-%m";
+                    labelPeriode = "Mois";
                     break;
-                case "2": // Cette semaine
-                          // Premier jour de la semaine (lundi)
-                    dateDebut = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek + (int)DayOfWeek.Monday).ToString("yyyy-MM-dd");
-                    break;
-                case "3": // Ce mois-ci
-                    dateDebut = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("yyyy-MM-dd");
-                    break;
-                case "4": // Période personnalisée
-                    Console.Write("\nDate de début (YYYY-MM-DD) : ");
-                    dateDebut = Console.ReadLine();
-                    Console.Write("Date de fin (YYYY-MM-DD) : ");
-                    dateFin = Console.ReadLine();
+                case "2":
+                    formatDate = "%Y";
+                    labelPeriode = "Année";
                     break;
                 default:
                     GestionBDD.AfficherMessageErreur("Option invalide.");
@@ -172,55 +1272,63 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    string query = @"
-                SELECT c.ID_commande, c.nom, c.prix, c.quantite, c.date_commande,
-                       cl.nom AS nom_client, cl.prénom AS prenom_client,
-                       r.nom_resto
-                FROM COMMANDE c
-                JOIN PASSE p ON c.ID_commande = p.ID_commande
-                JOIN CLIENT cl ON p.id_client = cl.id_client
-                LEFT JOIN RÉCEPTIONNE re ON c.ID_commande = re.ID_commande
-                LEFT JOIN RESTAURANT r ON re.id_resto = r.id_resto
-                WHERE c.date_commande BETWEEN @DateDebut AND @DateFin
-                ORDER BY c.date_commande DESC";
+                    string requete = $@"
+                        SELECT DATE_FORMAT(c.date_commande, '{formatDate}') AS periode,
+                               cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier,
+                               COUNT(DISTINCT c.id_commande) AS nombre_commandes,
+                               SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS chiffre_affaires,
+                               AVG(cu.note_moyenne_cuisinier) AS note_moyenne
+                        FROM COMMANDE c
+                        JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+                        JOIN PLAT p ON lc.id_plat = p.id_plat
+                        JOIN CUISINIER cu ON p.id_cuisinier = cu.id_cuisinier
+                        GROUP BY periode, cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier
+                        ORDER BY periode DESC, chiffre_affaires DESC";
 
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@DateDebut", dateDebut);
-                    cmd.Parameters.AddWithValue("@DateFin", dateFin);
+                    MySqlCommand cmd = new MySqlCommand(requete, connection);
 
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.HasRows)
                         {
-                            Console.WriteLine($"\nCommandes du {dateDebut} au {dateFin} :");
-                            Console.WriteLine("ID\tDate\t\tPlat\t\tPrix\tQté\tClient\t\tRestaurant");
-                            Console.WriteLine("-------------------------------------------------------------------------");
+                            string periodeActuelle = "";
 
-                            int totalCommandes = 0;
                             while (reader.Read())
                             {
-                                string id = reader["ID_commande"].ToString();
-                                string nom = reader.IsDBNull(reader.GetOrdinal("nom")) ? "N/A" : reader["nom"].ToString();
-                                string prix = reader.IsDBNull(reader.GetOrdinal("prix")) ? "N/A" : reader["prix"].ToString();
-                                int quantite = reader.IsDBNull(reader.GetOrdinal("quantite")) ? 0 : Convert.ToInt32(reader["quantite"]);
+                                string periode = reader.IsDBNull(reader.GetOrdinal("periode")) ? "N/A" : reader["periode"].ToString();
 
-                                string nomClient = reader.IsDBNull(reader.GetOrdinal("nom_client")) ? "N/A" : reader["nom_client"].ToString();
-                                string prenomClient = reader.IsDBNull(reader.GetOrdinal("prenom_client")) ? "" : reader["prenom_client"].ToString();
-                                string client = $"{nomClient} {prenomClient}";
+                                if (periode != periodeActuelle)
+                                {
+                                    if (!string.IsNullOrEmpty(periodeActuelle))
+                                    {
+                                        Console.WriteLine("\n------------------------------------------------------------------");
+                                    }
 
-                                string restaurant = reader.IsDBNull(reader.GetOrdinal("nom_resto")) ? "N/A" : reader["nom_resto"].ToString();
-                                string dateCommande = reader.IsDBNull(reader.GetOrdinal("date_commande")) ?
-                                    "N/A" : Convert.ToDateTime(reader["date_commande"]).ToString("yyyy-MM-dd");
+                                    periodeActuelle = periode;
+                                    Console.WriteLine($"\n{labelPeriode} : {periode}");
+                                    Console.WriteLine("------------------------------------------------------------------");
+                                    Console.WriteLine("{0,-5} {1,-30} {2,-20} {3,-20} {4,-15}",
+                                        "ID", "Nom", "Nb commandes", "Chiffre d'affaires (euros)", "Note moyenne");
+                                    Console.WriteLine("------------------------------------------------------------------");
+                                }
 
-                                Console.WriteLine($"{id}\t{dateCommande}\t{nom,-15}{prix}\t{quantite}\t{client,-20}{restaurant}");
-                                totalCommandes++;
+                                string id = reader["id_cuisinier"].ToString();
+                                string nom = "";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_cuisinier")) && !reader.IsDBNull(reader.GetOrdinal("prenom_cuisinier")))
+                                {
+                                    nom = reader["prenom_cuisinier"].ToString() + " " + reader["nom_cuisinier"].ToString();
+                                }
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+                                decimal chiffreAffaires = reader.IsDBNull(reader.GetOrdinal("chiffre_affaires")) ? 0 : Convert.ToDecimal(reader["chiffre_affaires"]);
+                                decimal noteMoyenne = reader.IsDBNull(reader.GetOrdinal("note_moyenne")) ? 0 : Convert.ToDecimal(reader["note_moyenne"]);
+
+                                Console.WriteLine("{0,-5} {1,-30} {2,-20} {3,-20:F2} {4,-15:F1}",
+                                    id, nom, nombreCommandes, chiffreAffaires, noteMoyenne);
                             }
-
-                            Console.WriteLine($"\nNombre total de commandes : {totalCommandes}");
                         }
                         else
                         {
-                            Console.WriteLine($"Aucune commande trouvée pour la période du {dateDebut} au {dateFin}.");
+                            Console.WriteLine("Aucune donnée trouvée pour cette période.");
                         }
                     }
                 }
@@ -230,102 +1338,89 @@ namespace Projet_problème_scientifique_info
                 GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
             }
 
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
 
-        static void AfficherMoyennePrixCommandes()
+        /// <summary>
+        /// Affiche les statistiques globales du système
+        /// </summary>
+        private static void AfficherStatistiquesGlobales()
         {
             Console.Clear();
-            GestionBDD.AfficherTitre("MOYENNE DES PRIX DES COMMANDES");
+            GestionBDD.AfficherTitre("STATISTIQUES GLOBALES");
 
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
-                    string query = @"
-                    SELECT 
-                        AVG(CAST(SUBSTRING_INDEX(prix, ' ', 1) AS DECIMAL(10,2))) AS prix_moyen,
-                        MIN(CAST(SUBSTRING_INDEX(prix, ' ', 1) AS DECIMAL(10,2))) AS prix_min,
-                        MAX(CAST(SUBSTRING_INDEX(prix, ' ', 1) AS DECIMAL(10,2))) AS prix_max,
-                        COUNT(*) AS nombre_commandes,
-                        DATE_FORMAT(date_commande, '%Y-%m') AS mois
-                    FROM COMMANDE
-                    WHERE prix REGEXP '^[0-9]+(\\.[0-9]+)? '
-                    GROUP BY DATE_FORMAT(date_commande, '%Y-%m')
-                    ORDER BY mois DESC";
 
+                    // Statistiques générales
+                    string queryGeneral = @"
+                        SELECT 
+                            (SELECT COUNT(*) FROM CLIENT) AS nombre_clients,
+                            (SELECT COUNT(*) FROM CUISINIER) AS nombre_cuisiniers,
+                            (SELECT COUNT(*) FROM PLAT) AS nombre_plats,
+                            (SELECT COUNT(*) FROM COMMANDE) AS nombre_commandes,
+                            (SELECT SUM(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) FROM COMMANDE) AS chiffre_affaires_total";
 
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    MySqlCommand cmdGeneral = new MySqlCommand(queryGeneral, connection);
 
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (MySqlDataReader reader = cmdGeneral.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int nombreClients = reader.IsDBNull(reader.GetOrdinal("nombre_clients")) ? 0 : Convert.ToInt32(reader["nombre_clients"]);
+                            int nombreCuisiniers = reader.IsDBNull(reader.GetOrdinal("nombre_cuisiniers")) ? 0 : Convert.ToInt32(reader["nombre_cuisiniers"]);
+                            int nombrePlats = reader.IsDBNull(reader.GetOrdinal("nombre_plats")) ? 0 : Convert.ToInt32(reader["nombre_plats"]);
+                            int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+                            decimal chiffreAffairesTotal = reader.IsDBNull(reader.GetOrdinal("chiffre_affaires_total")) ? 0 : Convert.ToDecimal(reader["chiffre_affaires_total"]);
+
+                            Console.WriteLine("Statistiques générales :");
+                            Console.WriteLine($"Nombre de clients : {nombreClients}");
+                            Console.WriteLine($"Nombre de cuisiniers : {nombreCuisiniers}");
+                            Console.WriteLine($"Nombre de plats : {nombrePlats}");
+                            Console.WriteLine($"Nombre de commandes : {nombreCommandes}");
+                            Console.WriteLine($"Chiffre d'affaires total : {chiffreAffairesTotal:F2} euros");
+                            Console.WriteLine($"Moyenne par commande : {(nombreCommandes > 0 ? chiffreAffairesTotal / nombreCommandes : 0):F2} euros");
+                        }
+                    }
+
+                    // Statistiques par mois
+                    Console.WriteLine("\nStatistiques par mois :");
+                    string queryMois = @"
+                        SELECT DATE_FORMAT(date_commande, '%Y-%m') AS mois,
+                               COUNT(*) AS nombre_commandes,
+                               SUM(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS chiffre_affaires
+                        FROM COMMANDE
+                        GROUP BY mois
+                        ORDER BY mois DESC
+                        LIMIT 12";
+
+                    MySqlCommand cmdMois = new MySqlCommand(queryMois, connection);
+
+                    using (MySqlDataReader reader = cmdMois.ExecuteReader())
                     {
                         if (reader.HasRows)
                         {
-                            Console.WriteLine("Période\t\tNombre de commandes\tPrix moyen\tPrix minimum\tPrix maximum");
-                            Console.WriteLine("-------------------------------------------------------------------------");
-
-                            decimal prixMoyenGlobal = 0;
-                            int totalCommandes = 0;
+                            Console.WriteLine("{0,-10} {1,-15} {2,-20}",
+                                "Mois", "Nb commandes", "Chiffre d'affaires (euros)");
+                            Console.WriteLine(new string('-', 45));
 
                             while (reader.Read())
                             {
                                 string mois = reader.IsDBNull(reader.GetOrdinal("mois")) ? "N/A" : reader["mois"].ToString();
-                                decimal prixMoyen = reader.IsDBNull(reader.GetOrdinal("prix_moyen")) ? 0 : Convert.ToDecimal(reader["prix_moyen"]);
-                                decimal prixMin = reader.IsDBNull(reader.GetOrdinal("prix_min")) ? 0 : Convert.ToDecimal(reader["prix_min"]);
-                                decimal prixMax = reader.IsDBNull(reader.GetOrdinal("prix_max")) ? 0 : Convert.ToDecimal(reader["prix_max"]);
                                 int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
+                                decimal chiffreAffaires = reader.IsDBNull(reader.GetOrdinal("chiffre_affaires")) ? 0 : Convert.ToDecimal(reader["chiffre_affaires"]);
 
-                                Console.WriteLine($"{mois}\t\t{nombreCommandes}\t\t\t{prixMoyen:F2} euros\t{prixMin:F2} euros\t{prixMax:F2} euros");
-
-                                prixMoyenGlobal += prixMoyen * nombreCommandes;
-                                totalCommandes += nombreCommandes;
-                            }
-
-                            if (totalCommandes > 0)
-                            {
-                                prixMoyenGlobal /= totalCommandes;
-                                Console.WriteLine($"\nPrix moyen global : {prixMoyenGlobal:F2} euros");
-                                Console.WriteLine($"Nombre total de commandes : {totalCommandes}");
+                                Console.WriteLine("{0,-10} {1,-15} {2,-20:F2}",
+                                    mois, nombreCommandes, chiffreAffaires);
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Aucune commande trouvée.");
-                        }
-                    }
-
-                    // Afficher également la moyenne par type de plat
-                    Console.WriteLine("\n--- MOYENNE PAR TYPE DE PLAT ---");
-
-                    string queryByType = @"
-                    SELECT 
-                        type_plat,
-                        AVG(CAST(SUBSTRING_INDEX(prix, ' ', 1) AS DECIMAL(10,2))) AS prix_moyen,
-                        COUNT(*) AS nombre_commandes
-                    FROM COMMANDE
-                    WHERE type_plat IS NOT NULL AND prix REGEXP '^[0-9]+(\\.[0-9]+)? '
-                    GROUP BY type_plat
-                    ORDER BY prix_moyen DESC";
-
-                    MySqlCommand cmdByType = new MySqlCommand(queryByType, connection);
-
-                    using (MySqlDataReader reader = cmdByType.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            Console.WriteLine("Type de plat\t\tNombre de commandes\tPrix moyen");
-                            Console.WriteLine("----------------------------------------------------------");
-
-                            while (reader.Read())
-                            {
-                                string typePlat = reader.IsDBNull(reader.GetOrdinal("type_plat")) ? "Non spécifié" : reader["type_plat"].ToString();
-                                decimal prixMoyen = reader.IsDBNull(reader.GetOrdinal("prix_moyen")) ? 0 : Convert.ToDecimal(reader["prix_moyen"]);
-                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
-
-                                Console.WriteLine($"{typePlat,-20}\t{nombreCommandes}\t\t\t{prixMoyen:F2} euros");
-                            }
+                            Console.WriteLine("Aucune donnée disponible par mois.");
                         }
                     }
                 }
@@ -335,14 +1430,147 @@ namespace Projet_problème_scientifique_info
                 GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
             }
 
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
 
-        static void AfficherMoyenneComptesClients()
+
+        #endregion
+
+        #region Statistiques publiques
+
+        /// <summary>
+        /// Affiche les statistiques générales pour les utilisateurs non connectés
+        /// </summary>
+        private static void AfficherStatistiquesGenerales()
         {
             Console.Clear();
-            GestionBDD.AfficherTitre("MOYENNE DES COMPTES CLIENTS");
+            GestionBDD.AfficherTitre("STATISTIQUES GÉNÉRALES");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Nombre de plats disponibles par type
+                    string queryPlats = @"
+                        SELECT type_plat, COUNT(*) AS nombre_plats
+                        FROM PLAT
+                        WHERE portion_dispo_plat > 0
+                        GROUP BY type_plat
+                        ORDER BY nombre_plats DESC";
+
+                    MySqlCommand cmdPlats = new MySqlCommand(queryPlats, connection);
+
+                    Console.WriteLine("Plats disponibles par type :");
+                    using (MySqlDataReader reader = cmdPlats.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-20} {1,-10}",
+                                "Type", "Nombre");
+                            Console.WriteLine(new string('-', 30));
+
+                            while (reader.Read())
+                            {
+                                string type = reader.IsDBNull(reader.GetOrdinal("type_plat")) ? "N/A" : reader["type_plat"].ToString();
+                                int nombrePlats = reader.IsDBNull(reader.GetOrdinal("nombre_plats")) ? 0 : Convert.ToInt32(reader["nombre_plats"]);
+
+                                Console.WriteLine("{0,-20} {1,-10}",
+                                    type, nombrePlats);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucun plat disponible.");
+                        }
+                    }
+
+                    // Nombre de plats disponibles par nationalité
+                    Console.WriteLine("\nPlats disponibles par nationalité :");
+                    string queryNationalites = @"
+                        SELECT nationalite_plat, COUNT(*) AS nombre_plats
+                        FROM PLAT
+                        WHERE portion_dispo_plat > 0
+                        GROUP BY nationalite_plat
+                        ORDER BY nombre_plats DESC";
+
+                    MySqlCommand cmdNationalites = new MySqlCommand(queryNationalites, connection);
+
+                    using (MySqlDataReader reader = cmdNationalites.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-20} {1,-10}",
+                                "Nationalité", "Nombre");
+                            Console.WriteLine(new string('-', 30));
+
+                            while (reader.Read())
+                            {
+                                string nationalite = reader.IsDBNull(reader.GetOrdinal("nationalite_plat")) ? "N/A" : reader["nationalite_plat"].ToString();
+                                int nombrePlats = reader.IsDBNull(reader.GetOrdinal("nombre_plats")) ? 0 : Convert.ToInt32(reader["nombre_plats"]);
+
+                                Console.WriteLine("{0,-20} {1,-10}",
+                                    nationalite, nombrePlats);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucun plat disponible.");
+                        }
+                    }
+
+                    // Nombre de cuisiniers par spécialité
+                    Console.WriteLine("\nCuisiniers par spécialité :");
+                    string queryCuisiniers = @"
+                        SELECT specialite_cuisinier AS specialite, COUNT(*) AS nombre_cuisiniers
+                        FROM CUISINIER
+                        GROUP BY specialite_cuisinier
+                        ORDER BY nombre_cuisiniers DESC";
+
+                    MySqlCommand cmdCuisiniers = new MySqlCommand(queryCuisiniers, connection);
+
+                    using (MySqlDataReader reader = cmdCuisiniers.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            Console.WriteLine("{0,-20} {1,-10}",
+                                "Spécialité", "Nombre");
+                            Console.WriteLine(new string('-', 30));
+
+                            while (reader.Read())
+                            {
+                                string specialite = reader.IsDBNull(reader.GetOrdinal("specialite")) ? "N/A" : reader["specialite"].ToString();
+                                int nombreCuisiniers = reader.IsDBNull(reader.GetOrdinal("nombre_cuisiniers")) ? 0 : Convert.ToInt32(reader["nombre_cuisiniers"]);
+
+                                Console.WriteLine("{0,-20} {1,-10}",
+                                    specialite, nombreCuisiniers);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucun cuisinier disponible.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Affiche les meilleurs cuisiniers pour les utilisateurs non connectés
+        /// </summary>
+        private static void AfficherMeilleursCuisiniers()
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("MEILLEURS CUISINIERS");
 
             try
             {
@@ -351,20 +1579,13 @@ namespace Projet_problème_scientifique_info
                     connection.Open();
 
                     string query = @"
-                    SELECT 
-                        cl.id_client,
-                        cl.nom,
-                        cl.prénom,
-                        COUNT(c.ID_commande) AS nombre_commandes,
-                        SUM(CAST(SUBSTRING_INDEX(c.prix, ' ', 1) AS DECIMAL(10,2)) * c.quantite) AS montant_total,
-                        AVG(CAST(SUBSTRING_INDEX(c.prix, ' ', 1) AS DECIMAL(10,2)) * c.quantite) AS montant_moyen,
-                        MAX(c.date_commande) AS derniere_commande
-                    FROM CLIENT cl
-                    LEFT JOIN PASSE p ON cl.id_client = p.id_client
-                    LEFT JOIN COMMANDE c ON p.ID_commande = c.ID_commande
-                    WHERE c.prix REGEXP '^[0-9]+(\\.[0-9]+)? '
-                    GROUP BY cl.id_client, cl.nom, cl.prénom
-                    ORDER BY montant_total DESC";
+                        SELECT c.id_cuisinier, c.nom_cuisinier, c.prenom_cuisinier, c.dispo_cuisinier,
+                               c.note_moyenne_cuisinier, COUNT(p.id_plat) AS nombre_plats
+                        FROM CUISINIER c
+                        LEFT JOIN PLAT p ON c.id_cuisinier = p.id_cuisinier
+                        GROUP BY c.id_cuisinier, c.nom_cuisinier, c.prenom_cuisinier, c.dispo_cuisinier, c.note_moyenne_cuisinier
+                        ORDER BY c.note_moyenne_cuisinier DESC
+                        LIMIT 10";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -372,49 +1593,29 @@ namespace Projet_problème_scientifique_info
                     {
                         if (reader.HasRows)
                         {
-                            Console.WriteLine("ID\tNom\t\tPrénom\t\tNb Commandes\tTotal\t\tMoyenne\t\tDernière commande");
-                            Console.WriteLine("-------------------------------------------------------------------------------------------");
-
-                            decimal totalGlobal = 0;
-                            int totalClients = 0;
-                            int totalCommandes = 0;
+                            Console.WriteLine("{0,-5} {1,-30} {2,-20} {3,-10} {4,-10}",
+                                "ID", "Nom", "Spécialité", "Note", "Nb plats");
+                            Console.WriteLine(new string('-', 75));
 
                             while (reader.Read())
                             {
-                                string id = reader["id_client"].ToString();
-                                string nom = reader.IsDBNull(reader.GetOrdinal("nom")) ? "N/A" : reader["nom"].ToString();
-                                string prenom = reader.IsDBNull(reader.GetOrdinal("prénom")) ? "N/A" : reader["prénom"].ToString();
-                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
-                                decimal montantTotal = reader.IsDBNull(reader.GetOrdinal("montant_total")) ? 0 : Convert.ToDecimal(reader["montant_total"]);
-                                decimal montantMoyen = reader.IsDBNull(reader.GetOrdinal("montant_moyen")) ? 0 : Convert.ToDecimal(reader["montant_moyen"]);
-                                string derniereCommande = reader.IsDBNull(reader.GetOrdinal("derniere_commande")) ? "Jamais" : Convert.ToDateTime(reader["derniere_commande"]).ToString("yyyy-MM-dd");
-
-                                Console.WriteLine($"{id}\t{nom,-15}{prenom,-15}{nombreCommandes}\t\t{montantTotal:F2} euros\t{montantMoyen:F2} euros\t{derniereCommande}");
-
-                                if (nombreCommandes > 0)
+                                string id = reader["id_cuisinier"].ToString();
+                                string nom = "";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_cuisinier")) && !reader.IsDBNull(reader.GetOrdinal("prenom_cuisinier")))
                                 {
-                                    totalGlobal += montantTotal;
-                                    totalClients++;
-                                    totalCommandes += nombreCommandes;
+                                    nom = reader["prenom_cuisinier"].ToString() + " " + reader["nom_cuisinier"].ToString();
                                 }
-                            }
+                                string specialite = reader.IsDBNull(reader.GetOrdinal("dispo_cuisinier")) ? "N/A" : reader["dispo_cuisinier"].ToString();
+                                string note = reader.IsDBNull(reader.GetOrdinal("note_moyenne_cuisinier")) ? "N/A" : reader["note_moyenne_cuisinier"].ToString();
+                                int nombrePlats = reader.IsDBNull(reader.GetOrdinal("nombre_plats")) ? 0 : Convert.ToInt32(reader["nombre_plats"]);
 
-                            if (totalClients > 0)
-                            {
-                                decimal moyenneParClient = totalGlobal / totalClients;
-                                decimal moyenneParCommande = totalGlobal / totalCommandes;
-
-                                Console.WriteLine("\n--- STATISTIQUES GLOBALES ---");
-                                Console.WriteLine($"Montant total de toutes les commandes : {totalGlobal:F2} euros");
-                                Console.WriteLine($"Nombre total de clients actifs : {totalClients}");
-                                Console.WriteLine($"Nombre total de commandes : {totalCommandes}");
-                                Console.WriteLine($"Dépense moyenne par client : {moyenneParClient:F2} euros");
-                                Console.WriteLine($"Montant moyen par commande : {moyenneParCommande:F2} euros");
+                                Console.WriteLine("{0,-5} {1,-30} {2,-20} {3,-10} {4,-10}",
+                                    id, nom, specialite, note, nombrePlats);
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Aucun client trouvé.");
+                            Console.WriteLine("Aucun cuisinier trouvé.");
                         }
                     }
                 }
@@ -424,37 +1625,17 @@ namespace Projet_problème_scientifique_info
                 GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
             }
 
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
 
-        static void AfficherCommandesParNationalite()
+        /// <summary>
+        /// Affiche les plats les plus populaires pour les utilisateurs non connectés
+        /// </summary>
+        private static void AfficherPlatsPopulaires()
         {
             Console.Clear();
-            GestionBDD.AfficherTitre("COMMANDES PAR NATIONALITÉ DES PLATS");
-
-            Console.Write("ID du client (laisser vide pour tous les clients) : ");
-            string idClient = Console.ReadLine();
-
-            Console.Write("Nationalité/Type de cuisine (laisser vide pour tous les types) : ");
-            string typeCuisine = Console.ReadLine();
-
-            Console.Write("Date de début (YYYY-MM-DD, laisser vide pour toutes les dates) : ");
-            string dateDebut = Console.ReadLine();
-
-            Console.Write("Date de fin (YYYY-MM-DD, laisser vide pour aujourd'hui) : ");
-            string dateFin = Console.ReadLine();
-
-            // Valeurs par défaut
-            if (string.IsNullOrWhiteSpace(dateDebut))
-            {
-                dateDebut = "2000-01-01"; // Date passée par défaut
-            }
-
-            if (string.IsNullOrWhiteSpace(dateFin))
-            {
-                dateFin = DateTime.Now.ToString("yyyy-MM-dd"); // Aujourd'hui par défaut
-            }
+            GestionBDD.AfficherTitre("PLATS LES PLUS POPULAIRES");
 
             try
             {
@@ -463,154 +1644,49 @@ namespace Projet_problème_scientifique_info
                     connection.Open();
 
                     string query = @"
-                SELECT c.ID_commande, c.nom, c.prix, c.quantite, c.type_plat, c.date_commande,
-                       cl.id_client, cl.nom AS nom_client, cl.prénom AS prenom_client,
-                       r.nom_resto, r.type_resto
-                FROM COMMANDE c
-                JOIN PASSE p ON c.ID_commande = p.ID_commande
-                JOIN CLIENT cl ON p.id_client = cl.id_client
-                LEFT JOIN RÉCEPTIONNE re ON c.ID_commande = re.ID_commande
-                LEFT JOIN RESTAURANT r ON re.id_resto = r.id_resto
-                WHERE c.date_commande BETWEEN @DateDebut AND @DateFin";
-
-                    if (!string.IsNullOrWhiteSpace(idClient))
-                    {
-                        query += " AND cl.id_client = @IdClient";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(typeCuisine))
-                    {
-                        query += " AND (r.type_resto LIKE @TypeCuisine OR c.type_plat LIKE @TypeCuisine)";
-                    }
-
-                    query += " ORDER BY c.date_commande DESC";
+                        SELECT p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat, p.prix_unitaire_plat,
+                               COUNT(lc.id_ligne) AS nombre_commandes,
+                               c.nom_cuisinier, c.prenom_cuisinier
+                        FROM PLAT p
+                        JOIN LIGNE_COMMANDE lc ON p.id_plat = lc.id_plat
+                        JOIN CUISINIER c ON p.id_cuisinier = c.id_cuisinier
+                        GROUP BY p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat, p.prix_unitaire_plat,
+                                 c.nom_cuisinier, c.prenom_cuisinier
+                        ORDER BY nombre_commandes DESC
+                        LIMIT 10";
 
                     MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@DateDebut", dateDebut);
-                    cmd.Parameters.AddWithValue("@DateFin", dateFin);
-
-                    if (!string.IsNullOrWhiteSpace(idClient))
-                    {
-                        cmd.Parameters.AddWithValue("@IdClient", idClient);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(typeCuisine))
-                    {
-                        cmd.Parameters.AddWithValue("@TypeCuisine", "%" + typeCuisine + "%");
-                    }
 
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.HasRows)
                         {
-                            Console.WriteLine($"\nCommandes du {dateDebut} au {dateFin} :");
-                            Console.WriteLine("ID\tDate\t\tPlat\t\tType\t\tPrix\tQté\tClient\t\tRestaurant (Type)");
-                            Console.WriteLine("--------------------------------------------------------------------------------------------------");
-
-                            int totalCommandes = 0;
-                            decimal montantTotal = 0;
+                            Console.WriteLine("{0,-5} {1,-25} {2,-15} {3,-15} {4,-10} {5,-10} {6,-25}",
+                                "ID", "Nom", "Type", "Nationalité", "Prix", "Commandes", "Cuisinier");
+                            Console.WriteLine(new string('-', 105));
 
                             while (reader.Read())
                             {
-                                string id = reader["ID_commande"].ToString();
-                                string nom = reader.IsDBNull(reader.GetOrdinal("nom")) ? "N/A" : reader["nom"].ToString();
-                                string prix = reader.IsDBNull(reader.GetOrdinal("prix")) ? "N/A" : reader["prix"].ToString();
-                                int quantite = reader.IsDBNull(reader.GetOrdinal("quantite")) ? 0 : Convert.ToInt32(reader["quantite"]);
-                                string typePlat = reader.IsDBNull(reader.GetOrdinal("type_plat")) ? "N/A" : reader["type_plat"].ToString();
+                                string id = reader["id_plat"].ToString();
+                                string nom = reader.IsDBNull(reader.GetOrdinal("nom_plat")) ? "N/A" : reader["nom_plat"].ToString();
+                                string type = reader.IsDBNull(reader.GetOrdinal("type_plat")) ? "N/A" : reader["type_plat"].ToString();
+                                string nationalite = reader.IsDBNull(reader.GetOrdinal("nationalite_plat")) ? "N/A" : reader["nationalite_plat"].ToString();
+                                string prix = reader.IsDBNull(reader.GetOrdinal("prix_unitaire_plat")) ? "N/A" : reader["prix_unitaire_plat"].ToString();
+                                int nombreCommandes = reader.IsDBNull(reader.GetOrdinal("nombre_commandes")) ? 0 : Convert.ToInt32(reader["nombre_commandes"]);
 
-                                string idClientDb = reader["id_client"].ToString();
-                                string nomClient = reader.IsDBNull(reader.GetOrdinal("nom_client")) ? "N/A" : reader["nom_client"].ToString();
-                                string prenomClient = reader.IsDBNull(reader.GetOrdinal("prenom_client")) ? "" : reader["prenom_client"].ToString();
-                                string client = $"{idClientDb}: {nomClient} {prenomClient}";
-
-                                string restaurant = reader.IsDBNull(reader.GetOrdinal("nom_resto")) ? "N/A" : reader["nom_resto"].ToString();
-                                string typeResto = reader.IsDBNull(reader.GetOrdinal("type_resto")) ? "N/A" : reader["type_resto"].ToString();
-                                string dateCommande = reader.IsDBNull(reader.GetOrdinal("date_commande")) ?
-                                    "N/A" : Convert.ToDateTime(reader["date_commande"]).ToString("yyyy-MM-dd");
-
-                                Console.WriteLine($"{id}\t{dateCommande}\t{nom,-15}{typePlat,-15}{prix}\t{quantite}\t{client,-20}{restaurant} ({typeResto})");
-                                totalCommandes++;
-
-                                // Extraire le montant numérique du prix (si format texte)
-                                if (prix.Contains("euro"))
+                                string cuisinier = "N/A";
+                                if (!reader.IsDBNull(reader.GetOrdinal("nom_cuisinier")) && !reader.IsDBNull(reader.GetOrdinal("prenom_cuisinier")))
                                 {
-                                    decimal prixNum;
-                                    if (decimal.TryParse(prix.Split(' ')[0], out prixNum))
-                                    {
-                                        montantTotal += prixNum * quantite;
-                                    }
+                                    cuisinier = reader["prenom_cuisinier"].ToString() + " " + reader["nom_cuisinier"].ToString();
                                 }
-                                else
-                                {
-                                    decimal prixNum;
-                                    if (decimal.TryParse(prix, out prixNum))
-                                    {
-                                        montantTotal += prixNum * quantite;
-                                    }
-                                }
+
+                                Console.WriteLine("{0,-5} {1,-25} {2,-15} {3,-15} {4,-10} {5,-10} {6,-25}",
+                                    id, nom, type, nationalite, prix, nombreCommandes, cuisinier);
                             }
-
-                            Console.WriteLine($"\nNombre total de commandes : {totalCommandes}");
-                            Console.WriteLine($"Montant total : {montantTotal:F2} euros");
                         }
                         else
                         {
-                            Console.WriteLine("Aucune commande trouvée correspondant aux critères.");
-                        }
-                    }
-
-                    // Afficher un résumé par type de cuisine
-                    if (string.IsNullOrWhiteSpace(typeCuisine))
-                    {
-                        Console.WriteLine("\n--- RÉSUMÉ PAR TYPE DE CUISINE ---");
-
-                        string summaryQuery = @"
-                    SELECT 
-                        COALESCE(r.type_resto, c.type_plat, 'Non spécifié') AS type_cuisine,
-                        COUNT(c.ID_commande) AS nombre_commandes,
-                        SUM(c.quantite) AS quantite_totale
-                    FROM COMMANDE c
-                    JOIN PASSE p ON c.ID_commande = p.ID_commande
-                    LEFT JOIN RÉCEPTIONNE re ON c.ID_commande = re.ID_commande
-                    LEFT JOIN RESTAURANT r ON re.id_resto = r.id_resto
-                    WHERE c.date_commande BETWEEN @DateDebut AND @DateFin";
-
-                        if (!string.IsNullOrWhiteSpace(idClient))
-                        {
-                            summaryQuery += " AND p.id_client = @IdClient";
-                        }
-
-                        summaryQuery += " GROUP BY type_cuisine ORDER BY nombre_commandes DESC";
-
-                        MySqlCommand summaryCmd = new MySqlCommand(summaryQuery, connection);
-                        summaryCmd.Parameters.AddWithValue("@DateDebut", dateDebut);
-                        summaryCmd.Parameters.AddWithValue("@DateFin", dateFin);
-
-                        if (!string.IsNullOrWhiteSpace(idClient))
-                        {
-                            summaryCmd.Parameters.AddWithValue("@IdClient", idClient);
-                        }
-
-                        using (MySqlDataReader summaryReader = summaryCmd.ExecuteReader())
-                        {
-                            if (summaryReader.HasRows)
-                            {
-                                Console.WriteLine("Type de cuisine\t\tNombre de commandes\tQuantité totale");
-                                Console.WriteLine("----------------------------------------------------------");
-
-                                while (summaryReader.Read())
-                                {
-                                    string typedeCuisine = summaryReader["type_cuisine"].ToString();
-                                    int nombreCommandes = Convert.ToInt32(summaryReader["nombre_commandes"]);
-                                    int quantiteTotale = Convert.ToInt32(summaryReader["quantite_totale"]);
-
-                                    Console.WriteLine($"{typedeCuisine,-20}\t{nombreCommandes}\t\t\t{quantiteTotale}");
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("Aucune donnée de résumé disponible.");
-                            }
+                            Console.WriteLine("Aucun plat commandé trouvé.");
                         }
                     }
                 }
@@ -620,11 +1696,10 @@ namespace Projet_problème_scientifique_info
                 GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
             }
 
-            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu...");
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
 
         #endregion
-
     }
 }

@@ -72,7 +72,7 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public static void MenuPrincipalTrajets()
         {
-            Console.WriteLine("Que souhaitez-vous faire ? Choisissez une option (1, 2, 3 ou 4) : ");
+            Console.WriteLine("Que souhaitez-vous faire ? Choisissez une option (1, 2 ou 3) : ");
             Console.WriteLine("1. Construire et visualiser le graphe du métro");
             Console.WriteLine("2. Calculer la distance entre deux stations de métro");
             Console.WriteLine("3. Trouver le chemin le plus court entre deux stations");
