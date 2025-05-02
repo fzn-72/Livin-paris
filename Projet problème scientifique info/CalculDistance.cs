@@ -12,7 +12,7 @@ namespace Projet_problème_scientifique_info
     /// Classe pour calculer des distances entre stations et trouver les chemins les plus courts
     /// en utilisant différents algorithmes de graphes.
     /// </summary>
-    internal class CalculDistance
+    public class CalculDistance
     {
 
         #region Affichage de la distance entre deux stations 
@@ -1014,6 +1014,152 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
+
+        /// <summary>
+        /// Implémente l'algorithme de Kruskal pour trouver l'arbre couvrant minimal
+        /// d'un graphe, en sélectionnant les arêtes de poids minimal sans créer de cycle.
+        /// </summary>
+        public static List<Noeud<int>> KruskalArbreCouvranceMinimal(Noeud<int> depart, Noeud<int> arrivee, List<Noeud<int>> noeuds, List<Lien<int>> liens)
+        {
+            // Structure pour représenter les ensembles disjoints (Union-Find)
+            Dictionary<Noeud<int>, Noeud<int>> parent = new Dictionary<Noeud<int>, Noeud<int>>();
+            Dictionary<Noeud<int>, int> rang = new Dictionary<Noeud<int>, int>();
+
+            // Fonction pour créer un ensemble singleton
+            void MakeSet(Noeud<int> noeud)
+            {
+                parent[noeud] = noeud;
+                rang[noeud] = 0;
+            }
+
+            // Fonction pour trouver le représentant d'un ensemble (avec compression de chemin)
+            Noeud<int> Find(Noeud<int> noeud)
+            {
+                if (!parent[noeud].Equals(noeud))
+                    parent[noeud] = Find(parent[noeud]);
+                return parent[noeud];
+            }
+
+            // Fonction pour fusionner deux ensembles (union par rang)
+            void Union(Noeud<int> x, Noeud<int> y)
+            {
+                Noeud<int> racineX = Find(x);
+                Noeud<int> racineY = Find(y);
+
+                if (racineX.Equals(racineY))
+                    return;
+
+                if (rang[racineX] < rang[racineY])
+                    parent[racineX] = racineY;
+                else if (rang[racineX] > rang[racineY])
+                    parent[racineY] = racineX;
+                else
+                {
+                    parent[racineY] = racineX;
+                    rang[racineX]++;
+                }
+            }
+
+            // Initialisation des structures de données
+            var arbreCouvranceMinimal = new List<Lien<int>>();
+            var noeudsACM = new HashSet<Noeud<int>>();
+
+            // Initialiser chaque nœud comme un ensemble disjoint
+            foreach (var noeud in noeuds)
+            {
+                MakeSet(noeud);
+            }
+
+            // Trier les liens par poids croissant
+            var liensTriesParPoids = liens.OrderBy(l => l.Poids).ToList();
+
+            // Construire l'arbre couvrant minimal
+            foreach (var lien in liensTriesParPoids)
+            {
+                Noeud<int> racine1 = Find(lien.Noeud1);
+                Noeud<int> racine2 = Find(lien.Noeud2);
+
+                // Si l'ajout de ce lien ne crée pas de cycle
+                if (!racine1.Equals(racine2))
+                {
+                    arbreCouvranceMinimal.Add(lien);
+                    Union(lien.Noeud1, lien.Noeud2);
+
+                    // Ajouter les nœuds à l'ensemble des nœuds du MST
+                    noeudsACM.Add(lien.Noeud1);
+                    noeudsACM.Add(lien.Noeud2);
+                }
+            }
+
+            // Si le MST est vide ou si le départ ou l'arrivée ne sont pas dans le MST
+            if (noeudsACM.Count == 0 || !noeudsACM.Contains(depart) || !noeudsACM.Contains(arrivee))
+            {
+                Console.WriteLine("Impossible de construire un arbre couvrant minimal incluant les stations de départ et d'arrivée.");
+                return new List<Noeud<int>>();
+            }
+
+            // Construire un graphe d'adjacence à partir de l'ACM pour trouver le chemin
+            var grapheACM = new Dictionary<Noeud<int>, List<Noeud<int>>>();
+            foreach (var noeud in noeudsACM)
+            {
+                grapheACM[noeud] = new List<Noeud<int>>();
+            }
+
+            foreach (var lien in arbreCouvranceMinimal)
+            {
+                grapheACM[lien.Noeud1].Add(lien.Noeud2);
+                grapheACM[lien.Noeud2].Add(lien.Noeud1);
+            }
+
+            // Trouver le chemin entre départ et arrivée dans l'ACM en utilisant BFS
+            var chemin = new List<Noeud<int>>();
+            var visites = new HashSet<Noeud<int>>();
+            var predecesseurs = new Dictionary<Noeud<int>, Noeud<int>>();
+            var file = new Queue<Noeud<int>>();
+
+            file.Enqueue(depart);
+            visites.Add(depart);
+
+            bool cheminTrouve = false;
+            while (file.Count > 0 && !cheminTrouve)
+            {
+                var courant = file.Dequeue();
+
+                if (courant.Equals(arrivee))
+                {
+                    cheminTrouve = true;
+                    break;
+                }
+
+                foreach (var voisin in grapheACM[courant])
+                {
+                    if (!visites.Contains(voisin))
+                    {
+                        file.Enqueue(voisin);
+                        visites.Add(voisin);
+                        predecesseurs[voisin] = courant;
+                    }
+                }
+            }
+
+            // Reconstruire le chemin à partir des prédécesseurs
+            if (cheminTrouve)
+            {
+                var noeudActuel = arrivee;
+                while (!noeudActuel.Equals(depart))
+                {
+                    chemin.Insert(0, noeudActuel);
+                    noeudActuel = predecesseurs[noeudActuel];
+                }
+                chemin.Insert(0, depart);
+            }
+            else
+            {
+                Console.WriteLine("Aucun chemin n'a été trouvé entre ces deux stations dans l'arbre couvrant minimal.");
+            }
+
+            return chemin;
+        }
     }
 }
 
