@@ -179,6 +179,35 @@ namespace Projet_problème_scientifique_info
             }
         }
 
+        // Dans la classe ModuleCommande, ajoutez la méthode suivante :
+        /// <summary>
+        /// Valide si toutes les lignes de commande ont un cuisinier associé avant de marquer la commande comme livrée
+        /// </summary>
+        /// <param name="idCommande">ID de la commande</param>
+        /// <returns>True si toutes les lignes ont un cuisinier, sinon False</returns>
+        private static bool ToutesLignesOntCuisinier(string idCommande)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string requete = "SELECT COUNT(*) FROM LIGNE_COMMANDE WHERE id_commande = @IdCommande AND id_cuisinier IS NULL";
+                    MySqlCommand cmd = new MySqlCommand(requete, connection);
+                    cmd.Parameters.AddWithValue("@IdCommande", idCommande);
+
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+                    return count == 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur lors de la vérification des cuisiniers : {ex.Message}");
+                return false; // En cas d'erreur, on considère que la validation a échoué
+            }
+        }
+
         #region Fonctionnalités pour les clients
         /// <summary>
         /// Permet à un client de créer une nouvelle commande
@@ -855,6 +884,7 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
+
         //private static void EvaluerCuisinier()
         //{
         //    Console.Clear();
@@ -989,6 +1019,96 @@ namespace Projet_problème_scientifique_info
         //    Console.WriteLine("\nAppuyez sur une touche pour continuer...");
         //    Console.ReadKey();
         //} //Ancienne version : celle du moduleClient
+        
+        /// <summary>
+        /// Permet à un cuisinier de mettre à jour le statut d'une ligne de commande (appelé depuis le menu)
+        /// </summary>
+        private static void MettreAJourStatutLigneCommande()
+        {
+            // Vérifier que l'utilisateur est un cuisinier
+            if (!SessionUtilisateur.EstCuisinier())
+            {
+                SessionUtilisateur.AfficherMessageDroitsInsuffisants();
+                return;
+            }
+
+            Console.Clear();
+            GestionBDD.AfficherTitre("METTRE À JOUR LE STATUT D'UNE LIGNE DE COMMANDE");
+
+            Console.Write("Entrez l'ID de la ligne de commande : ");
+            string idLigne = Console.ReadLine();
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Vérifier si la ligne existe et appartient à un plat du cuisinier
+                    string requeteVerif = @"
+                SELECT lc.id_ligne, lc.id_plat, p.nom_plat, lc.statut_ligne
+                FROM LIGNE_COMMANDE lc
+                JOIN PLAT p ON lc.id_plat = p.id_plat
+                WHERE lc.id_ligne = @IdLigne 
+                AND lc.id_cuisinier = @IdCuisinier";
+
+                    MySqlCommand cmdVerif = new MySqlCommand(requeteVerif, connection);
+                    cmdVerif.Parameters.AddWithValue("@IdLigne", idLigne);
+                    cmdVerif.Parameters.AddWithValue("@IdCuisinier", SessionUtilisateur.IdUtilisateur);
+
+                    string nomPlat = "";
+                    string statutActuel = "";
+
+                    using (MySqlDataReader reader = cmdVerif.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            nomPlat = reader["nom_plat"] != DBNull.Value ? reader["nom_plat"].ToString() : "N/A";
+                            statutActuel = reader["statut_ligne"] != DBNull.Value ? reader["statut_ligne"].ToString() : "N/A";
+                        }
+                        else
+                        {
+                            reader.Close();
+                            GestionBDD.AfficherMessageErreur("Ligne de commande introuvable ou ne vous appartenant pas.");
+                            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                            Console.ReadKey();
+                            return;
+                        }
+                    }
+
+                    Console.WriteLine($"\nLigne de commande #{idLigne} - Plat : {nomPlat}");
+                    Console.WriteLine($"Statut actuel : {statutActuel}");
+
+                    Console.WriteLine("\nNouveau statut :");
+                    Console.WriteLine("1. En préparation");
+                    Console.WriteLine("2. Prêt pour livraison");
+                    Console.Write("Votre choix : ");
+                    string choixStatut = Console.ReadLine();
+
+                    string nouveauStatut = "";
+                    switch (choixStatut)
+                    {
+                        case "1": nouveauStatut = "En préparation"; break;
+                        case "2": nouveauStatut = "Prêt pour livraison"; break;
+                        default:
+                            GestionBDD.AfficherMessageErreur("Statut invalide.");
+                            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                            Console.ReadKey();
+                            return;
+                    }
+
+                    // Appeler la méthode avec les paramètres
+                    MettreAJourStatutLigneCommande(idLigne, nouveauStatut, connection);
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
 
         /// <summary>
         /// Modifie une évaluation existante
@@ -1300,10 +1420,11 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+        #region Ancienne MettreAJourStatutLigneCommande
         /// <summary>
         /// Permet à un cuisinier de mettre à jour le statut d'une commande
         /// </summary>
-        private static void MettreAJourStatutLigneCommande()
+        /*private static void MettreAJourStatutLigneCommande()
         {
             // Vérifier que l'utilisateur est un cuisinier
             if (!SessionUtilisateur.EstCuisinier())
@@ -1415,8 +1536,51 @@ namespace Projet_problème_scientifique_info
 
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
+        }*/
+        #endregion
+
+        public static void MettreAJourStatutLigneCommande(string idLigneCommande, string nouveauStatut, MySqlConnection connection = null)
+        {
+            bool connexionLocale = false;
+            MySqlConnection conn = connection;
+
+            try
+            {
+                if (conn == null)
+                {
+                    conn = new MySqlConnection("Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;");
+                    conn.Open();
+                    connexionLocale = true;
+                }
+
+                string requete = "UPDATE LIGNE_COMMANDE SET statut = @NouveauStatut WHERE id_ligne_commande = @IdLigneCommande";
+                MySqlCommand cmd = new MySqlCommand(requete, conn);
+                cmd.Parameters.AddWithValue("@NouveauStatut", nouveauStatut);
+                cmd.Parameters.AddWithValue("@IdLigneCommande", idLigneCommande);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la mise à jour du statut de la ligne de commande : {ex.Message}");
+            }
+            finally
+            {
+                if (connexionLocale && conn != null && conn.State == System.Data.ConnectionState.Open)
+                {
+                    conn.Close();
+                }
+            }
         }
 
+        private static bool ToutesLignesOntCuisinier(string idCommande, MySqlConnection connection)
+        {
+            string requete = "SELECT COUNT(*) FROM LIGNE_COMMANDE WHERE id_commande = @IdCommande AND id_cuisinier IS NULL";
+            MySqlCommand cmd = new MySqlCommand(requete, connection);
+            cmd.Parameters.AddWithValue("@IdCommande", idCommande);
+
+            int nombreLignesSansCuisinier = Convert.ToInt32(cmd.ExecuteScalar());
+            return nombreLignesSansCuisinier == 0;
+        }
 
         /// <summary>
         /// Affiche les évaluations reçues par le cuisinier connecté

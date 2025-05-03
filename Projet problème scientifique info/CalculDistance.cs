@@ -22,8 +22,8 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public static void DistanceEntreDeuxStations()
         {
-            //string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            //string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
 
             if (!File.Exists(chemin))
             {
@@ -422,10 +422,10 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public static void CheminLePlusCourt()
         {
-            string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            //string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            //string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
-            string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            //string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            //string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
 
 
             if (!File.Exists(cheminFichierNoeuds))

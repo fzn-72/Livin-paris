@@ -72,6 +72,7 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public static void MenuPrincipalTrajets()
         {
+            Console.Clear();
             Console.WriteLine("Que souhaitez-vous faire ? Choisissez une option (1, 2 ou 3) : ");
             Console.WriteLine("1. Construire et visualiser le graphe du métro");
             Console.WriteLine("2. Calculer la distance entre deux stations de métro");
@@ -146,10 +147,10 @@ namespace Projet_problème_scientifique_info
         static void ConstruireEtVisualiserGrapheMetro()
         {
 
-            string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
-            //string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            //string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            //string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            //string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
 
             try
             {
