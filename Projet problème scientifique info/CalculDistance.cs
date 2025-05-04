@@ -1021,18 +1021,18 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public static List<Noeud<int>> KruskalArbreCouvranceMinimal(Noeud<int> depart, Noeud<int> arrivee, List<Noeud<int>> noeuds, List<Lien<int>> liens)
         {
-            // Structure pour représenter les ensembles disjoints (Union-Find)
+            
             Dictionary<Noeud<int>, Noeud<int>> parent = new Dictionary<Noeud<int>, Noeud<int>>();
             Dictionary<Noeud<int>, int> rang = new Dictionary<Noeud<int>, int>();
 
-            // Fonction pour créer un ensemble singleton
+            
             void MakeSet(Noeud<int> noeud)
             {
                 parent[noeud] = noeud;
                 rang[noeud] = 0;
             }
 
-            // Fonction pour trouver le représentant d'un ensemble (avec compression de chemin)
+            
             Noeud<int> Find(Noeud<int> noeud)
             {
                 if (!parent[noeud].Equals(noeud))
@@ -1040,7 +1040,7 @@ namespace Projet_problème_scientifique_info
                 return parent[noeud];
             }
 
-            // Fonction pour fusionner deux ensembles (union par rang)
+            
             void Union(Noeud<int> x, Noeud<int> y)
             {
                 Noeud<int> racineX = Find(x);
@@ -1060,45 +1060,44 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            // Initialisation des structures de données
+            
             var arbreCouvranceMinimal = new List<Lien<int>>();
             var noeudsACM = new HashSet<Noeud<int>>();
 
-            // Initialiser chaque nœud comme un ensemble disjoint
             foreach (var noeud in noeuds)
             {
                 MakeSet(noeud);
             }
 
-            // Trier les liens par poids croissant
+            
             var liensTriesParPoids = liens.OrderBy(l => l.Poids).ToList();
 
-            // Construire l'arbre couvrant minimal
+            
             foreach (var lien in liensTriesParPoids)
             {
                 Noeud<int> racine1 = Find(lien.Noeud1);
                 Noeud<int> racine2 = Find(lien.Noeud2);
 
-                // Si l'ajout de ce lien ne crée pas de cycle
+                
                 if (!racine1.Equals(racine2))
                 {
                     arbreCouvranceMinimal.Add(lien);
                     Union(lien.Noeud1, lien.Noeud2);
 
-                    // Ajouter les nœuds à l'ensemble des nœuds du MST
+                    
                     noeudsACM.Add(lien.Noeud1);
                     noeudsACM.Add(lien.Noeud2);
                 }
             }
 
-            // Si le MST est vide ou si le départ ou l'arrivée ne sont pas dans le MST
+            
             if (noeudsACM.Count == 0 || !noeudsACM.Contains(depart) || !noeudsACM.Contains(arrivee))
             {
                 Console.WriteLine("Impossible de construire un arbre couvrant minimal incluant les stations de départ et d'arrivée.");
                 return new List<Noeud<int>>();
             }
 
-            // Construire un graphe d'adjacence à partir de l'ACM pour trouver le chemin
+            
             var grapheACM = new Dictionary<Noeud<int>, List<Noeud<int>>>();
             foreach (var noeud in noeudsACM)
             {
@@ -1111,7 +1110,7 @@ namespace Projet_problème_scientifique_info
                 grapheACM[lien.Noeud2].Add(lien.Noeud1);
             }
 
-            // Trouver le chemin entre départ et arrivée dans l'ACM en utilisant BFS
+            
             var chemin = new List<Noeud<int>>();
             var visites = new HashSet<Noeud<int>>();
             var predecesseurs = new Dictionary<Noeud<int>, Noeud<int>>();
@@ -1142,7 +1141,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            // Reconstruire le chemin à partir des prédécesseurs
+           
             if (cheminTrouve)
             {
                 var noeudActuel = arrivee;
