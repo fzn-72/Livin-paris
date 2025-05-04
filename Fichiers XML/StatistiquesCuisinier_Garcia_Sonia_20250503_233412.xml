@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StatistiquesCuisinier xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <IdCuisinier>C002</IdCuisinier>
+  <NomCuisinier>Garcia</NomCuisinier>
+  <PrenomCuisinier>Sonia</PrenomCuisinier>
+  <NoteMoyenne>7</NoteMoyenne>
+  <PlatsPopulaires>
+    <PlatPopulaire>
+      <IdPlat>P002</IdPlat>
+      <NomPlat>Paris-Brest</NomPlat>
+      <TypePlat>dessert</TypePlat>
+      <Prix>3,4 euros</Prix>
+      <NombreCommandes>1</NombreCommandes>
+    </PlatPopulaire>
+  </PlatsPopulaires>
+  <ClientsFrequents>
+    <ClientFrequent>
+      <IdClient>CL004</IdClient>
+      <NomClient>Petit</NomClient>
+      <PrenomClient>Nathan</PrenomClient>
+      <Email>nathan.petit@gmail.com</Email>
+      <NombreCommandes>1</NombreCommandes>
+    </ClientFrequent>
+  </ClientsFrequents>
+  <ChiffreAffaires>3.00</ChiffreAffaires>
+  <NombrePlatsVendus>1</NombrePlatsVendus>
+  <DateExport>2025-05-03T23:34:12.2391346+02:00</DateExport>
+</StatistiquesCuisinier>

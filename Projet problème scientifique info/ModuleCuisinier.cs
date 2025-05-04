@@ -15,9 +15,6 @@ namespace Projet_problème_scientifique_info
         /// Affiche le menu principal du module cuisinier avec les différentes options disponibles
         /// </summary>
         /// 
-        /// <summary>
-        /// Menu principal du cuisinier avec une structure améliorée
-        /// </summary>
         public static void MenuPrincipalCuisinier()
         {
             // Vérifier que l'utilisateur est un cuisinier ou un administrateur

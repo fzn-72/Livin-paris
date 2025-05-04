@@ -76,7 +76,9 @@ namespace Projet_problème_scientifique_info
 
             Console.Clear();
             Console.WriteLine("Vous avez été déconnecté.");
-            Console.WriteLine("Merci d'avoir utilisé Liv'InParis. À bientôt !");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine("Merci d'avoir utilisé Liv'InParis. À bientôt !", ConsoleColor.DarkYellow);
+            Console.ResetColor();
             Console.WriteLine("Appuyez sur une touche pour continuer...");
             Console.ReadKey();
         }

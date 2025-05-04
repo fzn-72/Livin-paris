@@ -34,7 +34,8 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine("2. Afficher mes plats préférés");
                         Console.WriteLine("3. Afficher mes cuisiniers préférés");
                         Console.WriteLine("4. Afficher mes dépenses totales");
-                        Console.WriteLine("5. Retour au menu principal");
+                        Console.WriteLine("5. Exporter mes statistiques au format XML");
+                        Console.WriteLine("6. Retour au menu principal");
                         Console.Write("\nChoisissez une option : ");
                         string choix = Console.ReadLine();
 
@@ -53,6 +54,9 @@ namespace Projet_problème_scientifique_info
                                 AfficherDepensesTotalesClient(SessionUtilisateur.IdUtilisateur);
                                 break;
                             case "5":
+                                ExporterStatistiquesClient(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "6":
                                 continuer = false;
                                 break;
                             default:
@@ -67,7 +71,8 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine("3. Afficher mes évaluations");
                         Console.WriteLine("4. Afficher mes clients fréquents");
                         Console.WriteLine("5. Afficher mes statistiques de vente");
-                        Console.WriteLine("6. Retour au menu principal");
+                        Console.WriteLine("6. Exporter mes statistiques au format XML");
+                        Console.WriteLine("7. Retour au menu principal");
                         Console.Write("\nChoisissez une option : ");
                         string choix = Console.ReadLine();
 
@@ -89,6 +94,9 @@ namespace Projet_problème_scientifique_info
                                 AfficherStatistiquesVenteCuisinier(SessionUtilisateur.IdUtilisateur);
                                 break;
                             case "6":
+                                ExporterStatistiquesCuisinier(SessionUtilisateur.IdUtilisateur);
+                                break;
+                            case "7":
                                 continuer = false;
                                 break;
                             default:
@@ -105,7 +113,8 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine("5. Afficher les commandes par nationalité et période");
                         Console.WriteLine("6. Afficher les meilleurs cuisiniers par période");
                         Console.WriteLine("7. Afficher les statistiques globales");
-                        Console.WriteLine("8. Retour au menu principal");
+                        Console.WriteLine("8. Exporter les statistiques globales au format XML");
+                        Console.WriteLine("9. Retour au menu principal");
                         Console.Write("\nChoisissez une option : ");
                         string choix = Console.ReadLine();
 
@@ -133,6 +142,9 @@ namespace Projet_problème_scientifique_info
                                 AfficherStatistiquesGlobales();
                                 break;
                             case "8":
+                                ExporterStatistiquesGlobales();
+                                break;
+                            case "9":
                                 continuer = false;
                                 break;
                             default:
@@ -147,7 +159,8 @@ namespace Projet_problème_scientifique_info
                     Console.WriteLine("1. Afficher les statistiques générales");
                     Console.WriteLine("2. Afficher les meilleurs cuisiniers");
                     Console.WriteLine("3. Afficher les plats les plus populaires");
-                    Console.WriteLine("4. Retour au menu principal");
+                    Console.WriteLine("4. Exporter les statistiques générales au format XML");
+                    Console.WriteLine("5. Retour au menu principal");
                     Console.Write("\nChoisissez une option : ");
                     string choix = Console.ReadLine();
 
@@ -163,6 +176,9 @@ namespace Projet_problème_scientifique_info
                             AfficherPlatsPopulaires();
                             break;
                         case "4":
+                            ExporterStatistiquesGlobales();
+                            break;
+                        case "5":
                             continuer = false;
                             break;
                         default:
@@ -219,6 +235,19 @@ namespace Projet_problème_scientifique_info
 
                                 Console.WriteLine("{0,-5} {1,-20} {2,-15} {3,-15} {4,-10}",
                                     id, date, prix, statut, nombrePlats);
+                            }
+
+                            // Ajouter l'option d'exportation XML
+                            Console.WriteLine("\nOptions :");
+                            Console.WriteLine("1. Exporter ces données au format XML");
+                            Console.WriteLine("2. Retour au menu précédent");
+
+                            Console.Write("\nVotre choix : ");
+                            string choix = Console.ReadLine();
+
+                            if (choix == "1")
+                            {
+                                ExporterStatistiquesClient(idClient);
                             }
                         }
                         else
@@ -448,6 +477,171 @@ namespace Projet_problème_scientifique_info
                             Console.WriteLine("Aucune donnée disponible par mois.");
                         }
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        // Ajouter cette méthode à la classe ModuleStats pour exporter les statistiques d'un client
+        private static void ExporterStatistiquesClient(string idClient)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("EXPORTER LES STATISTIQUES CLIENT");
+
+            try
+            {
+                // Créer l'objet de statistiques client
+                ExportStatistiques stats = new ExportStatistiques();
+                stats.IdClient = idClient;
+
+                // Récupérer les informations du client
+                string requeteClient = @"
+            SELECT nom_client, prenom_client, email_client
+            FROM CLIENT
+            WHERE id_client = @IdClient";
+
+                Dictionary<string, object> parametresClient = new Dictionary<string, object>
+                {
+                    { "@IdClient", idClient }
+                };
+
+                DataTable clientDetails = GestionBDD.ExecuterRequeteTable(requeteClient, parametresClient);
+
+                if (clientDetails != null && clientDetails.Rows.Count > 0)
+                {
+                    DataRow client = clientDetails.Rows[0];
+                    stats.NomClient = client["nom_client"] != DBNull.Value ? client["nom_client"].ToString() : "";
+                    stats.PrenomClient = client["prenom_client"] != DBNull.Value ? client["prenom_client"].ToString() : "";
+                    stats.Email = client["email_client"] != DBNull.Value ? client["email_client"].ToString() : "";
+                }
+
+                // Récupérer l'historique des commandes
+                string requeteCommandes = @"
+            SELECT c.id_commande, c.date_commande, c.prix_total_commande, c.statut_commande
+            FROM COMMANDE c
+            WHERE c.id_client = @IdClient
+            ORDER BY c.date_commande DESC";
+
+                DataTable commandes = GestionBDD.ExecuterRequeteTable(requeteCommandes, parametresClient);
+
+                if (commandes != null && commandes.Rows.Count > 0)
+                {
+                    stats.NombreCommandes = commandes.Rows.Count;
+                    decimal totalDepenses = 0;
+
+                    foreach (DataRow row in commandes.Rows)
+                    {
+                        CommandeExport cmd = new CommandeExport
+                        {
+                            IdCommande = row["id_commande"].ToString(),
+                            DateCommande = row["date_commande"] != DBNull.Value ? Convert.ToDateTime(row["date_commande"]) : DateTime.MinValue,
+                            PrixTotal = row["prix_total_commande"] != DBNull.Value ? row["prix_total_commande"].ToString() : "0",
+                            Statut = row["statut_commande"] != DBNull.Value ? row["statut_commande"].ToString() : ""
+                        };
+
+                        // Convertir le prix total en décimal pour le calcul des dépenses totales
+                        if (decimal.TryParse(cmd.PrixTotal.Replace(" euros", "").Replace(",", "."), out decimal prix))
+                        {
+                            totalDepenses += prix;
+                        }
+
+                        // Récupérer les lignes de commande
+                        string requeteLignes = @"
+                    SELECT lc.id_ligne, p.nom_plat, lc.prix_unitaire, lc.quantite, 
+                           cu.nom_cuisinier, cu.prenom_cuisinier
+                    FROM LIGNE_COMMANDE lc
+                    JOIN PLAT p ON lc.id_plat = p.id_plat
+                    JOIN CUISINIER cu ON p.id_cuisinier = cu.id_cuisinier
+                    WHERE lc.id_commande = @IdCommande";
+
+                        Dictionary<string, object> parametresLignes = new Dictionary<string, object>
+                        {
+                            { "@IdCommande", cmd.IdCommande }
+                        };
+
+                        DataTable lignes = GestionBDD.ExecuterRequeteTable(requeteLignes, parametresLignes);
+
+                        if (lignes != null && lignes.Rows.Count > 0)
+                        {
+                            foreach (DataRow ligne in lignes.Rows)
+                            {
+                                LigneCommandeExport lc = new LigneCommandeExport
+                                {
+                                    IdLigne = ligne["id_ligne"].ToString(),
+                                    NomPlat = ligne["nom_plat"] != DBNull.Value ? ligne["nom_plat"].ToString() : "",
+                                    PrixUnitaire = ligne["prix_unitaire"] != DBNull.Value ? ligne["prix_unitaire"].ToString() : "0",
+                                    Quantite = ligne["quantite"] != DBNull.Value ? Convert.ToInt32(ligne["quantite"]) : 0
+                                };
+
+                                // Construire le nom complet du cuisinier
+                                string nomCuisinier = ligne["prenom_cuisinier"] != DBNull.Value ? ligne["prenom_cuisinier"].ToString() : "";
+                                nomCuisinier += " " + (ligne["nom_cuisinier"] != DBNull.Value ? ligne["nom_cuisinier"].ToString() : "");
+                                lc.NomCuisinier = nomCuisinier.Trim();
+
+                                cmd.LignesCommande.Add(lc);
+                            }
+                        }
+
+                        stats.Commandes.Add(cmd);
+                    }
+
+                    stats.DepensesTotales = totalDepenses;
+                }
+
+                // Récupérer les plats préférés
+                string requetePlats = @"
+            SELECT p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat,
+                   COUNT(lc.id_ligne) AS nombre_commandes
+            FROM COMMANDE c
+            JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+            JOIN PLAT p ON lc.id_plat = p.id_plat
+            WHERE c.id_client = @IdClient
+            GROUP BY p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat
+            ORDER BY nombre_commandes DESC
+            LIMIT 10";
+
+                DataTable plats = GestionBDD.ExecuterRequeteTable(requetePlats, parametresClient);
+
+                if (plats != null && plats.Rows.Count > 0)
+                {
+                    foreach (DataRow plat in plats.Rows)
+                    {
+                        PlatPrefere pp = new PlatPrefere
+                        {
+                            IdPlat = plat["id_plat"].ToString(),
+                            NomPlat = plat["nom_plat"] != DBNull.Value ? plat["nom_plat"].ToString() : "",
+                            TypePlat = plat["type_plat"] != DBNull.Value ? plat["type_plat"].ToString() : "",
+                            Nationalite = plat["nationalite_plat"] != DBNull.Value ? plat["nationalite_plat"].ToString() : "",
+                            NombreCommandes = plat["nombre_commandes"] != DBNull.Value ? Convert.ToInt32(plat["nombre_commandes"]) : 0
+                        };
+
+                        stats.PlatsPreferees.Add(pp);
+                    }
+                }
+
+                // Exporter les statistiques en XML
+                string nomFichier = $"StatistiquesClient_{stats.NomClient}_{stats.PrenomClient}_{DateTime.Now:yyyyMMdd_HHmmss}.xml";
+                string cheminFichier = ExportXML.ExporterDonnees(stats, nomFichier);
+
+                if (cheminFichier != null)
+                {
+                    GestionBDD.AfficherMessageSucces($"Les statistiques ont été exportées avec succès dans le fichier : {cheminFichier}");
+
+                    Console.Write("\nVoulez-vous ouvrir le fichier XML ? (O/N) : ");
+                    if (Console.ReadLine().ToUpper() == "O")
+                    {
+                        ExportXML.OuvrirFichierXML(cheminFichier);
+                    }
+                }
+                else
+                {
+                    GestionBDD.AfficherMessageErreur("Erreur lors de l'exportation des statistiques.");
                 }
             }
             catch (Exception ex)
@@ -831,12 +1025,169 @@ namespace Projet_problème_scientifique_info
                                 Console.WriteLine("{0,-10} {1,-15} {2,-15} {3,-15:F2}",
                                     mois, nombreCommandes, nombrePlatsVendus, chiffreAffaires);
                             }
+
+                            // Ajouter l'option d'exportation XML
+                            Console.WriteLine("\nOptions :");
+                            Console.WriteLine("1. Exporter ces données au format XML");
+                            Console.WriteLine("2. Retour au menu précédent");
+
+                            Console.Write("\nVotre choix : ");
+                            string choix = Console.ReadLine();
+
+                            if (choix == "1")
+                            {
+                                ExporterStatistiquesCuisinier(idCuisinier);
+                            }
                         }
                         else
                         {
                             Console.WriteLine("Aucune donnée disponible par mois.");
                         }
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+
+        // Ajouter cette méthode à la classe ModuleStats pour exporter les statistiques d'un cuisinier
+        private static void ExporterStatistiquesCuisinier(string idCuisinier)
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("EXPORTER LES STATISTIQUES CUISINIER");
+
+            try
+            {
+                // Créer l'objet de statistiques cuisinier
+                StatistiquesCuisinier stats = new StatistiquesCuisinier();
+                stats.IdCuisinier = idCuisinier;
+
+                // Récupérer les informations du cuisinier
+                string requeteCuisinier = @"
+            SELECT nom_cuisinier, prenom_cuisinier, note_moyenne_cuisinier
+            FROM CUISINIER
+            WHERE id_cuisinier = @IdCuisinier";
+
+                Dictionary<string, object> parametresCuisinier = new Dictionary<string, object>
+                {
+                    { "@IdCuisinier", idCuisinier }
+                };
+
+                DataTable cuisinierDetails = GestionBDD.ExecuterRequeteTable(requeteCuisinier, parametresCuisinier);
+
+                if (cuisinierDetails != null && cuisinierDetails.Rows.Count > 0)
+                {
+                    DataRow cuisinier = cuisinierDetails.Rows[0];
+                    stats.NomCuisinier = cuisinier["nom_cuisinier"] != DBNull.Value ? cuisinier["nom_cuisinier"].ToString() : "";
+                    stats.PrenomCuisinier = cuisinier["prenom_cuisinier"] != DBNull.Value ? cuisinier["prenom_cuisinier"].ToString() : "";
+                    stats.NoteMoyenne = cuisinier["note_moyenne_cuisinier"] != DBNull.Value ? Convert.ToDecimal(cuisinier["note_moyenne_cuisinier"]) : 0;
+                }
+
+                // Remplacer cette partie dans la méthode ExporterStatistiquesCuisinier:
+
+                // Récupérer les statistiques de vente
+                string requeteVentes = @"
+    SELECT COUNT(DISTINCT c.id_commande) AS nombre_commandes,
+           COUNT(DISTINCT lc.id_ligne) AS nombre_plats_vendus,
+           SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS chiffre_affaires
+    FROM COMMANDE c
+    JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+    JOIN PLAT p ON lc.id_plat = p.id_plat
+    WHERE p.id_cuisinier = @IdCuisinier";
+
+                DataTable resultatsVentes = GestionBDD.ExecuterRequeteTable(requeteVentes, parametresCuisinier);
+
+                if (resultatsVentes != null && resultatsVentes.Rows.Count > 0)
+                {
+                    DataRow row = resultatsVentes.Rows[0];
+                    stats.NombrePlatsVendus = row["nombre_plats_vendus"] != DBNull.Value ? Convert.ToInt32(row["nombre_plats_vendus"]) : 0;
+                    stats.ChiffreAffaires = row["chiffre_affaires"] != DBNull.Value ? Convert.ToDecimal(row["chiffre_affaires"]) : 0;
+                }
+
+                // Récupérer les plats populaires
+                string requetePlats = @"
+            SELECT p.id_plat, p.nom_plat, p.type_plat, p.prix_unitaire_plat,
+                   COUNT(lc.id_ligne) AS nombre_commandes
+            FROM PLAT p
+            JOIN LIGNE_COMMANDE lc ON p.id_plat = lc.id_plat
+            WHERE p.id_cuisinier = @IdCuisinier
+            GROUP BY p.id_plat, p.nom_plat, p.type_plat, p.prix_unitaire_plat
+            ORDER BY nombre_commandes DESC
+            LIMIT 10";
+
+                DataTable plats = GestionBDD.ExecuterRequeteTable(requetePlats, parametresCuisinier);
+
+                if (plats != null && plats.Rows.Count > 0)
+                {
+                    foreach (DataRow plat in plats.Rows)
+                    {
+                        PlatPopulaire pp = new PlatPopulaire
+                        {
+                            IdPlat = plat["id_plat"].ToString(),
+                            NomPlat = plat["nom_plat"] != DBNull.Value ? plat["nom_plat"].ToString() : "",
+                            TypePlat = plat["type_plat"] != DBNull.Value ? plat["type_plat"].ToString() : "",
+                            Prix = plat["prix_unitaire_plat"] != DBNull.Value ? plat["prix_unitaire_plat"].ToString() : "0",
+                            NombreCommandes = plat["nombre_commandes"] != DBNull.Value ? Convert.ToInt32(plat["nombre_commandes"]) : 0
+                        };
+
+                        stats.PlatsPopulaires.Add(pp);
+                    }
+                }
+
+                // Récupérer les clients fréquents
+                string requeteClients = @"
+            SELECT cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client,
+                   COUNT(DISTINCT c.id_commande) AS nombre_commandes
+            FROM CLIENT cl
+            JOIN COMMANDE c ON cl.id_client = c.id_client
+            JOIN LIGNE_COMMANDE lc ON c.id_commande = lc.id_commande
+            JOIN PLAT p ON lc.id_plat = p.id_plat
+            WHERE p.id_cuisinier = @IdCuisinier
+            GROUP BY cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client
+            ORDER BY nombre_commandes DESC
+            LIMIT 10";
+
+                DataTable clients = GestionBDD.ExecuterRequeteTable(requeteClients, parametresCuisinier);
+
+                if (clients != null && clients.Rows.Count > 0)
+                {
+                    foreach (DataRow client in clients.Rows)
+                    {
+                        ClientFrequent cf = new ClientFrequent
+                        {
+                            IdClient = client["id_client"].ToString(),
+                            NomClient = client["nom_client"] != DBNull.Value ? client["nom_client"].ToString() : "",
+                            PrenomClient = client["prenom_client"] != DBNull.Value ? client["prenom_client"].ToString() : "",
+                            Email = client["email_client"] != DBNull.Value ? client["email_client"].ToString() : "",
+                            NombreCommandes = client["nombre_commandes"] != DBNull.Value ? Convert.ToInt32(client["nombre_commandes"]) : 0
+                        };
+
+                        stats.ClientsFrequents.Add(cf);
+                    }
+                }
+
+                // Exporter les statistiques en XML
+                string nomFichier = $"StatistiquesCuisinier_{stats.NomCuisinier}_{stats.PrenomCuisinier}_{DateTime.Now:yyyyMMdd_HHmmss}.xml";
+                string cheminFichier = ExportXML.ExporterDonnees(stats, nomFichier);
+
+                if (cheminFichier != null)
+                {
+                    GestionBDD.AfficherMessageSucces($"Les statistiques ont été exportées avec succès dans le fichier : {cheminFichier}");
+
+                    Console.Write("\nVoulez-vous ouvrir le fichier XML ? (O/N) : ");
+                    if (Console.ReadLine().ToUpper() == "O")
+                    {
+                        ExportXML.OuvrirFichierXML(cheminFichier);
+                    }
+                }
+                else
+                {
+                    GestionBDD.AfficherMessageErreur("Erreur lors de l'exportation des statistiques.");
                 }
             }
             catch (Exception ex)
@@ -1085,6 +1436,7 @@ namespace Projet_problème_scientifique_info
                     string requete = @"
                         SELECT cl.id_client, cl.nom_client, cl.prenom_client,
                                SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS total_depense,
+                               SUM(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS total_depense,
                                COUNT(c.id_commande) AS nombre_commandes
                         FROM CLIENT cl
                         JOIN COMMANDE c ON cl.id_client = c.id_client
@@ -1417,6 +1769,19 @@ namespace Projet_problème_scientifique_info
                                 Console.WriteLine("{0,-10} {1,-15} {2,-20:F2}",
                                     mois, nombreCommandes, chiffreAffaires);
                             }
+
+                            // Ajouter l'option d'exportation XML
+                            Console.WriteLine("\nOptions :");
+                            Console.WriteLine("1. Exporter ces données au format XML");
+                            Console.WriteLine("2. Retour au menu précédent");
+
+                            Console.Write("\nVotre choix : ");
+                            string choix = Console.ReadLine();
+
+                            if (choix == "1")
+                            {
+                                ExporterStatistiquesGlobales();
+                            }
                         }
                         else
                         {
@@ -1434,6 +1799,146 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
+        // Ajouter cette méthode à la classe ModuleStats pour exporter les statistiques globales
+        private static void ExporterStatistiquesGlobales()
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("EXPORTER LES STATISTIQUES GLOBALES");
+
+            try
+            {
+                // Créer l'objet de statistiques globales
+                StatistiquesGlobales stats = new StatistiquesGlobales();
+
+                // Récupérer les statistiques générales
+                string requeteGeneral = @"
+            SELECT 
+                (SELECT COUNT(*) FROM CLIENT) AS nombre_clients,
+                (SELECT COUNT(*) FROM CUISINIER) AS nombre_cuisiniers,
+                (SELECT COUNT(*) FROM PLAT) AS nombre_plats,
+                (SELECT COUNT(*) FROM COMMANDE) AS nombre_commandes,
+                (SELECT SUM(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) FROM COMMANDE) AS chiffre_affaires_total";
+
+                DataTable general = GestionBDD.ExecuterRequeteTable(requeteGeneral, null);
+
+                if (general != null && general.Rows.Count > 0)
+                {
+                    DataRow row = general.Rows[0];
+                    stats.NombreClients = row["nombre_clients"] != DBNull.Value ? Convert.ToInt32(row["nombre_clients"]) : 0;
+                    stats.NombreCuisiniers = row["nombre_cuisiniers"] != DBNull.Value ? Convert.ToInt32(row["nombre_cuisiniers"]) : 0;
+                    stats.NombrePlats = row["nombre_plats"] != DBNull.Value ? Convert.ToInt32(row["nombre_plats"]) : 0;
+                    stats.NombreCommandes = row["nombre_commandes"] != DBNull.Value ? Convert.ToInt32(row["nombre_commandes"]) : 0;
+                    stats.ChiffreAffairesTotal = row["chiffre_affaires_total"] != DBNull.Value ? Convert.ToDecimal(row["chiffre_affaires_total"]) : 0;
+                }
+
+                // Récupérer les statistiques par mois
+                string requeteMois = @"
+            SELECT DATE_FORMAT(date_commande, '%Y-%m') AS mois,
+                   COUNT(*) AS nombre_commandes,
+                   SUM(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS chiffre_affaires
+            FROM COMMANDE
+            GROUP BY mois
+            ORDER BY mois DESC
+            LIMIT 12";
+
+                DataTable mois = GestionBDD.ExecuterRequeteTable(requeteMois, null);
+
+                if (mois != null && mois.Rows.Count > 0)
+                {
+                    foreach (DataRow row in mois.Rows)
+                    {
+                        StatistiquesMensuelles sm = new StatistiquesMensuelles
+                        {
+                            Mois = row["mois"] != DBNull.Value ? row["mois"].ToString() : "",
+                            NombreCommandes = row["nombre_commandes"] != DBNull.Value ? Convert.ToInt32(row["nombre_commandes"]) : 0,
+                            ChiffreAffaires = row["chiffre_affaires"] != DBNull.Value ? Convert.ToDecimal(row["chiffre_affaires"]) : 0
+                        };
+
+                        stats.StatistiquesMensuelles.Add(sm);
+                    }
+                }
+
+                // Remplacer cette partie dans la méthode ExporterStatistiquesGlobales:
+
+                // Récupérer les meilleurs cuisiniers
+                string requeteCuisiniers = @"
+    SELECT cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier, cu.note_moyenne_cuisinier,
+           COUNT(DISTINCT c.id_commande) AS nombre_commandes,
+           SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS chiffre_affaires
+    FROM CUISINIER cu
+    JOIN PLAT p ON cu.id_cuisinier = p.id_cuisinier
+    JOIN LIGNE_COMMANDE lc ON p.id_plat = lc.id_plat
+    JOIN COMMANDE c ON lc.id_commande = c.id_commande
+    GROUP BY cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier, cu.note_moyenne_cuisinier
+    ORDER BY chiffre_affaires DESC
+    LIMIT 10";
+
+                DataTable cuisiniers = GestionBDD.ExecuterRequeteTable(requeteCuisiniers, null);
+
+                if (cuisiniers != null && cuisiniers.Rows.Count > 0)
+                {
+                    foreach (DataRow row in cuisiniers.Rows)
+                    {
+                        MeilleurCuisinier mc = new MeilleurCuisinier
+                        {
+                            IdCuisinier = row["id_cuisinier"].ToString(),
+                            NomCuisinier = row["nom_cuisinier"] != DBNull.Value ? row["nom_cuisinier"].ToString() : "",
+                            PrenomCuisinier = row["prenom_cuisinier"] != DBNull.Value ? row["prenom_cuisinier"].ToString() : "",
+                            NoteMoyenne = row["note_moyenne_cuisinier"] != DBNull.Value ? Convert.ToDecimal(row["note_moyenne_cuisinier"]) : 0,
+                            NombreCommandes = row["nombre_commandes"] != DBNull.Value ? Convert.ToInt32(row["nombre_commandes"]) : 0,
+                            ChiffreAffaires = row["chiffre_affaires"] != DBNull.Value ? Convert.ToDecimal(row["chiffre_affaires"]) : 0
+                        };
+
+                        stats.MeilleursCuisiniers.Add(mc);
+                    }
+                }
+
+                // Ajouter une requête pour récupérer les plats les plus populaires
+                string requetePlatsPopulaires = @"
+    SELECT p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat, p.prix_unitaire_plat,
+           COUNT(lc.id_ligne) AS nombre_commandes,
+           c.nom_cuisinier, c.prenom_cuisinier
+    FROM PLAT p
+    JOIN LIGNE_COMMANDE lc ON p.id_plat = lc.id_plat
+    JOIN CUISINIER c ON p.id_cuisinier = c.id_cuisinier
+    GROUP BY p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat, p.prix_unitaire_plat,
+             c.nom_cuisinier, c.prenom_cuisinier
+    ORDER BY nombre_commandes DESC
+    LIMIT 10";
+
+                DataTable platsPopulaires = GestionBDD.ExecuterRequeteTable(requetePlatsPopulaires, null);
+
+                // Les plats populaires ne sont pas utilisés dans l'export des statistiques globales
+                // Cette partie peut être supprimée ou commentée car la classe StatistiquesGlobales
+                // n'a pas de propriété PlatsPopulaires
+
+                // Exporter les statistiques en XML
+                string nomFichier = $"StatistiquesGlobales_{DateTime.Now:yyyyMMdd_HHmmss}.xml";
+                string cheminFichier = ExportXML.ExporterDonnees(stats, nomFichier);
+
+                if (cheminFichier != null)
+                {
+                    GestionBDD.AfficherMessageSucces($"Les statistiques ont été exportées avec succès dans le fichier : {cheminFichier}");
+
+                    Console.Write("\nVoulez-vous ouvrir le fichier XML ? (O/N) : ");
+                    if (Console.ReadLine().ToUpper() == "O")
+                    {
+                        ExportXML.OuvrirFichierXML(cheminFichier);
+                    }
+                }
+                else
+                {
+                    GestionBDD.AfficherMessageErreur("Erreur lors de l'exportation des statistiques.");
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
 
         #endregion
 
@@ -1558,6 +2063,19 @@ namespace Projet_problème_scientifique_info
             catch (Exception ex)
             {
                 GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            // Ajouter l'option d'exportation XML
+            Console.WriteLine("\nOptions :");
+            Console.WriteLine("1. Exporter ces données au format XML");
+            Console.WriteLine("2. Retour au menu précédent");
+
+            Console.Write("\nVotre choix : ");
+            string choix = Console.ReadLine();
+
+            if (choix == "1")
+            {
+                ExporterStatistiquesGlobales();
             }
 
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
@@ -1696,10 +2214,27 @@ namespace Projet_problème_scientifique_info
                 GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
             }
 
+            // Ajouter une option d'exportation dans la méthode AfficherPlatsPopulaires
+            // À la fin de la méthode, avant le "Appuyez sur une touche pour continuer", ajouter:
+
+            // Ajouter l'option d'exportation XML
+            Console.WriteLine("\nOptions :");
+            Console.WriteLine("1. Exporter la liste des plats au format XML");
+            Console.WriteLine("2. Retour au menu précédent");
+
+            Console.Write("\nVotre choix : ");
+            string choix = Console.ReadLine();
+
+            if (choix == "1")
+            {
+                ModulePlat.ExporterListePlats();
+            }
+
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
 
         #endregion
+
     }
 }

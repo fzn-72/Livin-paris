@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StatistiquesClient xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <IdClient>CL004</IdClient>
+  <NomClient>Petit</NomClient>
+  <PrenomClient>Nathan</PrenomClient>
+  <Email>nathan.petit@gmail.com</Email>
+  <Commandes>
+    <CommandeExport>
+      <IdCommande>10</IdCommande>
+      <DateCommande>2025-04-28T00:00:00</DateCommande>
+      <PrixTotal>3 euros</PrixTotal>
+      <Statut>Prêt pour livraison</Statut>
+      <LignesCommande>
+        <LigneCommandeExport>
+          <IdLigne>2</IdLigne>
+          <NomPlat>Paris-Brest</NomPlat>
+          <PrixUnitaire>3,4 euros</PrixUnitaire>
+          <Quantite>0</Quantite>
+          <NomCuisinier>Sonia Garcia</NomCuisinier>
+        </LigneCommandeExport>
+      </LignesCommande>
+    </CommandeExport>
+    <CommandeExport>
+      <IdCommande>9</IdCommande>
+      <DateCommande>2025-04-28T00:00:00</DateCommande>
+      <PrixTotal>6 euros</PrixTotal>
+      <Statut>En préparation</Statut>
+      <LignesCommande>
+        <LigneCommandeExport>
+          <IdLigne>1</IdLigne>
+          <NomPlat>Pâtes bolognaises</NomPlat>
+          <PrixUnitaire>6 euros</PrixUnitaire>
+          <Quantite>0</Quantite>
+          <NomCuisinier>Mathieu Lemoine</NomCuisinier>
+        </LigneCommandeExport>
+      </LignesCommande>
+    </CommandeExport>
+    <CommandeExport>
+      <IdCommande>7</IdCommande>
+      <DateCommande>2025-04-27T00:00:00</DateCommande>
+      <PrixTotal>0</PrixTotal>
+      <Statut>Annulée</Statut>
+      <LignesCommande />
+    </CommandeExport>
+    <CommandeExport>
+      <IdCommande>8</IdCommande>
+      <DateCommande>2025-04-27T00:00:00</DateCommande>
+      <PrixTotal>0</PrixTotal>
+      <Statut>Annulée</Statut>
+      <LignesCommande />
+    </CommandeExport>
+  </Commandes>
+  <PlatsPreferees>
+    <PlatPrefere>
+      <IdPlat>P001</IdPlat>
+      <NomPlat>Pâtes bolognaises</NomPlat>
+      <TypePlat>plat principal</TypePlat>
+      <Nationalite>italienne</Nationalite>
+      <NombreCommandes>1</NombreCommandes>
+    </PlatPrefere>
+    <PlatPrefere>
+      <IdPlat>P002</IdPlat>
+      <NomPlat>Paris-Brest</NomPlat>
+      <TypePlat>dessert</TypePlat>
+      <Nationalite>France</Nationalite>
+      <NombreCommandes>1</NombreCommandes>
+    </PlatPrefere>
+  </PlatsPreferees>
+  <DepensesTotales>9</DepensesTotales>
+  <NombreCommandes>4</NombreCommandes>
+  <DateExport>2025-05-03T23:47:02.1562255+02:00</DateExport>
+</StatistiquesClient>
