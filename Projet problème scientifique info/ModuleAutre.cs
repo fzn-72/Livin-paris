@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Projet_problème_scientifique_info;
 
 namespace Projet_problème_scientifique_info
 {

@@ -10,18 +10,19 @@ using System.Threading.Tasks;
 namespace Projet_problème_scientifique_info
 {
     /// <summary>
-    /// Classe gérant les fonctionnalités d'administration du système
+    /// Classe gérant les fonctionnalités de l'administrateur
     /// </summary>
     internal class ModuleAdministrateur
     {
+        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
 
+        #region Menu principal 
         /// <summary>
         /// Affiche le menu principal du module administrateur
         /// </summary>
         public static void MenuPrincipalAdmin()
         {
-            // Vérifier que l'utilisateur est un administrateur
             if (!SessionUtilisateur.EstAdmin())
             {
                 SessionUtilisateur.AfficherMessageDroitsInsuffisants();
@@ -72,7 +73,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
-
+        #endregion
 
 
         #region Méthodes gestion utilisateurs (clients, cuisiniers, admin)

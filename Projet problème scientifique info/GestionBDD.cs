@@ -12,6 +12,7 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class GestionBDD
     {
+        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
 
         /// <summary>
@@ -21,10 +22,8 @@ namespace Projet_problème_scientifique_info
         {
             Console.Title = "Liv'InParis - Système de gestion de livraison de repas";
 
-            // Initialiser la session utilisateur
             SessionUtilisateur.Initialiser();
 
-            // Afficher le menu principal
             AfficherMenuPrincipal();
         }
 
@@ -43,7 +42,6 @@ namespace Projet_problème_scientifique_info
                 AfficherTitre("          Liv'InParis          ");
                 AfficherTitre("SYSTÈME DE GESTION DE LIVRAISON DE REPAS");
 
-                // Vérifier si l'utilisateur est connecté
                 if (SessionUtilisateur.EstConnecte())
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
@@ -51,7 +49,6 @@ namespace Projet_problème_scientifique_info
                     Console.ResetColor();
                     Console.WriteLine();
 
-                    // Afficher le menu en fonction du type d'utilisateur
                     if (SessionUtilisateur.TypeUtilisateur == "client")
                     {
                         ModuleClient.MenuPrincipalClient();
@@ -67,7 +64,6 @@ namespace Projet_problème_scientifique_info
                 }
                 else
                 {
-                    // Menu pour utilisateur non connecté
                     Console.WriteLine("Bienvenue. \nVeuillez choisir un module pour voir les options associées.");
                     Console.WriteLine();
                     Console.WriteLine("1. MODULE PROFIL : Se connecter ou créer un compte afin d'accéder à son espace personnel");
@@ -96,7 +92,6 @@ namespace Projet_problème_scientifique_info
                             break;
                         case "5":
                             ModuleInfosAppli.MenuPrincipalInfos();
-                            //AProposDeLApplication();
                             break;
                         case "6":
                             ModuleAutre.MenuPrincipalAutre();
@@ -110,17 +105,11 @@ namespace Projet_problème_scientifique_info
                     }
                 }
             }
-
             Console.Clear();
             Console.WriteLine("Merci d'avoir utilisé Liv'InParis. À bientôt !");
             Console.WriteLine("Appuyez sur une touche pour quitter...");
             Console.ReadKey();
         }
-        #endregion
-
-        #region À propos de l'application
-
-
         #endregion
 
         #region Méthodes d'affichage
@@ -172,7 +161,7 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-        #region Méthodes utilitaires pour la base de données
+        #region Méthodes utilitaires pour la base de données (execution de requêtes, génération d'ID)
         /// <summary>
         /// Génère un nouvel ID pour une table spécifiée
         /// </summary>
@@ -195,7 +184,6 @@ namespace Projet_problème_scientifique_info
                     {
                         maxId = Convert.ToInt32(result);
                     }
-
                     return maxId + 1;
                 }
             }
@@ -225,7 +213,6 @@ namespace Projet_problème_scientifique_info
                     {
                         cmd.Parameters.AddWithValue(param.Key, param.Value);
                     }
-
                     return cmd.ExecuteNonQuery();
                 }
             }
@@ -703,7 +690,9 @@ namespace Projet_problème_scientifique_info
 
             return ExecuterRequeteTable(requete, parametres);
         }
+        #endregion
 
+        #region Affichage du graphe client_cuisinier
         /// <summary>
         /// Affiche et analyse le graphe des relations entre clients et cuisiniers
         /// </summary>

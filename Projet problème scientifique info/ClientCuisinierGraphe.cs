@@ -15,14 +15,16 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ClientCuisinierGraphe
     {
+        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
+
         private Graphe<string> graphe;
-        private Dictionary<string, string> typesNoeuds; // "client" ou "cuisinier"
-        private Dictionary<string, string> nomsNoeuds;  // Noms des personnes pour l'affichage
-        private Dictionary<string, int> couleurs;       // Résultat de la coloration
+        private Dictionary<string, string> typesNoeuds;
+        private Dictionary<string, string> nomsNoeuds;  
+        private Dictionary<string, int> couleurs;   
 
         /// <summary>
-        /// Constructeur
+        /// Constructeur de la classe
         /// </summary>
         public ClientCuisinierGraphe()
         {
@@ -78,7 +80,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Requête pour récupérer les relations client-cuisinier
                     string requete = @"
                         SELECT DISTINCT c.id_client, c.nom_client, c.prenom_client, 
                                         cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier
@@ -100,7 +101,6 @@ namespace Projet_problème_scientifique_info
                             string idCuisinier = "K" + reader["id_cuisinier"].ToString();
                             string nomCuisinier = reader["nom_cuisinier"].ToString() + " " + reader["prenom_cuisinier"].ToString();
 
-                            // Ajouter les nœuds s'ils n'existent pas déjà
                             if (!typesNoeuds.ContainsKey(idClient))
                             {
                                 typesNoeuds[idClient] = "client";
@@ -113,7 +113,6 @@ namespace Projet_problème_scientifique_info
                                 nomsNoeuds[idCuisinier] = nomCuisinier;
                             }
 
-                            // Ajouter l'arête entre le client et le cuisinier
                             graphe.AjouterLien(idClient, idCuisinier);
                             Console.WriteLine($"Ajout d'une arête entre {nomClient} (client) et {nomCuisinier} (cuisinier)");
                         }
@@ -138,19 +137,15 @@ namespace Projet_problème_scientifique_info
         {
             Console.WriteLine("Application de l'algorithme de Welsh-Powell...");
 
-            // Réinitialiser les couleurs
             couleurs.Clear();
 
-            // Initialiser tous les nœuds avec la couleur -1 (non coloré)
             foreach (var noeud in graphe.ListeAdjacence.Keys)
             {
                 couleurs[noeud] = -1;
             }
 
-            // Trier les nœuds par ordre décroissant de degré
             List<string> noeudsTries = graphe.TrierSommetsParDegre();
 
-            // Afficher les nœuds triés par degré
             Console.WriteLine("Nœuds triés par degré décroissant :");
             foreach (var noeud in noeudsTries)
             {
@@ -158,27 +153,21 @@ namespace Projet_problème_scientifique_info
                 Console.WriteLine($"Nœud {noeud} ({nomsNoeuds[noeud]}) - Degré : {degre}");
             }
 
-            // Couleur actuelle
             int couleurActuelle = 0;
 
-            // Tant qu'il reste des nœuds non colorés
             while (noeudsTries.Any(n => couleurs[n] == -1))
             {
                 Console.WriteLine($"Traitement de la couleur {couleurActuelle}");
 
-                // Pour chaque nœud non coloré dans l'ordre de degré décroissant
                 foreach (var noeud in noeudsTries)
                 {
-                    // Si le nœud n'est pas encore coloré
                     if (couleurs[noeud] == -1)
                     {
-                        // Vérifier si on peut attribuer la couleur actuelle
+
                         bool peutColorer = true;
 
-                        // Vérifier tous les voisins du nœud
                         foreach (var voisin in graphe.ListeAdjacence[noeud])
                         {
-                            // Si un voisin a déjà la couleur actuelle, on ne peut pas l'utiliser
                             if (couleurs.ContainsKey(voisin) && couleurs[voisin] == couleurActuelle)
                             {
                                 peutColorer = false;
@@ -186,8 +175,6 @@ namespace Projet_problème_scientifique_info
                                 break;
                             }
                         }
-
-                        // Si aucun voisin n'a la couleur actuelle, on l'attribue à ce nœud
                         if (peutColorer)
                         {
                             couleurs[noeud] = couleurActuelle;
@@ -196,11 +183,9 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-                // Passer à la couleur suivante
                 couleurActuelle++;
             }
 
-            // Vérification finale
             int erreurs = 0;
             foreach (var lien in graphe.LiensNoeuds)
             {
