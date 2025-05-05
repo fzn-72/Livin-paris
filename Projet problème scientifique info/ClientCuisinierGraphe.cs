@@ -6,10 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using Projet_problème_scientifique_info;
 
 namespace Projet_problème_scientifique_info
 {
@@ -19,14 +16,52 @@ namespace Projet_problème_scientifique_info
     internal class ClientCuisinierGraphe
     {
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-        private Dictionary<string, HashSet<string>> graphe;
+        private Graphe<string> graphe;
+        private Dictionary<string, string> typesNoeuds; // "client" ou "cuisinier"
+        private Dictionary<string, string> nomsNoeuds;  // Noms des personnes pour l'affichage
+        private Dictionary<string, int> couleurs;       // Résultat de la coloration
 
         /// <summary>
         /// Constructeur
         /// </summary>
         public ClientCuisinierGraphe()
         {
-            graphe = new Dictionary<string, HashSet<string>>();
+            graphe = new Graphe<string>();
+            typesNoeuds = new Dictionary<string, string>();
+            nomsNoeuds = new Dictionary<string, string>();
+            couleurs = new Dictionary<string, int>();
+        }
+
+        /// <summary>
+        /// Propriété permettant d'accéder au graphe sous-jacent.
+        /// </summary>
+        public Graphe<string> Graphe
+        {
+            get { return graphe; }
+        }
+
+        /// <summary>
+        /// Propriété permettant d'accéder aux types des nœuds.
+        /// </summary>
+        public Dictionary<string, string> TypesNoeuds
+        {
+            get { return typesNoeuds; }
+        }
+
+        /// <summary>
+        /// Propriété permettant d'accéder aux noms des nœuds.
+        /// </summary>
+        public Dictionary<string, string> NomsNoeuds
+        {
+            get { return nomsNoeuds; }
+        }
+
+        /// <summary>
+        /// Propriété permettant d'accéder aux couleurs des nœuds.
+        /// </summary>
+        public Dictionary<string, int> Couleurs
+        {
+            get { return couleurs; }
         }
 
         /// <summary>
@@ -37,18 +72,21 @@ namespace Projet_problème_scientifique_info
         {
             try
             {
-                // S'assurer que la vue existe
-                GestionBDD.CreerVueRelationsClientCuisinier();
+                Console.WriteLine("Construction du graphe des relations clients-cuisiniers...");
 
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
 
-                    // Utiliser la vue pour récupérer les relations
+                    // Requête pour récupérer les relations client-cuisinier
                     string requete = @"
-                        SELECT id_client, nom_client, prenom_client, 
-                               id_cuisinier, nom_cuisinier, prenom_cuisinier
-                        FROM VUE_RELATIONS_CLIENT_CUISINIER";
+                        SELECT DISTINCT c.id_client, c.nom_client, c.prenom_client, 
+                                        cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier
+                        FROM COMMANDE cmd
+                        JOIN CLIENT c ON cmd.id_client = c.id_client
+                        JOIN LIGNE_COMMANDE lc ON cmd.id_commande = lc.id_commande
+                        JOIN CUISINIER cu ON lc.id_cuisinier = cu.id_cuisinier
+                        WHERE cmd.statut_commande = 'Livrée'";
 
                     MySqlCommand cmd = new MySqlCommand(requete, connection);
 
@@ -56,34 +94,33 @@ namespace Projet_problème_scientifique_info
                     {
                         while (reader.Read())
                         {
-                            string idClient = reader["id_client"].ToString();
-                            string nomClient = reader["nom_client"].ToString();
-                            string prenomClient = reader["prenom_client"].ToString();
-                            string clientLabel = $"{prenomClient} {nomClient} ({idClient})";
+                            string idClient = "C" + reader["id_client"].ToString();
+                            string nomClient = reader["nom_client"].ToString() + " " + reader["prenom_client"].ToString();
 
-                            string idCuisinier = reader["id_cuisinier"].ToString();
-                            string nomCuisinier = reader["nom_cuisinier"].ToString();
-                            string prenomCuisinier = reader["prenom_cuisinier"].ToString();
-                            string cuisinierLabel = $"{prenomCuisinier} {nomCuisinier} ({idCuisinier})";
+                            string idCuisinier = "K" + reader["id_cuisinier"].ToString();
+                            string nomCuisinier = reader["nom_cuisinier"].ToString() + " " + reader["prenom_cuisinier"].ToString();
 
-                            // Ajouter la relation client -> cuisinier
-                            if (!graphe.ContainsKey(clientLabel))
+                            // Ajouter les nœuds s'ils n'existent pas déjà
+                            if (!typesNoeuds.ContainsKey(idClient))
                             {
-                                graphe[clientLabel] = new HashSet<string>();
+                                typesNoeuds[idClient] = "client";
+                                nomsNoeuds[idClient] = nomClient;
                             }
-                            graphe[clientLabel].Add(cuisinierLabel);
 
-                            // Ajouter la relation cuisinier -> client (graphe non orienté)
-                            if (!graphe.ContainsKey(cuisinierLabel))
+                            if (!typesNoeuds.ContainsKey(idCuisinier))
                             {
-                                graphe[cuisinierLabel] = new HashSet<string>();
+                                typesNoeuds[idCuisinier] = "cuisinier";
+                                nomsNoeuds[idCuisinier] = nomCuisinier;
                             }
-                            graphe[cuisinierLabel].Add(clientLabel);
+
+                            // Ajouter l'arête entre le client et le cuisinier
+                            graphe.AjouterLien(idClient, idCuisinier);
+                            Console.WriteLine($"Ajout d'une arête entre {nomClient} (client) et {nomCuisinier} (cuisinier)");
                         }
                     }
                 }
 
-                Console.WriteLine($"Graphe construit avec {graphe.Count} sommets.");
+                Console.WriteLine($"Graphe construit avec succès : {typesNoeuds.Count} nœuds et {graphe.LiensNoeuds.Count} arêtes.");
                 return true;
             }
             catch (Exception ex)
@@ -94,194 +131,364 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// Affiche le graphe
+        /// Applique l'algorithme de Welsh-Powell pour colorier le graphe.
         /// </summary>
-        public void AfficherGraphe()
+        /// <returns>Le nombre de couleurs utilisées.</returns>
+        public int AppliquerWelshPowell()
         {
-            if (graphe.Count == 0)
+            Console.WriteLine("Application de l'algorithme de Welsh-Powell...");
+
+            // Réinitialiser les couleurs
+            couleurs.Clear();
+
+            // Initialiser tous les nœuds avec la couleur -1 (non coloré)
+            foreach (var noeud in graphe.ListeAdjacence.Keys)
             {
-                Console.WriteLine("Le graphe est vide. Veuillez d'abord le construire.");
-                return;
+                couleurs[noeud] = -1;
             }
 
-            Console.WriteLine("Graphe des relations clients-cuisiniers :");
-            Console.WriteLine("==========================================");
+            // Trier les nœuds par ordre décroissant de degré
+            List<string> noeudsTries = graphe.TrierSommetsParDegre();
 
-            foreach (var sommet in graphe)
+            // Afficher les nœuds triés par degré
+            Console.WriteLine("Nœuds triés par degré décroissant :");
+            foreach (var noeud in noeudsTries)
             {
-                Console.WriteLine($"{sommet.Key} est connecté à :");
-                foreach (var voisin in sommet.Value)
+                int degre = graphe.ListeAdjacence[noeud].Count;
+                Console.WriteLine($"Nœud {noeud} ({nomsNoeuds[noeud]}) - Degré : {degre}");
+            }
+
+            // Couleur actuelle
+            int couleurActuelle = 0;
+
+            // Tant qu'il reste des nœuds non colorés
+            while (noeudsTries.Any(n => couleurs[n] == -1))
+            {
+                Console.WriteLine($"Traitement de la couleur {couleurActuelle}");
+
+                // Pour chaque nœud non coloré dans l'ordre de degré décroissant
+                foreach (var noeud in noeudsTries)
                 {
-                    Console.WriteLine($"  - {voisin}");
+                    // Si le nœud n'est pas encore coloré
+                    if (couleurs[noeud] == -1)
+                    {
+                        // Vérifier si on peut attribuer la couleur actuelle
+                        bool peutColorer = true;
+
+                        // Vérifier tous les voisins du nœud
+                        foreach (var voisin in graphe.ListeAdjacence[noeud])
+                        {
+                            // Si un voisin a déjà la couleur actuelle, on ne peut pas l'utiliser
+                            if (couleurs.ContainsKey(voisin) && couleurs[voisin] == couleurActuelle)
+                            {
+                                peutColorer = false;
+                                Console.WriteLine($"  Nœud {noeud} ({nomsNoeuds[noeud]}) ne peut pas être coloré en {couleurActuelle} car voisin de {voisin} ({nomsNoeuds[voisin]})");
+                                break;
+                            }
+                        }
+
+                        // Si aucun voisin n'a la couleur actuelle, on l'attribue à ce nœud
+                        if (peutColorer)
+                        {
+                            couleurs[noeud] = couleurActuelle;
+                            Console.WriteLine($"  Nœud {noeud} ({nomsNoeuds[noeud]}) coloré en {couleurActuelle}");
+                        }
+                    }
                 }
-                Console.WriteLine();
+
+                // Passer à la couleur suivante
+                couleurActuelle++;
             }
+
+            // Vérification finale
+            int erreurs = 0;
+            foreach (var lien in graphe.LiensNoeuds)
+            {
+                string id1 = lien.Noeud1.Id;
+                string id2 = lien.Noeud2.Id;
+
+                if (couleurs[id1] == couleurs[id2])
+                {
+                    erreurs++;
+                    Console.WriteLine($"ERREUR: Nœuds voisins avec même couleur: {id1} ({nomsNoeuds[id1]}) et {id2} ({nomsNoeuds[id2]}) - Couleur: {couleurs[id1]}");
+                }
+            }
+
+            Console.WriteLine($"Coloration terminée. {couleurActuelle} couleurs utilisées. {erreurs} erreurs détectées.");
+
+            return couleurActuelle;
         }
 
         /// <summary>
-        /// Recherche le plus court chemin entre deux sommets
+        /// Vérifie si le graphe est biparti.
+        /// Un graphe est biparti si ses sommets peuvent être divisés en deux ensembles disjoints
+        /// tels que chaque arête relie un sommet d'un ensemble à un sommet de l'autre ensemble.
         /// </summary>
-        /// <param name="depart">Sommet de départ</param>
-        /// <param name="arrivee">Sommet d'arrivée</param>
-        /// <returns>Liste des sommets formant le chemin</returns>
-        public List<string> RechercherChemin(string depart, string arrivee)
+        /// <returns>True si le graphe est biparti, False sinon.</returns>
+        public bool EstBiparti()
         {
-            if (!graphe.ContainsKey(depart) || !graphe.ContainsKey(arrivee))
+            Console.WriteLine("Vérification si le graphe est biparti...");
+
+            // Un graphe est biparti si et seulement si il peut être colorié avec 2 couleurs
+            // Nous allons essayer de colorier le graphe avec 2 couleurs (0 et 1)
+
+            Dictionary<string, int> coloration = new Dictionary<string, int>();
+
+            // Initialiser tous les nœuds avec la couleur -1 (non coloré)
+            foreach (var noeud in graphe.ListeAdjacence.Keys)
             {
-                Console.WriteLine("Un des sommets n'existe pas dans le graphe.");
-                return new List<string>();
+                coloration[noeud] = -1;
             }
 
-            // Utiliser l'algorithme BFS pour trouver le plus court chemin
-            Dictionary<string, string> predecesseurs = new Dictionary<string, string>();
-            Queue<string> file = new Queue<string>();
-            HashSet<string> visites = new HashSet<string>();
-
-            file.Enqueue(depart);
-            visites.Add(depart);
-
-            bool trouve = false;
-            while (file.Count > 0 && !trouve)
+            // Pour chaque composante connexe
+            foreach (var noeud in graphe.ListeAdjacence.Keys)
             {
-                string sommetCourant = file.Dequeue();
-
-                if (sommetCourant == arrivee)
+                if (coloration[noeud] == -1) // Si le nœud n'est pas encore coloré
                 {
-                    trouve = true;
-                    break;
-                }
+                    // Commencer par la couleur 0
+                    coloration[noeud] = 0;
 
-                foreach (var voisin in graphe[sommetCourant])
-                {
-                    if (!visites.Contains(voisin))
+                    // Utiliser un parcours en largeur pour colorier les nœuds
+                    Queue<string> file = new Queue<string>();
+                    file.Enqueue(noeud);
+
+                    while (file.Count > 0)
                     {
-                        file.Enqueue(voisin);
-                        visites.Add(voisin);
-                        predecesseurs[voisin] = sommetCourant;
+                        string noeudCourant = file.Dequeue();
+                        int couleurCourante = coloration[noeudCourant];
+                        int couleurVoisin = 1 - couleurCourante; // Alterner entre 0 et 1
+
+                        // Colorier tous les voisins avec la couleur opposée
+                        foreach (var voisin in graphe.ListeAdjacence[noeudCourant])
+                        {
+                            if (coloration[voisin] == -1) // Si le voisin n'est pas encore coloré
+                            {
+                                coloration[voisin] = couleurVoisin;
+                                file.Enqueue(voisin);
+                            }
+                            else if (coloration[voisin] != couleurVoisin) // Si le voisin a déjà une couleur différente de celle attendue
+                            {
+                                Console.WriteLine($"Le graphe n'est pas biparti : conflit entre {noeudCourant} (couleur {couleurCourante}) et {voisin} (couleur {coloration[voisin]})");
+                                return false;
+                            }
+                        }
                     }
                 }
             }
 
-            // Reconstruire le chemin
-            List<string> chemin = new List<string>();
-            if (trouve)
+            // Vérification supplémentaire : tous les clients doivent avoir la même couleur, et tous les cuisiniers l'autre couleur
+            bool clientsMemeCouleur = true;
+            bool cuisiniersMemeCouleur = true;
+
+            int? couleurClients = null;
+            int? couleurCuisiniers = null;
+
+            foreach (var noeud in typesNoeuds.Keys)
             {
-                string sommet = arrivee;
-                while (sommet != depart)
+                if (typesNoeuds[noeud] == "client")
                 {
-                    chemin.Add(sommet);
-                    sommet = predecesseurs[sommet];
+                    if (couleurClients == null)
+                    {
+                        couleurClients = coloration[noeud];
+                    }
+                    else if (coloration[noeud] != couleurClients)
+                    {
+                        clientsMemeCouleur = false;
+                    }
                 }
-                chemin.Add(depart);
-                chemin.Reverse();
-            }
-
-            return chemin;
-        }
-
-        /// <summary>
-        /// Affiche le chemin entre deux sommets
-        /// </summary>
-        /// <param name="depart">Sommet de départ</param>
-        /// <param name="arrivee">Sommet d'arrivée</param>
-        public void AfficherChemin(string depart, string arrivee)
-        {
-            List<string> chemin = RechercherChemin(depart, arrivee);
-
-            if (chemin.Count == 0)
-            {
-                Console.WriteLine($"Aucun chemin trouvé entre {depart} et {arrivee}.");
-                return;
-            }
-
-            Console.WriteLine($"Chemin le plus court entre {depart} et {arrivee} :");
-            Console.WriteLine("==========================================");
-
-            for (int i = 0; i < chemin.Count; i++)
-            {
-                Console.Write(chemin[i]);
-                if (i < chemin.Count - 1)
+                else if (typesNoeuds[noeud] == "cuisinier")
                 {
-                    Console.Write(" -> ");
+                    if (couleurCuisiniers == null)
+                    {
+                        couleurCuisiniers = coloration[noeud];
+                    }
+                    else if (coloration[noeud] != couleurCuisiniers)
+                    {
+                        cuisiniersMemeCouleur = false;
+                    }
                 }
             }
-            Console.WriteLine();
+
+            bool estBiparti = clientsMemeCouleur && cuisiniersMemeCouleur && couleurClients != couleurCuisiniers;
+
+            if (estBiparti)
+            {
+                Console.WriteLine("Le graphe est biparti : tous les clients ont une couleur et tous les cuisiniers ont l'autre couleur.");
+            }
+            else
+            {
+                Console.WriteLine("Le graphe n'est pas biparti selon la vérification des types de nœuds.");
+            }
+
+            return estBiparti;
         }
 
         /// <summary>
-        /// Recherche tous les chemins entre deux sommets
+        /// Vérifie si le graphe est planaire.
+        /// Un graphe est planaire s'il peut être dessiné sur un plan sans que ses arêtes ne se croisent.
         /// </summary>
-        /// <param name="depart">Sommet de départ</param>
-        /// <param name="arrivee">Sommet d'arrivée</param>
-        /// <returns>Liste des chemins trouvés</returns>
-        public List<List<string>> RechercherTousChemins(string depart, string arrivee)
+        /// <returns>True si le graphe est planaire, False sinon.</returns>
+        public bool EstPlanaire()
         {
-            List<List<string>> chemins = new List<List<string>>();
-            if (!graphe.ContainsKey(depart) || !graphe.ContainsKey(arrivee))
+            Console.WriteLine("Vérification si le graphe est planaire...");
+
+            // Nombre de nœuds et d'arêtes
+            int n = graphe.ListeAdjacence.Count;
+            int m = graphe.LiensNoeuds.Count;
+
+            Console.WriteLine($"Nombre de nœuds : {n}");
+            Console.WriteLine($"Nombre d'arêtes : {m}");
+
+            // Vérifier la formule d'Euler pour les graphes planaires : m ≤ 3n - 6 pour n ≥ 3
+            if (n < 3)
             {
-                return chemins;
+                Console.WriteLine("Le graphe a moins de 3 nœuds, il est donc planaire.");
+                return true;
             }
 
-            HashSet<string> visites = new HashSet<string>();
-            List<string> cheminCourant = new List<string>();
-            cheminCourant.Add(depart);
-            visites.Add(depart);
+            int maxAretes = 3 * n - 6;
+            bool estPlanaire = m <= maxAretes;
 
-            RechercherTousCheminsRecursif(depart, arrivee, visites, cheminCourant, chemins);
+            if (estPlanaire)
+            {
+                Console.WriteLine($"Le graphe est potentiellement planaire : {m} ≤ 3*{n}-6 = {maxAretes}");
+            }
+            else
+            {
+                Console.WriteLine($"Le graphe n'est pas planaire : {m} > 3*{n}-6 = {maxAretes}");
+            }
 
-            return chemins;
+            // Vérifier si le graphe contient K5 ou K3,3 (théorème de Kuratowski)
+            // Cette vérification est complexe et n'est pas implémentée ici
+            Console.WriteLine("Note : La vérification complète selon le théorème de Kuratowski n'est pas implémentée.");
+
+            return estPlanaire;
         }
 
         /// <summary>
-        /// Méthode récursive pour rechercher tous les chemins
+        /// Identifie les groupes indépendants à partir des résultats de la coloration.
+        /// Un groupe indépendant est un ensemble de nœuds tel qu'aucun deux nœuds de cet ensemble ne sont adjacents.
         /// </summary>
-        private void RechercherTousCheminsRecursif(string sommetCourant, string arrivee, HashSet<string> visites, List<string> cheminCourant, List<List<string>> chemins)
+        /// <returns>Une liste de groupes indépendants, chaque groupe étant une liste d'identifiants de nœuds.</returns>
+        public List<List<string>> IdentifierGroupesIndependants()
         {
-            if (sommetCourant == arrivee)
+            Console.WriteLine("Identification des groupes indépendants...");
+
+            // Vérifier que la coloration a été effectuée
+            if (couleurs.Count == 0)
             {
-                chemins.Add(new List<string>(cheminCourant));
-                return;
+                Console.WriteLine("La coloration n'a pas été effectuée. Exécution de l'algorithme de Welsh-Powell...");
+                AppliquerWelshPowell();
             }
 
-            foreach (var voisin in graphe[sommetCourant])
+            // Créer un groupe pour chaque couleur
+            Dictionary<int, List<string>> groupesParCouleur = new Dictionary<int, List<string>>();
+
+            foreach (var noeud in couleurs.Keys)
             {
-                if (!visites.Contains(voisin))
+                int couleur = couleurs[noeud];
+
+                if (!groupesParCouleur.ContainsKey(couleur))
                 {
-                    visites.Add(voisin);
-                    cheminCourant.Add(voisin);
+                    groupesParCouleur[couleur] = new List<string>();
+                }
 
-                    RechercherTousCheminsRecursif(voisin, arrivee, visites, cheminCourant, chemins);
+                groupesParCouleur[couleur].Add(noeud);
+            }
 
-                    visites.Remove(voisin);
-                    cheminCourant.RemoveAt(cheminCourant.Count - 1);
+            // Convertir en liste de groupes
+            List<List<string>> groupesIndependants = new List<List<string>>();
+
+            foreach (var groupe in groupesParCouleur.Values)
+            {
+                groupesIndependants.Add(groupe);
+
+                Console.WriteLine($"Groupe indépendant (couleur {groupesParCouleur.Keys.ToList()[groupesIndependants.Count - 1]}) :");
+                foreach (var noeud in groupe)
+                {
+                    Console.WriteLine($"  - {noeud} ({nomsNoeuds[noeud]}) : {typesNoeuds[noeud]}");
                 }
             }
+
+            // Filtrer pour ne garder que les groupes de clients
+            List<List<string>> groupesClientsIndependants = new List<List<string>>();
+
+            foreach (var groupe in groupesIndependants)
+            {
+                List<string> clientsGroupe = groupe.Where(noeud => typesNoeuds[noeud] == "client").ToList();
+
+                if (clientsGroupe.Count > 0)
+                {
+                    groupesClientsIndependants.Add(clientsGroupe);
+
+                    Console.WriteLine($"Groupe de clients indépendants :");
+                    foreach (var client in clientsGroupe)
+                    {
+                        Console.WriteLine($"  - {client} ({nomsNoeuds[client]})");
+                    }
+                }
+            }
+
+            return groupesClientsIndependants;
         }
 
         /// <summary>
-        /// Visualise le graphe et l'enregistre dans un fichier image
+        /// Visualise le graphe en générant une image.
         /// </summary>
-        /// <param name="cheminFichier">Chemin du fichier où enregistrer l'image</param>
-        /// <returns>True si la visualisation a été générée avec succès</returns>
-        public bool VisualiserGraphe(string cheminFichier)
+        /// <param name="cheminImage">Chemin où sauvegarder l'image générée.</param>
+        /// <returns>True si la visualisation a réussi, False sinon.</returns>
+        public bool VisualiserGraphe(string cheminImage)
         {
             try
             {
-                if (graphe.Count == 0)
+                Console.WriteLine("Visualisation du graphe...");
+
+                // Vérifier que le graphe n'est pas vide
+                if (graphe.ListeAdjacence.Count == 0)
                 {
                     Console.WriteLine("Le graphe est vide. Impossible de générer une visualisation.");
                     return false;
                 }
 
-                // Paramètres de visualisation
-                int largeur = 2000;
-                int hauteur = 1500;
-                int margeImage = 50;
-                float rayonNoeud = 20;
-                Font fontNom = new Font("Arial", 10);
-                Color couleurClient = Color.Blue;
-                Color couleurCuisinier = Color.Red;
-                Color couleurLien = Color.Green;
+                // Vérifier que la coloration a été effectuée
+                if (couleurs.Count == 0)
+                {
+                    Console.WriteLine("La coloration n'a pas été effectuée. Exécution de l'algorithme de Welsh-Powell...");
+                    AppliquerWelshPowell();
+                }
+
+                // Paramètres de l'image
+                int largeur = 1200;
+                int hauteur = 800;
+                int margeHorizontale = 150;
+                int margeVerticale = 100;
+
+                // Séparer les clients et les cuisiniers
+                List<string> clients = typesNoeuds.Where(kv => kv.Value == "client").Select(kv => kv.Key).ToList();
+                List<string> cuisiniers = typesNoeuds.Where(kv => kv.Value == "cuisinier").Select(kv => kv.Key).ToList();
+
+                // Calculer les positions des nœuds
+                Dictionary<string, Point> positions = new Dictionary<string, Point>();
+
+                // Positionner les clients à gauche
+                int espaceVerticalClients = (hauteur - 2 * margeVerticale) / Math.Max(clients.Count, 1);
+                for (int i = 0; i < clients.Count; i++)
+                {
+                    positions[clients[i]] = new Point(
+                        margeHorizontale,
+                        margeVerticale + i * espaceVerticalClients + espaceVerticalClients / 2
+                    );
+                }
+
+                // Positionner les cuisiniers à droite
+                int espaceVerticalCuisiniers = (hauteur - 2 * margeVerticale) / Math.Max(cuisiniers.Count, 1);
+                for (int i = 0; i < cuisiniers.Count; i++)
+                {
+                    positions[cuisiniers[i]] = new Point(
+                        largeur - margeHorizontale,
+                        margeVerticale + i * espaceVerticalCuisiniers + espaceVerticalCuisiniers / 2
+                    );
+                }
 
                 // Créer l'image
                 using (Bitmap bitmap = new Bitmap(largeur, hauteur))
@@ -291,148 +498,107 @@ namespace Projet_problème_scientifique_info
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
                     g.Clear(Color.White);
 
-                    // Séparer les clients et les cuisiniers
-                    List<string> clients = new List<string>();
-                    List<string> cuisiniers = new List<string>();
-
-                    foreach (var sommet in graphe.Keys)
+                    // Couleurs pour la coloration des nœuds
+                    Color[] couleursGraphe = new Color[]
                     {
-                        if (sommet.Contains("(CL"))
-                        {
-                            clients.Add(sommet);
-                        }
-                        else if (sommet.Contains("(CU"))
-                        {
-                            cuisiniers.Add(sommet);
-                        }
-                    }
-
-                    // Calculer les positions des noeuds
-                    Dictionary<string, PointF> positions = new Dictionary<string, PointF>();
-
-                    // Positionner les clients en cercle sur la gauche
-                    int nbClients = clients.Count;
-                    double rayonCercleClients = Math.Min(hauteur, largeur / 2) * 0.4;
-                    double centreCercleClientsX = largeur / 4;
-                    double centreCercleClientsY = hauteur / 2;
-
-                    for (int i = 0; i < nbClients; i++)
-                    {
-                        double angle = 2 * Math.PI * i / nbClients;
-                        float x = (float)(centreCercleClientsX + rayonCercleClients * Math.Cos(angle));
-                        float y = (float)(centreCercleClientsY + rayonCercleClients * Math.Sin(angle));
-                        positions[clients[i]] = new PointF(x, y);
-                    }
-
-                    // Positionner les cuisiniers en cercle sur la droite
-                    int nbCuisiniers = cuisiniers.Count;
-                    double rayonCercleCuisiniers = Math.Min(hauteur, largeur / 2) * 0.4;
-                    double centreCercleCuisiniersX = 3 * largeur / 4;
-                    double centreCercleCuisiniersY = hauteur / 2;
-
-                    for (int i = 0; i < nbCuisiniers; i++)
-                    {
-                        double angle = 2 * Math.PI * i / nbCuisiniers;
-                        float x = (float)(centreCercleCuisiniersX + rayonCercleCuisiniers * Math.Cos(angle));
-                        float y = (float)(centreCercleCuisiniersY + rayonCercleCuisiniers * Math.Sin(angle));
-                        positions[cuisiniers[i]] = new PointF(x, y);
-                    }
+                        Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Purple,
+                        Color.Orange, Color.Pink, Color.Cyan, Color.Magenta, Color.Brown
+                    };
 
                     // Dessiner les liens
-                    using (Pen penLien = new Pen(couleurLien, 1))
+                    Pen penLien = new Pen(Color.Black, 2);
+                    foreach (var lien in graphe.LiensNoeuds)
                     {
-                        foreach (var client in clients)
+                        Point p1 = positions[lien.Noeud1.Id];
+                        Point p2 = positions[lien.Noeud2.Id];
+                        g.DrawLine(penLien, p1, p2);
+                    }
+
+                    // Dessiner les nœuds avec leur couleur
+                    Font font = new Font("Arial", 10);
+                    Brush brushTexte = Brushes.White;
+
+                    foreach (var noeud in graphe.ListeAdjacence.Keys)
+                    {
+                        Point p = positions[noeud];
+
+                        // Déterminer la couleur du nœud
+                        int couleurIndex = couleurs.ContainsKey(noeud) ? couleurs[noeud] % couleursGraphe.Length : 0;
+                        Brush brushNoeud = new SolidBrush(couleursGraphe[couleurIndex]);
+
+                        // Forme différente selon le type de nœud
+                        if (typesNoeuds.ContainsKey(noeud) && typesNoeuds[noeud] == "client")
                         {
-                            foreach (var voisin in graphe[client])
-                            {
-                                if (cuisiniers.Contains(voisin))
-                                {
-                                    g.DrawLine(penLien, positions[client], positions[voisin]);
-                                }
-                            }
+                            // Client : cercle
+                            g.FillEllipse(brushNoeud, p.X - 15, p.Y - 15, 30, 30);
                         }
-                    }
-
-                    // Dessiner les noeuds clients
-                    using (Brush brushClient = new SolidBrush(couleurClient))
-                    using (Pen penClient = new Pen(couleurClient, 2))
-                    {
-                        foreach (var client in clients)
+                        else
                         {
-                            PointF pos = positions[client];
-                            g.FillEllipse(brushClient, pos.X - rayonNoeud, pos.Y - rayonNoeud, 2 * rayonNoeud, 2 * rayonNoeud);
-                            g.DrawEllipse(penClient, pos.X - rayonNoeud, pos.Y - rayonNoeud, 2 * rayonNoeud, 2 * rayonNoeud);
-
-                            // Dessiner le nom du client
-                            string nomCourt = client.Split('(')[0].Trim(); // Prendre juste le prénom et nom
-                            SizeF tailleTexte = g.MeasureString(nomCourt, fontNom);
-                            g.DrawString(nomCourt, fontNom, Brushes.Black, pos.X - tailleTexte.Width / 2, pos.Y + rayonNoeud + 5);
+                            // Cuisinier : carré
+                            g.FillRectangle(brushNoeud, p.X - 15, p.Y - 15, 30, 30);
                         }
+
+                        // Afficher le nom du nœud
+                        string nomAffiche = nomsNoeuds.ContainsKey(noeud) ? nomsNoeuds[noeud] : noeud.ToString();
+                        SizeF tailleTexte = g.MeasureString(nomAffiche, font);
+
+                        // Positionner le texte à côté du nœud (à gauche pour les clients, à droite pour les cuisiniers)
+                        float xTexte = typesNoeuds[noeud] == "client" ? p.X - tailleTexte.Width - 20 : p.X + 20;
+                        float yTexte = p.Y - tailleTexte.Height / 2;
+
+                        g.DrawString(nomAffiche, font, Brushes.Black, xTexte, yTexte);
+
+                        // Afficher l'identifiant du nœud au centre
+                        g.DrawString(noeud.ToString(), font, brushTexte, p.X - 7, p.Y - 7);
                     }
 
-                    // Dessiner les noeuds cuisiniers
-                    using (Brush brushCuisinier = new SolidBrush(couleurCuisinier))
-                    using (Pen penCuisinier = new Pen(couleurCuisinier, 2))
+                    // Ajouter une légende
+                    int legendeX = 50;
+                    int legendeY = 50;
+                    Font fontLegende = new Font("Arial", 12);
+                    Brush brushTexteLegende = Brushes.Black;
+
+                    g.DrawString("Légende :", fontLegende, brushTexteLegende, legendeX, legendeY);
+                    legendeY += 25;
+
+                    // Légende des types de nœuds
+                    g.FillEllipse(Brushes.Gray, legendeX, legendeY, 20, 20);
+                    g.DrawString("Client", fontLegende, brushTexteLegende, legendeX + 30, legendeY);
+                    legendeY += 30;
+
+                    g.FillRectangle(Brushes.Gray, legendeX, legendeY, 20, 20);
+                    g.DrawString("Cuisinier", fontLegende, brushTexteLegende, legendeX + 30, legendeY);
+                    legendeY += 30;
+
+                    // Légende des couleurs
+                    for (int i = 0; i < Math.Min(couleursGraphe.Length, 5); i++)
                     {
-                        foreach (var cuisinier in cuisiniers)
-                        {
-                            PointF pos = positions[cuisinier];
-                            g.FillEllipse(brushCuisinier, pos.X - rayonNoeud, pos.Y - rayonNoeud, 2 * rayonNoeud, 2 * rayonNoeud);
-                            g.DrawEllipse(penCuisinier, pos.X - rayonNoeud, pos.Y - rayonNoeud, 2 * rayonNoeud, 2 * rayonNoeud);
-
-                            // Dessiner le nom du cuisinier
-                            string nomCourt = cuisinier.Split('(')[0].Trim(); // Prendre juste le prénom et nom
-                            SizeF tailleTexte = g.MeasureString(nomCourt, fontNom);
-                            g.DrawString(nomCourt, fontNom, Brushes.Black, pos.X - tailleTexte.Width / 2, pos.Y + rayonNoeud + 5);
-                        }
+                        Brush brushCouleur = new SolidBrush(couleursGraphe[i]);
+                        g.FillRectangle(brushCouleur, legendeX, legendeY, 20, 20);
+                        g.DrawString($"Couleur {i}", fontLegende, brushTexteLegende, legendeX + 30, legendeY);
+                        legendeY += 30;
                     }
 
-                    // Dessiner la légende
-                    int xLegende = 50;
-                    int yLegende = 50;
-                    int espacementLegende = 30;
-
-                    // Titre de la légende
-                    using (Font fontTitre = new Font("Arial", 14, FontStyle.Bold))
-                    {
-                        g.DrawString("Légende", fontTitre, Brushes.Black, xLegende, yLegende);
-                        yLegende += 30;
-                    }
-
-                    // Client
-                    g.FillEllipse(new SolidBrush(couleurClient), xLegende, yLegende, 20, 20);
-                    g.DrawString("Client", fontNom, Brushes.Black, xLegende + 30, yLegende + 5);
-                    yLegende += espacementLegende;
-
-                    // Cuisinier
-                    g.FillEllipse(new SolidBrush(couleurCuisinier), xLegende, yLegende, 20, 20);
-                    g.DrawString("Cuisinier", fontNom, Brushes.Black, xLegende + 30, yLegende + 5);
-                    yLegende += espacementLegende;
-
-                    // Relation
-                    g.DrawLine(new Pen(couleurLien, 2), xLegende, yLegende + 10, xLegende + 20, yLegende + 10);
-                    g.DrawString("Relation (commande livrée)", fontNom, Brushes.Black, xLegende + 30, yLegende + 5);
-
-                    // Enregistrer l'image
-                    bitmap.Save(cheminFichier, ImageFormat.Png);
-                    Console.WriteLine($"Visualisation enregistrée sous '{cheminFichier}'");
-
-                    // Ouvrir l'image
-                    try
-                    {
-                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(cheminFichier) { UseShellExecute = true });
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Erreur lors de l'ouverture de l'image: {ex.Message}");
-                    }
+                    bitmap.Save(cheminImage, ImageFormat.Png);
                 }
 
-                return true;
+                Console.WriteLine($"Le graphe a été dessiné et sauvegardé sous '{cheminImage}'.");
+
+                // Ouvrir l'image
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(cheminImage) { UseShellExecute = true });
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erreur lors de l'ouverture de l'image : {ex.Message}");
+                    return false;
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la génération de la visualisation: {ex.Message}");
+                Console.WriteLine($"Erreur lors de la visualisation du graphe : {ex.Message}");
                 return false;
             }
         }

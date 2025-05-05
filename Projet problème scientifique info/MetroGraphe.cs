@@ -551,7 +551,7 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-        #region Algo de Welsh-Powell
+        #region Algo    
         /// <summary>
         /// Implémente l'algorithme de Welsh-Powell pour colorer un graphe.
         /// Cet algorithme attribue des couleurs aux sommets de manière à ce que deux sommets adjacents
