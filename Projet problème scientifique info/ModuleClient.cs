@@ -14,14 +14,16 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ModuleClient
     {
+        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
+
 
         /// <summary>
         /// Affiche le menu principal du client connecté
         /// </summary>
         public static void MenuPrincipalClient()
         {
-            // Vérifier que l'utilisateur est un client
+            /// Vérifier que l'utilisateur est un client
             if (!SessionUtilisateur.EstClient())
             {
                 SessionUtilisateur.AfficherMessageDroitsInsuffisants();
@@ -52,15 +54,12 @@ namespace Projet_problème_scientifique_info
                         ModulePlat.MenuPrincipalPlats();
                         break;
                     case "2":
-                        //PasserCommande();
                         ModuleCommande.MenuPrincipalCommandes();
                         break;
                     case "3":
-                        //VoirMesCommandes();
                         ModuleStats.MenuPrincipalStats();
                         break;
                     case "4":
-                        //EvaluerCuisinier();
                         GererMonProfil();
                         break;
                     case "5":
@@ -88,7 +87,7 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Récupérer les informations du client
+                /// Récupérer les informations du client
                 string requeteClient = @"
                     SELECT nom_client, prenom_client, email_client, tel_client, type_client, 
                            nom_entreprise, nom_referent, code_postal_client, rue_client, metro_le_plus_proche_client
@@ -180,7 +179,7 @@ namespace Projet_problème_scientifique_info
                         string inputEmail = Console.ReadLine();
                         if (!string.IsNullOrWhiteSpace(inputEmail))
                         {
-                            // Vérifier si l'email existe déjà
+                            /// Vérifier si l'email existe déjà
                             string requeteVerifEmail = "SELECT COUNT(*) FROM CLIENT WHERE email_client = @Email AND id_client != @IdClient";
                             Dictionary<string, object> parametresVerifEmail = new Dictionary<string, object>
                             {
@@ -252,7 +251,7 @@ namespace Projet_problème_scientifique_info
                         return;
                 }
 
-                // Construire la requête de mise à jour
+                /// Construire la requête de mise à jour
                 string requeteUpdate = "UPDATE CLIENT SET nom_client = @Nom, prenom_client = @Prenom, email_client = @Email, " +
                                       "tel_client = @Tel, type_client = @TypeClient, nom_entreprise = @NomEntreprise, " +
                                       "nom_referent = @NomReferent, code_postal_client = @CodePostal, rue_client = @Rue, " +
@@ -287,7 +286,7 @@ namespace Projet_problème_scientifique_info
                 {
                     GestionBDD.AfficherMessageSucces("Profil mis à jour avec succès !");
 
-                    // Mettre à jour les informations de session si le nom ou prénom a changé
+                    /// Mettre à jour les informations de session si le nom ou prénom a changé
                     if (nouveauNom != nom || nouveauPrenom != prenom || nouvelEmail != email)
                     {
                         SessionUtilisateur.Connecter(SessionUtilisateur.IdUtilisateur, nouveauNom, nouveauPrenom, nouvelEmail, SessionUtilisateur.TypeUtilisateur);
@@ -308,7 +307,6 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-
         #region Gestion des adresses 
         /// <summary>
         /// Permet au client de gérer ses adresses
@@ -324,7 +322,7 @@ namespace Projet_problème_scientifique_info
 
                 try
                 {
-                    // Récupérer les adresses du client
+                    /// Récupérer les adresses du client
                     string requeteAdresses = @"
                         SELECT id_adresse, code_porte, complement_adresse, étage, numero_appartement
                         FROM ADRESSE
@@ -424,7 +422,6 @@ namespace Projet_problème_scientifique_info
             Console.Write("Numéro d'appartement : ");
             string numeroAppartement = Console.ReadLine();
 
-            // Générer un nouvel ID
             int idAdresse = GestionBDD.GenererNouvelID("ADRESSE", "id_adresse");
 
             try
@@ -475,7 +472,7 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Vérifier si l'adresse existe et appartient au client
+                /// Vérifier si l'adresse existe et appartient au client
                 string requeteVerif = @"
                     SELECT code_porte, complement_adresse, étage, numero_appartement
                     FROM ADRESSE
@@ -573,7 +570,6 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Vérifier si l'adresse existe et appartient au client
                 string requeteVerif = "SELECT COUNT(*) FROM ADRESSE WHERE id_adresse = @IdAdresse AND id_client = @IdClient";
                 Dictionary<string, object> parametresVerif = new Dictionary<string, object>
                 {

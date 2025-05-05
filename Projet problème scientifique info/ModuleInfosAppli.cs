@@ -63,7 +63,7 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("À PROPOS DE L'APPLICATION");
 
-            // Affichage avec mise en forme pour améliorer la lisibilité
+            /// Affichage avec mise en forme pour améliorer la lisibilité
             AfficherTexteFormate("Liv'InParis - Système de gestion de livraison de repas");
             AfficherTexteFormate("Version 3.0", true);
 
@@ -87,13 +87,11 @@ namespace Projet_problème_scientifique_info
 
             AfficherTexteFormate("Nous envisageons dans un avenir proche un développement au-delà de Paris intramuros. Merci pour votre compréhension. ");
 
-            // Option de retour
             Console.WriteLine("\n------------------------------------------------------------------");
             Console.WriteLine("Appuyez sur une touche pour revenir au menu précédent...");
             Console.ReadKey();
         }
         #endregion
-
 
         #region Présente brièvement l'application
         /// <summary>
@@ -146,13 +144,11 @@ namespace Projet_problème_scientifique_info
             AfficherTexteFormate("Pour plus de détails, nous vous invitons à créer un compte et explorer l'application par vous même. " +
                 "Vos retours sont précieux, n'hésitez pas à revenir vers notre équipe pour laisser un avis");
 
-            // Option de retour
             Console.WriteLine("\n------------------------------------------------------------------");
             Console.WriteLine("Appuyez sur une touche pour revenir au menu précédent...");
             Console.ReadKey();
         }
         #endregion
-
 
         #region Présente les infos contacts 
         /// <summary>
@@ -177,7 +173,6 @@ namespace Projet_problème_scientifique_info
             AfficherTexteFormate("Si vous souhaitez nous rejoindre, merci de présenter vos motivations dans une courte " +
                 "lettre jointe à votre CV. Nous reviendrons vers vous dans les plus brefs délais.");
 
-            // Option de retour
             Console.WriteLine("\n------------------------------------------------------------------");
             Console.WriteLine("Appuyez sur une touche pour revenir au menu précédent...");
             Console.ReadKey();
@@ -197,7 +192,6 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("Merci de prendre quelques instants pour partager votre expérience.");
             Console.WriteLine("------------------------------------------------------------------");
 
-            // Demande de la note
             int note = 0;
             bool noteValide = false;
 
@@ -216,7 +210,6 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            // Affichage visuel des étoiles
             Console.Write("\nVotre note : ");
             for (int i = 0; i < note; i++)
             {
@@ -224,11 +217,11 @@ namespace Projet_problème_scientifique_info
             }
             Console.WriteLine();
 
-            // Demande du commentaire
+            /// Demande du commentaire
             Console.WriteLine("\nVeuillez laisser un commentaire (facultatif) :");
             string commentaire = Console.ReadLine();
 
-            // Demande des aspects à améliorer
+            /// Demande des aspects à améliorer
             Console.WriteLine("\nQuels aspects de l'application souhaiteriez-vous voir améliorés ? (facultatif)");
             Console.WriteLine("1. Interface utilisateur");
             Console.WriteLine("2. Performance");
@@ -237,7 +230,6 @@ namespace Projet_problème_scientifique_info
             Console.Write("Votre choix (séparés par des virgules si plusieurs) : ");
             string aspectsStr = Console.ReadLine();
 
-            // Traitement des aspects à améliorer
             List<string> aspects = new List<string>();
             if (!string.IsNullOrWhiteSpace(aspectsStr))
             {
@@ -257,7 +249,6 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-
             Console.WriteLine("\n------------------------------------------------------------------");
             GestionBDD.AfficherMessageSucces("Merci pour votre évaluation !");
             Console.WriteLine("Votre avis a été enregistré et sera pris en compte pour améliorer l'application.");
@@ -268,7 +259,6 @@ namespace Projet_problème_scientifique_info
                 Console.WriteLine("Un membre de notre équipe examinera votre commentaire et nous ferons de notre mieux pour résoudre les problèmes que vous avez rencontrés.");
             }
 
-            // Option de retour
             Console.WriteLine("\n------------------------------------------------------------------");
             Console.WriteLine("Appuyez sur une touche pour revenir au menu précédent...");
             Console.ReadKey();
@@ -283,24 +273,21 @@ namespace Projet_problème_scientifique_info
         /// <param name="sautLigneApres">Indique s'il faut ajouter un saut de ligne après le texte</param>
         private static void AfficherTexteFormate(string texte, bool sautLigneApres = false)
         {
-            // Largeur maximale pour le texte (pour éviter les lignes trop longues)
+            /// Largeur maximale pour le texte (pour éviter les lignes trop longues)
             int largeurMax = 80;
 
-            // Diviser le texte en mots
             string[] mots = texte.Split(' ');
 
             StringBuilder ligne = new StringBuilder();
 
             foreach (string mot in mots)
             {
-                // Si l'ajout du mot dépasse la largeur maximale, afficher la ligne actuelle et commencer une nouvelle ligne
                 if (ligne.Length + mot.Length + 1 > largeurMax && ligne.Length > 0)
                 {
                     Console.WriteLine(ligne.ToString());
                     ligne.Clear();
                 }
 
-                // Ajouter le mot à la ligne actuelle
                 if (ligne.Length > 0)
                 {
                     ligne.Append(" ");
@@ -308,13 +295,11 @@ namespace Projet_problème_scientifique_info
                 ligne.Append(mot);
             }
 
-            // Afficher la dernière ligne
             if (ligne.Length > 0)
             {
                 Console.WriteLine(ligne.ToString());
             }
 
-            // Ajouter un saut de ligne supplémentaire si demandé
             if (sautLigneApres)
             {
                 Console.WriteLine();

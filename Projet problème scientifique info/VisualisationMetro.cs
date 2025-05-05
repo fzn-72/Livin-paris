@@ -420,7 +420,7 @@ namespace Projet_problème_scientifique_info
         private Dictionary<string, PointF> positionsStationsUniques;
         private Dictionary<int, string> mapIdToNomUnique;
         private Dictionary<string, RectangleF> zonesTexte;
-        private Dictionary<int, int> colorationStations; // Stocke la coloration des stations
+        private Dictionary<int, int> colorationStations; /// Stocke la coloration des stations
         private float minDistanceNodes = 12.0f;
         private float nudgingFactor = 0.4f;
         private int nudgingIterations = 100;
@@ -438,7 +438,7 @@ namespace Projet_problème_scientifique_info
         private double maxLongitude = double.MinValue;
         private double minLatitude = double.MaxValue;
         private double maxLatitude = double.MinValue;
-        private List<Color> couleursColoration; // Liste des couleurs pour la coloration
+        private List<Color> couleursColoration; /// Liste des couleurs pour la coloration
 
         /// <summary>
         /// Constructeur de la classe VisualisationMetroAmelioree.
@@ -456,7 +456,6 @@ namespace Projet_problème_scientifique_info
             this.mapIdToNomUnique = new Dictionary<int, string>();
             this.zonesTexte = new Dictionary<string, RectangleF>(StringComparer.OrdinalIgnoreCase);
 
-            // Initialiser les couleurs pour la coloration
             this.couleursColoration = new List<Color>
             {
                 Color.Red, Color.Blue, Color.Green, Color.Orange,
@@ -470,7 +469,6 @@ namespace Projet_problème_scientifique_info
                 throw new InvalidOperationException("Le MetroGraphe fourni ne contient aucune station. Assurez-vous que ChargerStations() a été appelé avec succès avant de créer la visualisation.");
             }
 
-            // Appliquer l'algorithme de Welsh-Powell pour colorer le graphe
             AppliquerColorationWelshPowell();
 
             PreparerStationsUniquesEtLimitesGeo();
@@ -480,17 +478,17 @@ namespace Projet_problème_scientifique_info
 
         /// <summary>
         /// Applique l'algorithme de Welsh-Powell pour colorer le graphe des stations de métro.
-        /// Cette version prend en compte le regroupement des stations par nom pour la visualisation.
+        /// Cette version prend en compte le regroupement des stations par nom pour la visualisation. Similaire à celui de la classe ClientCuisinierGraphe 
         /// </summary>
         private void AppliquerColorationWelshPowell()
         {
             Console.WriteLine("Application de l'algorithme de Welsh-Powell pour la coloration du graphe...");
 
-            // Créer un graphe des stations uniques (par nom)
+            /// Créer un graphe des stations uniques (par nom)
             Dictionary<string, List<string>> grapheStationsUniques = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             Dictionary<string, List<int>> idsParNomStation = new Dictionary<string, List<int>>(StringComparer.OrdinalIgnoreCase);
 
-            // Regrouper les IDs de stations par nom
+            /// Regrouper les IDs de stations par nom
             foreach (var station in metroGraphe.Stations.Values)
             {
                 string nom = station.Nom;
@@ -502,7 +500,7 @@ namespace Projet_problème_scientifique_info
                 idsParNomStation[nom].Add(station.Id);
             }
 
-            // Construire le graphe des stations uniques
+            /// Construire le graphe des stations uniques
             foreach (var lien in metroGraphe.LiensNoeuds)
             {
                 int idStation1 = lien.Noeud1.Id;
@@ -514,11 +512,11 @@ namespace Projet_problème_scientifique_info
                     string nom1 = station1.Nom;
                     string nom2 = station2.Nom;
 
-                    // Ne pas ajouter de lien si c'est la même station (même nom)
+                    /// Ne pas ajouter de lien si c'est la même station (même nom)
                     if (nom1.Equals(nom2, StringComparison.OrdinalIgnoreCase))
                         continue;
 
-                    // Ajouter les voisins dans le graphe des stations uniques
+                    /// Ajouter les voisins dans le graphe des stations uniques
                     if (!grapheStationsUniques[nom1].Contains(nom2))
                         grapheStationsUniques[nom1].Add(nom2);
 
@@ -527,47 +525,41 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            // Calculer le degré de chaque station unique
+            /// Calculer le degré de chaque station unique
             Dictionary<string, int> degresStationsUniques = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             foreach (var nom in grapheStationsUniques.Keys)
             {
                 degresStationsUniques[nom] = grapheStationsUniques[nom].Count;
             }
 
-            // Trier les stations uniques par ordre décroissant de degré
+            /// Trier les stations uniques par ordre décroissant de degré
             List<string> stationsUniquesTries = grapheStationsUniques.Keys.ToList();
             stationsUniquesTries.Sort((a, b) => degresStationsUniques[b].CompareTo(degresStationsUniques[a]));
 
-            // Dictionnaire pour stocker la couleur de chaque station unique
+            /// Dictionnaire pour stocker la couleur de chaque station unique
             Dictionary<string, int> couleursStationsUniques = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            // Initialiser toutes les stations avec la couleur -1 (non coloré)
+            /// Initialiser toutes les stations avec la couleur -1 (non coloré)
             foreach (var nom in stationsUniquesTries)
             {
                 couleursStationsUniques[nom] = -1;
             }
 
-            // Couleur actuelle
             int couleurActuelle = 0;
 
-            // Tant qu'il reste des stations non colorées
+            /// Tant qu'il reste des stations non colorées
             while (stationsUniquesTries.Any(s => couleursStationsUniques[s] == -1))
             {
                 Console.WriteLine($"Traitement de la couleur {couleurActuelle}");
 
-                // Pour chaque station non colorée dans l'ordre de degré décroissant
                 foreach (var nomStation in stationsUniquesTries)
                 {
-                    // Si la station n'est pas encore colorée
                     if (couleursStationsUniques[nomStation] == -1)
                     {
-                        // Vérifier si on peut attribuer la couleur actuelle
                         bool peutColorer = true;
 
-                        // Vérifier tous les voisins de la station
                         foreach (var nomVoisin in grapheStationsUniques[nomStation])
-                        {
-                            // Si un voisin a déjà la couleur actuelle, on ne peut pas l'utiliser
+                        { 
                             if (couleursStationsUniques.ContainsKey(nomVoisin) &&
                                 couleursStationsUniques[nomVoisin] == couleurActuelle)
                             {
@@ -577,7 +569,7 @@ namespace Projet_problème_scientifique_info
                             }
                         }
 
-                        // Si aucun voisin n'a la couleur actuelle, on l'attribue à cette station
+                        /// Si aucun voisin n'a la couleur actuelle, on l'attribue à cette station
                         if (peutColorer)
                         {
                             couleursStationsUniques[nomStation] = couleurActuelle;
@@ -586,11 +578,8 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-                // Passer à la couleur suivante
                 couleurActuelle++;
             }
-
-            // Convertir la coloration des stations uniques en coloration des stations par ID
             Dictionary<int, int> colorationStations = new Dictionary<int, int>();
 
             foreach (var kvp in idsParNomStation)
@@ -606,7 +595,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            // Vérification finale
+            /// Vérification finale
             int erreurs = 0;
             foreach (var lien in metroGraphe.LiensNoeuds)
             {
@@ -619,7 +608,6 @@ namespace Projet_problème_scientifique_info
                     string nom1 = station1.Nom;
                     string nom2 = station2.Nom;
 
-                    // Ne pas vérifier si c'est la même station (même nom)
                     if (nom1.Equals(nom2, StringComparison.OrdinalIgnoreCase))
                         continue;
 
@@ -881,10 +869,8 @@ namespace Projet_problème_scientifique_info
                     float tailleStationActuelle = EstStationImportante(nomUnique) ? 15.0f : 5.0f;
                     float rayon = tailleStationActuelle / 2.0f;
 
-                    // Trouver la couleur de la station selon l'algorithme Welsh-Powell
-                    Color couleurStation = Color.White; // Couleur par défaut
+                    Color couleurStation = Color.White; /// Couleur par défaut
 
-                    // Trouver l'ID de la station à partir du nom unique
                     int idStation = -1;
                     foreach (var kvp in mapIdToNomUnique)
                     {
@@ -895,14 +881,13 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Si on a trouvé l'ID et qu'il a une couleur attribuée
                     if (idStation != -1 && colorationStations.ContainsKey(idStation))
                     {
                         int indexCouleur = colorationStations[idStation] % couleursColoration.Count;
                         couleurStation = couleursColoration[indexCouleur];
                     }
 
-                    // Dessiner la station avec sa couleur
+                    /// Dessiner la station avec sa couleur
                     using (Brush brushStation = new SolidBrush(couleurStation))
                     {
                         g.FillEllipse(brushStation, p.X - rayon, p.Y - rayon, tailleStationActuelle, tailleStationActuelle);

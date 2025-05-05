@@ -15,12 +15,13 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     public class ClientCuisinierMetroGraphe
     {
-        private string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-        private Dictionary<string, StationInfo> stations; // Informations sur les stations de métro
-        private Dictionary<string, List<PersonneInfo>> personnesParStation; // Personnes (clients/cuisiniers) par station
-        private List<RelationInfo> relations; // Relations entre clients et cuisiniers
+        //private string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
+        private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
 
-        // Paramètres de visualisation
+        private Dictionary<string, StationInfo> stations; 
+        private Dictionary<string, List<PersonneInfo>> personnesParStation;
+        private List<RelationInfo> relations; 
+
         private int largeur = 4000;
         private int hauteur = 3000;
         private int margeImage = 100;
@@ -33,7 +34,7 @@ namespace Projet_problème_scientifique_info
         private Color couleurStation = Color.Black;
         private Color couleurRelation = Color.Green;
 
-        // Limites géographiques
+        /// Limites géographiques
         private double minLongitude = double.MaxValue;
         private double maxLongitude = double.MinValue;
         private double minLatitude = double.MaxValue;
@@ -44,7 +45,6 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public ClientCuisinierMetroGraphe()
         {
-            // Utiliser StringComparer.OrdinalIgnoreCase pour tous les dictionnaires
             stations = new Dictionary<string, StationInfo>(StringComparer.OrdinalIgnoreCase);
             personnesParStation = new Dictionary<string, List<PersonneInfo>>(StringComparer.OrdinalIgnoreCase);
             relations = new List<RelationInfo>();
@@ -64,16 +64,16 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // 1. Charger les stations de métro avec leurs coordonnées
+                    /// 1. Charger les stations de métro avec leurs coordonnées
                     ChargerStationsMetro(connection);
 
-                    // 2. Charger les clients et leurs stations de métro
+                    /// 2. Charger les clients et leurs stations de métro
                     ChargerClients(connection);
 
-                    // 3. Charger les cuisiniers et leurs stations de métro
+                    /// 3. Charger les cuisiniers et leurs stations de métro
                     ChargerCuisiniers(connection);
 
-                    // 4. Charger les relations entre clients et cuisiniers (commandes)
+                    /// 4. Charger les relations entre clients et cuisiniers (commandes)
                     ChargerRelations(connection);
                 }
 
@@ -99,7 +99,7 @@ namespace Projet_problème_scientifique_info
         {
             Console.WriteLine("Chargement des stations de métro...");
 
-            // Requête pour récupérer les stations de métro uniques à partir des tables CLIENT et CUISINIER
+            /// Requête pour récupérer les stations de métro uniques à partir des tables CLIENT et CUISINIER
             string requete = @"
         SELECT DISTINCT metro_le_plus_proche_client AS nom_station
         FROM CLIENT
@@ -111,10 +111,10 @@ namespace Projet_problème_scientifique_info
 
             MySqlCommand cmd = new MySqlCommand(requete, connection);
 
-            // Dictionnaire de coordonnées GPS pour les principales stations de métro parisiennes
+            /// Dictionnaire de coordonnées GPS pour les principales stations de métro parisiennes
             Dictionary<string, (double lat, double lon)> coordonneesStations = new Dictionary<string, (double, double)>(StringComparer.OrdinalIgnoreCase);
 
-            // Ajouter les coordonnées des stations
+            /// Ajouter les coordonnées des stations
             void AjouterCoordonnees(string nom, double lat, double lon)
             {
                 if (!coordonneesStations.ContainsKey(nom))
@@ -123,7 +123,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            // Ligne 1
+            /// Ligne 1
             AjouterCoordonnees("Château de Vincennes", 48.8448, 2.4372);
             AjouterCoordonnees("Bérault", 48.8456, 2.4287);
             AjouterCoordonnees("Saint-Mandé", 48.8469, 2.4187);
@@ -150,7 +150,7 @@ namespace Projet_problème_scientifique_info
             AjouterCoordonnees("Esplanade de La Défense", 48.8883, 2.2506);
             AjouterCoordonnees("La Défense", 48.8918, 2.2387);
 
-            // Ligne 2
+            /// Ligne 2
             AjouterCoordonnees("Avron", 48.8516, 2.3982);
             AjouterCoordonnees("Alexandre Dumas", 48.8563, 2.3939);
             AjouterCoordonnees("Philippe Auguste", 48.8583, 2.3892);
@@ -175,7 +175,7 @@ namespace Projet_problème_scientifique_info
             AjouterCoordonnees("Victor Hugo", 48.8704, 2.2851);
             AjouterCoordonnees("Porte Dauphine", 48.8714, 2.2775);
 
-            // Ligne 3
+            /// Ligne 3
             AjouterCoordonnees("Gallieni", 48.8652, 2.4163);
             AjouterCoordonnees("Porte de Bagnolet", 48.8645, 2.4079);
             AjouterCoordonnees("Gambetta", 48.8650, 2.3986);
@@ -200,7 +200,7 @@ namespace Projet_problème_scientifique_info
             AjouterCoordonnees("Anatole France", 48.8922, 2.2850);
             AjouterCoordonnees("Pont de Levallois-Bécon", 48.8975, 2.2811);
 
-            // Ligne 4
+            /// Ligne 4
             AjouterCoordonnees("Porte de Clignancourt", 48.8972, 2.3456);
             AjouterCoordonnees("Simplon", 48.8936, 2.3478);
             AjouterCoordonnees("Marcadet-Poissonniers", 48.8908, 2.3494);
@@ -226,7 +226,7 @@ namespace Projet_problème_scientifique_info
             AjouterCoordonnees("Porte d'Orléans", 48.8236, 2.3256);
             AjouterCoordonnees("Mairie de Montrouge", 48.8181, 2.3192);
 
-            // Ligne 5
+            /// Ligne 5
             AjouterCoordonnees("Bobigny-Pablo Picasso", 48.9064, 2.4494);
             AjouterCoordonnees("Bobigny-Pantin-Raymond Queneau", 48.8936, 2.4428);
             AjouterCoordonnees("Église de Pantin", 48.8931, 2.4128);
@@ -244,7 +244,7 @@ namespace Projet_problème_scientifique_info
             AjouterCoordonnees("Campo-Formio", 48.8356, 2.3567);
             AjouterCoordonnees("Place d'Italie", 48.8317, 2.3556);
 
-            // Autres stations importantes
+            /// Autres stations importantes
             AjouterCoordonnees("Montparnasse", 48.8439, 2.3242);
             AjouterCoordonnees("Gare Saint-Lazare", 48.8753, 2.3253);
             AjouterCoordonnees("Gare Montparnasse", 48.8417, 2.3217);
@@ -256,7 +256,6 @@ namespace Projet_problème_scientifique_info
             AjouterCoordonnees("Convention", 48.8364, 2.2983);
             AjouterCoordonnees("Télégraphe", 48.8756, 2.3981);
 
-            // Liste pour stocker les noms de stations lus de la base de données
             List<string> nomsStations = new List<string>();
 
             using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -271,31 +270,28 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            // Traiter chaque station une par une
             foreach (string nomStation in nomsStations)
             {
                 try
                 {
-                    // Vérifier si cette station a déjà été ajoutée
                     if (stations.ContainsKey(nomStation))
                     {
                         Console.WriteLine($"Station déjà ajoutée: {nomStation}");
                         continue;
                     }
 
-                    // Vérifier si nous avons les coordonnées pour cette station
                     if (coordonneesStations.TryGetValue(nomStation, out var coords))
                     {
                         double latitude = coords.lat;
                         double longitude = coords.lon;
 
-                        // Mettre à jour les limites géographiques
+                        /// Mettre à jour les limites géographiques
                         minLatitude = Math.Min(minLatitude, latitude);
                         maxLatitude = Math.Max(maxLatitude, latitude);
                         minLongitude = Math.Min(minLongitude, longitude);
                         maxLongitude = Math.Max(maxLongitude, longitude);
 
-                        // Ajouter la station
+                        /// Ajouter la station
                         if (!stations.ContainsKey(nomStation))
                         {
                             stations[nomStation] = new StationInfo
@@ -304,22 +300,19 @@ namespace Projet_problème_scientifique_info
                                 Latitude = latitude,
                                 Longitude = longitude
                             };
-
-                            // Initialiser la liste des personnes pour cette station
                             personnesParStation[nomStation] = new List<PersonneInfo>();
                         }
                     }
                     else
                     {
-                        // Si nous n'avons pas les coordonnées, utiliser des coordonnées fictives
                         Console.WriteLine($"Coordonnées non trouvées pour la station: {nomStation}");
 
-                        // Coordonnées du centre de Paris
+                        /// Coordonnées du centre de Paris
                         double centreLat = 48.8566;
                         double centreLon = 2.3522;
 
-                        // Générer des coordonnées fictives en cercle autour du centre
-                        // Utiliser le hashcode du nom de la station pour avoir une position cohérente
+                        /// Générer des coordonnées fictives en cercle autour du centre
+                        /// Utiliser le hashcode du nom de la station pour avoir une position cohérente
                         int hashCode = nomStation.GetHashCode();
                         double angle = (hashCode % 360) * Math.PI / 180;
                         double rayon = 0.01; // ~1km
@@ -327,13 +320,13 @@ namespace Projet_problème_scientifique_info
                         double latitude = centreLat + rayon * Math.Sin(angle);
                         double longitude = centreLon + rayon * Math.Cos(angle);
 
-                        // Mettre à jour les limites géographiques
+                        /// Mettre à jour les limites géographiques
                         minLatitude = Math.Min(minLatitude, latitude);
                         maxLatitude = Math.Max(maxLatitude, latitude);
                         minLongitude = Math.Min(minLongitude, longitude);
                         maxLongitude = Math.Max(maxLongitude, longitude);
 
-                        // Ajouter la station
+                        /// Ajouter la station
                         if (!stations.ContainsKey(nomStation))
                         {
                             stations[nomStation] = new StationInfo
@@ -343,7 +336,7 @@ namespace Projet_problème_scientifique_info
                                 Longitude = longitude
                             };
 
-                            // Initialiser la liste des personnes pour cette station
+                            /// Initialiser la liste des personnes pour cette station
                             personnesParStation[nomStation] = new List<PersonneInfo>();
                         }
                     }
@@ -351,7 +344,6 @@ namespace Projet_problème_scientifique_info
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Erreur lors du traitement de la station {nomStation}: {ex.Message}");
-                    // Ne pas relancer l'exception pour continuer avec les autres stations
                 }
             }
 
@@ -381,10 +373,10 @@ namespace Projet_problème_scientifique_info
                     string prenomClient = reader["prenom_client"].ToString();
                     string stationMetro = reader["metro_le_plus_proche_client"].ToString().Trim();
 
-                    // Vérifier si la station existe dans notre dictionnaire
+                    /// Vérifier si la station existe dans notre dictionnaire
                     if (stations.ContainsKey(stationMetro))
                     {
-                        // Ajouter le client à la liste des personnes pour cette station
+                        /// Ajouter le client à la liste des personnes pour cette station
                         personnesParStation[stationMetro].Add(new PersonneInfo
                         {
                             Id = idClient,
@@ -427,10 +419,10 @@ namespace Projet_problème_scientifique_info
                     string prenomCuisinier = reader["prenom_cuisinier"].ToString();
                     string stationMetro = reader["metro_le_plus_proche_cuisinier"].ToString().Trim();
 
-                    // Vérifier si la station existe dans notre dictionnaire
+                    /// Vérifier si la station existe dans notre dictionnaire
                     if (stations.ContainsKey(stationMetro))
                     {
-                        // Ajouter le cuisinier à la liste des personnes pour cette station
+                        /// Ajouter le cuisinier à la liste des personnes pour cette station
                         personnesParStation[stationMetro].Add(new PersonneInfo
                         {
                             Id = idCuisinier,
@@ -476,7 +468,6 @@ namespace Projet_problème_scientifique_info
                     string idClient = reader["id_client"].ToString();
                     string idCuisinier = reader["id_cuisinier"].ToString();
 
-                    // Ajouter la relation
                     relations.Add(new RelationInfo
                     {
                         IdClient = idClient,
@@ -499,10 +490,9 @@ namespace Projet_problème_scientifique_info
             {
                 Console.WriteLine("Génération de la visualisation du graphe...");
 
-                // Calculer les positions des stations sur l'image
                 Dictionary<string, PointF> positionsStations = CalculerPositionsStations();
 
-                // Créer l'image
+                /// Créer l'image
                 using (Bitmap bitmap = new Bitmap(largeur, hauteur))
                 using (Graphics g = Graphics.FromImage(bitmap))
                 {
@@ -510,23 +500,23 @@ namespace Projet_problème_scientifique_info
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
                     g.Clear(Color.White);
 
-                    // Dessiner les stations de métro
+                    /// Dessiner les stations de métro
                     DessinerStations(g, positionsStations);
 
-                    // Dessiner les clients et cuisiniers
+                    /// Dessiner les clients et cuisiniers
                     Dictionary<string, PointF> positionsPersonnes = DessinerPersonnes(g, positionsStations);
 
-                    // Dessiner les relations entre clients et cuisiniers
+                    /// Dessiner les relations entre clients et cuisiniers
                     DessinerRelations(g, positionsPersonnes);
 
-                    // Dessiner la légende
+                    /// Dessiner la légende
                     DessinerLegende(g);
 
-                    // Enregistrer l'image
+                    /// Enregistrer l'image
                     bitmap.Save(cheminFichier, ImageFormat.Png);
                     Console.WriteLine($"Visualisation enregistrée sous '{cheminFichier}'");
 
-                    // Ouvrir l'image
+                    /// Ouvrir l'image
                     try
                     {
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(cheminFichier) { UseShellExecute = true });
@@ -554,29 +544,29 @@ namespace Projet_problème_scientifique_info
         {
             Dictionary<string, PointF> positions = new Dictionary<string, PointF>(StringComparer.OrdinalIgnoreCase);
 
-            // Calculer la largeur et la hauteur utiles (sans les marges)
+            /// Calculer la largeur et la hauteur utiles (sans les marges)
             float largeurUtile = largeur - 2 * margeImage;
             float hauteurUtile = hauteur - 2 * margeImage;
 
-            // Calculer l'étendue des coordonnées géographiques
+            /// Calculer l'étendue des coordonnées géographiques
             double rangeLon = maxLongitude - minLongitude;
             double rangeLat = maxLatitude - minLatitude;
 
-            // Ajouter une petite marge aux limites géographiques pour éviter les bords
+            /// Ajouter une petite marge aux limites géographiques pour éviter les bords
             double margeGeo = 0.05;
             minLongitude -= rangeLon * margeGeo;
             maxLongitude += rangeLon * margeGeo;
             minLatitude -= rangeLat * margeGeo;
             maxLatitude += rangeLat * margeGeo;
 
-            // Recalculer l'étendue avec les marges
+            /// Recalculer l'étendue avec les marges
             rangeLon = maxLongitude - minLongitude;
             rangeLat = maxLatitude - minLatitude;
 
-            // Calculer la position de chaque station
+            /// Calculer la position de chaque station
             foreach (var station in stations.Values)
             {
-                // Convertir les coordonnées géographiques en coordonnées sur l'image
+                /// Convertir les coordonnées géographiques en coordonnées sur l'image
                 float x = margeImage + (float)(largeurUtile * (station.Longitude - minLongitude) / rangeLon);
                 float y = hauteur - margeImage - (float)(hauteurUtile * (station.Latitude - minLatitude) / rangeLat);
 
@@ -603,12 +593,12 @@ namespace Projet_problème_scientifique_info
                     string nomStation = kvp.Key;
                     PointF position = kvp.Value;
 
-                    // Dessiner le cercle de la station
+                    /// Dessiner le cercle de la station
                     float rayon = tailleStation / 2;
                     g.FillEllipse(brushStation, position.X - rayon, position.Y - rayon, tailleStation, tailleStation);
                     g.DrawEllipse(penStation, position.X - rayon, position.Y - rayon, tailleStation, tailleStation);
 
-                    // Dessiner le nom de la station
+                    /// Dessiner le nom de la station
                     SizeF tailleTexte = g.MeasureString(nomStation, fontNomStation);
                     g.DrawString(nomStation, fontNomStation, brushStation,
                         position.X - tailleTexte.Width / 2,
@@ -627,13 +617,12 @@ namespace Projet_problème_scientifique_info
         {
             Console.WriteLine("Dessin des clients et cuisiniers...");
 
-            // Dictionnaire pour stocker les positions des personnes
+            /// Dictionnaire pour stocker les positions des personnes
             Dictionary<string, PointF> positionsPersonnes = new Dictionary<string, PointF>();
 
             using (Brush brushClient = new SolidBrush(couleurClient))
             using (Brush brushCuisinier = new SolidBrush(couleurCuisinier))
             {
-                // Pour chaque station
                 foreach (var kvp in personnesParStation)
                 {
                     string nomStation = kvp.Key;
@@ -644,28 +633,27 @@ namespace Projet_problème_scientifique_info
 
                     PointF positionStation = positionsStations[nomStation];
 
-                    // Calculer la disposition des personnes autour de la station
                     int nbPersonnes = personnes.Count;
-                    double angleIncrement = 2 * Math.PI / Math.Max(nbPersonnes, 8); // Au moins 8 positions pour éviter trop de superposition
-                    double rayonPersonnes = tailleStation * 4; // Distance des personnes par rapport à la station
+                    double angleIncrement = 2 * Math.PI / Math.Max(nbPersonnes, 8); /// Au moins 8 positions pour éviter trop de superposition
+                    double rayonPersonnes = tailleStation * 4; 
 
                     for (int i = 0; i < nbPersonnes; i++)
                     {
                         PersonneInfo personne = personnes[i];
                         double angle = i * angleIncrement;
-
-                        // Calculer la position de la personne
+                        
+                        /// Calculer la position de la personne
                         float x = positionStation.X + (float)(rayonPersonnes * Math.Cos(angle));
                         float y = positionStation.Y + (float)(rayonPersonnes * Math.Sin(angle));
 
-                        // Créer l'étiquette
+                        /// Créer l'étiquette
                         string etiquette = $"{nomStation} - {personne.Type}: {personne.Prenom}";
 
-                        // Dessiner l'étiquette
+                        /// Dessiner l'étiquette
                         Brush brush = personne.Type == "Client" ? brushClient : brushCuisinier;
                         SizeF tailleTexte = g.MeasureString(etiquette, fontNomPersonne);
 
-                        // Dessiner un fond blanc semi-transparent pour améliorer la lisibilité
+                        /// Dessiner un fond blanc semi-transparent pour améliorer la lisibilité
                         using (Brush brushFond = new SolidBrush(Color.FromArgb(200, Color.White)))
                         {
                             g.FillRectangle(brushFond,
@@ -679,17 +667,17 @@ namespace Projet_problème_scientifique_info
                             x - tailleTexte.Width / 2,
                             y - tailleTexte.Height / 2);
 
-                        // Dessiner une ligne entre la personne et sa station
+                        /// Dessiner une ligne entre la personne et sa station
                         using (Pen penLien = new Pen(Color.FromArgb(100, personne.Type == "Client" ? couleurClient : couleurCuisinier), 1))
                         {
                             g.DrawLine(penLien, positionStation, new PointF(x, y));
                         }
 
-                        // Stocker la position de la personne pour dessiner les relations
+                        /// Stocker la position de la personne pour dessiner les relations
                         PointF position = new PointF(x, y);
                         personne.Position = position;
 
-                        // Ajouter la position au dictionnaire
+                        /// Ajouter la position au dictionnaire
                         positionsPersonnes[personne.Id] = position;
                     }
                 }
@@ -713,11 +701,9 @@ namespace Projet_problème_scientifique_info
 
                 foreach (var relation in relations)
                 {
-                    // Vérifier si on a les positions du client et du cuisinier
                     if (positionsPersonnes.TryGetValue(relation.IdClient, out PointF posClient) &&
                         positionsPersonnes.TryGetValue(relation.IdCuisinier, out PointF posCuisinier))
                     {
-                        // Dessiner la ligne de relation
                         g.DrawLine(penRelation, posClient, posCuisinier);
                     }
                 }
@@ -737,7 +723,7 @@ namespace Projet_problème_scientifique_info
             int espacement = 30;
             int tailleSymbole = 20;
 
-            // Titre de la légende
+            /// Titre de la légende
             using (Font fontTitre = new Font("Arial", 16, FontStyle.Bold))
             using (Brush brushTitre = new SolidBrush(Color.Black))
             {
@@ -745,7 +731,7 @@ namespace Projet_problème_scientifique_info
                 y += 40;
             }
 
-            // Station de métro
+            /// Station de métro
             using (Brush brushStation = new SolidBrush(couleurStation))
             using (Pen penStation = new Pen(couleurStation, 1.5f))
             {
@@ -755,7 +741,7 @@ namespace Projet_problème_scientifique_info
                 y += espacement;
             }
 
-            // Client
+            /// Client
             using (Brush brushClient = new SolidBrush(couleurClient))
             {
                 g.FillRectangle(brushClient, x, y, tailleSymbole, tailleSymbole);
@@ -763,7 +749,7 @@ namespace Projet_problème_scientifique_info
                 y += espacement;
             }
 
-            // Cuisinier
+            /// Cuisinier
             using (Brush brushCuisinier = new SolidBrush(couleurCuisinier))
             {
                 g.FillRectangle(brushCuisinier, x, y, tailleSymbole, tailleSymbole);
@@ -771,7 +757,7 @@ namespace Projet_problème_scientifique_info
                 y += espacement;
             }
 
-            // Relation
+            /// Relation
             using (Pen penRelation = new Pen(couleurRelation, epaisseurLigne))
             {
                 penRelation.DashStyle = DashStyle.Dash;
@@ -798,8 +784,8 @@ namespace Projet_problème_scientifique_info
             public string Id { get; set; }
             public string Nom { get; set; }
             public string Prenom { get; set; }
-            public string Type { get; set; } // "Client" ou "Cuisinier"
-            public PointF Position { get; set; } // Position sur l'image
+            public string Type { get; set; } 
+            public PointF Position { get; set; } 
         }
 
         /// <summary>

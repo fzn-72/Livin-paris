@@ -12,11 +12,11 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     public static class SessionUtilisateur
     {
-        // Propriétés de l'utilisateur connecté
+        /// Propriétés de l'utilisateur connecté
         public static string IdUtilisateur { get; private set; } = "";
         public static string NomUtilisateur { get; private set; } = "";
         public static string PrenomUtilisateur { get; private set; } = "";
-        public static string TypeUtilisateur { get; private set; } = ""; // "client", "cuisinier", "admin"
+        public static string TypeUtilisateur { get; private set; } = ""; 
         public static string Email { get; private set; } = "";
 
         /// <summary>

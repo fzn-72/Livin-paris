@@ -334,7 +334,7 @@ namespace Projet_problème_scientifique_info
 
         #region Constructeur de la classe MetroGraphe qui fait appel à celui de la classe Graphe
         public MetroGraphe(string cheminFichierNoeuds, string cheminFichierArcs)
-            : base() // Appelle le constructeur de Graphe<int>()
+            : base() /// Appelle le constructeur de Graphe<int>()
         {
             this.cheminFichierNoeuds = cheminFichierNoeuds;
             this.cheminFichierArcs = cheminFichierArcs;
@@ -350,7 +350,7 @@ namespace Projet_problème_scientifique_info
             }
         }
 
-        #region Obtenir les stations et les regrouper par nom
+        #region Obtenir les stations et les regrouper par leur nom
         /// <summary>
         /// Retourne un dictionnaire groupant les stations par leur nom unique (ignorant la casse).
         /// </summary>
@@ -362,12 +362,17 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-        #region Chargement des stations 
+        #region Chargement des stations et des arcs
+
+        /// <summary>
+        /// Charge les stations à partir d’un fichier CSV, en extrayant leurs coordonnées, ligne, nom et localisation.
+        /// Ignore les doublons, les lignes incomplètes ou mal formatées, et initialise la liste d’adjacence.
+        /// Retourne le nombre total de stations valides chargées.
+        /// </summary>
         public int ChargerStations()
         {
-            // Utiliser CultureInfo.InvariantCulture pour forcer le point comme séparateur décimal
-            var culture = CultureInfo.InvariantCulture;
-            stations.Clear(); // S'assurer que le dictionnaire est vide avant chargement
+            var culture = CultureInfo.InvariantCulture; /// permet de forcer le point comme séparateur décimal
+            stations.Clear(); 
 
             try
             {
@@ -377,11 +382,11 @@ namespace Projet_problème_scientifique_info
                     return 0;
                 }
 
-                var lignes = File.ReadLines(cheminFichierNoeuds).Skip(1); // Skip header row
+                var lignes = File.ReadLines(cheminFichierNoeuds).Skip(1);
 
                 foreach (string ligne in lignes)
                 {
-                    if (string.IsNullOrWhiteSpace(ligne)) continue; // Ignorer lignes vides
+                    if (string.IsNullOrWhiteSpace(ligne)) continue; /// permet d'ignorer les lignes vides
 
                     string[] donnees = ligne.Split(',');
                     if (donnees.Length >= 7)
@@ -389,23 +394,21 @@ namespace Projet_problème_scientifique_info
                         string idStr = donnees[0].Trim().Trim('"');
                         string numLigne = donnees[1].Trim().Trim('"');
                         string nomStation = donnees[2].Trim().Trim('"');
-                        // --- MODIFICATION PARSING DOUBLE ---
-                        // Remplacer la virgule par un point OU utiliser CultureInfo appropriée
-                        string longitudeStr = donnees[3].Trim().Trim('"').Replace(',', '.'); // Assure le point comme séparateur
-                        string latitudeStr = donnees[4].Trim().Trim('"').Replace(',', '.');  // Assure le point comme séparateur                                                                                    
+
+                        string longitudeStr = donnees[3].Trim().Trim('"').Replace(',', '.'); /// Permet d'assurer le point comme séparateur
+                        string latitudeStr = donnees[4].Trim().Trim('"').Replace(',', '.');                                                                                     
                         string commune = donnees[5].Trim().Trim('"');
                         string codeInsee = donnees[6].Trim().Trim('"');
 
                         if (int.TryParse(idStr, out int id) &&
-                            double.TryParse(longitudeStr, NumberStyles.Any, culture, out double longitude) && // Utilise la culture Invariante
-                            double.TryParse(latitudeStr, NumberStyles.Any, culture, out double latitude)) // Utilise la culture Invariante
+                            double.TryParse(longitudeStr, NumberStyles.Any, culture, out double longitude) && 
+                            double.TryParse(latitudeStr, NumberStyles.Any, culture, out double latitude)) 
                         {
-                            if (!stations.ContainsKey(id)) // Éviter doublons d'ID
+                            if (!stations.ContainsKey(id)) 
                             {
                                 Station station = new Station(id, numLigne, nomStation, longitude, latitude, commune, codeInsee);
                                 stations.Add(id, station);
 
-                                // Ajouter le nœud à la liste d'adjacence si absent (important pour Graphe<T>)
                                 if (!ListeAdjacence.ContainsKey(id))
                                 {
                                     ListeAdjacence[id] = new List<int>();
@@ -432,17 +435,20 @@ namespace Projet_problème_scientifique_info
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors du chargement des stations : {ex.Message}");
-                Console.WriteLine(ex.StackTrace); // Afficher plus de détails pour le débogage
+                Console.WriteLine(ex.StackTrace);
                 return 0;
             }
         }
-        #endregion
 
-        #region Chargement des arcs
+        /// <summary>
+        /// Charge les arcs entre les stations à partir d'un fichier CSV. Chaque ligne valide crée des liens avec les stations 
+        /// précédentes et suivantes si elles existent. Gère les erreurs de format, les lignes incomplètes et les stations inconnues.
+        /// Retourne le nombre total de liens créés dans le graphe.
+        /// </summary>
         public int ChargerArcs()
         {
             int nbLiensCrees = 0;
-            var culture = CultureInfo.InvariantCulture; // Pour parser le temps
+            var culture = CultureInfo.InvariantCulture;
 
             try
             {
@@ -452,50 +458,45 @@ namespace Projet_problème_scientifique_info
                     return 0;
                 }
 
-                var lignes = File.ReadLines(cheminFichierArcs).Skip(1); // Skip header row
+                var lignes = File.ReadLines(cheminFichierArcs).Skip(1);
 
                 foreach (string ligne in lignes)
                 {
                     if (string.IsNullOrWhiteSpace(ligne)) continue;
 
                     string[] donnees = ligne.Split(',');
-                    if (donnees.Length >= 6) // Assurez-vous que l'indice 5 (temps) existe
+                    if (donnees.Length >= 6)
                     {
                         string idStr = donnees[0].Trim().Trim('"');
                         string precedentStr = donnees[2].Trim().Trim('"');
                         string suivantStr = donnees[3].Trim().Trim('"');
-                        string tempsStr = donnees[5].Trim().Trim('"').Replace(',', '.'); // Indice 5 pour 'average_time_s', assure le point
+                        string tempsStr = donnees[5].Trim().Trim('"').Replace(',', '.');
 
-                        if (int.TryParse(idStr, out int stationId) && stations.ContainsKey(stationId)) // Vérifier si la station principale existe
+                        if (int.TryParse(idStr, out int stationId) && stations.ContainsKey(stationId)) /// Vérifier si la station principale existe
                         {
-                            // Essayer de parser le temps
-                            double tempsParcours = 0; // Temps par défaut si parsing échoue ou non applicable
+                            double tempsParcours = 0;
                             if (double.TryParse(tempsStr, NumberStyles.Any, culture, out double parsedTime))
                             {
                                 tempsParcours = parsedTime;
                             }
-                            // Note: Le poids est basé sur 'average_time_s'
-                            int poids = (int)(tempsParcours); // Convertir en secondes (si c'était déjà en secondes, pas besoin de * 60)
 
-                            // Traiter le lien vers la station précédente
+                            int poids = (int)(tempsParcours);
+
                             if (precedentStr != "X" && int.TryParse(precedentStr, out int precedentId))
                             {
-                                if (stations.ContainsKey(precedentId)) // Vérifier si la station précédente existe
+                                if (stations.ContainsKey(precedentId)) /// Vérifier si la station précédente existe
                                 {
-                                    // Ajouter le lien dans le graphe de base
-                                    AjouterLien(stationId, precedentId, poids); // Utiliser la surcharge avec poids
+                                    AjouterLien(stationId, precedentId, poids);
                                     nbLiensCrees++;
                                 }
                                 else { Console.WriteLine($"Avertissement: Station précédente inconnue {precedentId} pour station {stationId}"); }
                             }
 
-                            // Traiter le lien vers la station suivante
                             if (suivantStr != "X" && int.TryParse(suivantStr, out int suivantId))
                             {
-                                if (stations.ContainsKey(suivantId)) // Vérifier si la station suivante existe
+                                if (stations.ContainsKey(suivantId)) /// Vérifier si la station suivante existe
                                 {
-                                    // Ajouter le lien dans le graphe de base
-                                    AjouterLien(stationId, suivantId, poids); // Utiliser la surcharge avec poids
+                                    AjouterLien(stationId, suivantId, poids);
                                     nbLiensCrees++;
                                 }
                                 else { Console.WriteLine($"Avertissement: Station suivante inconnue {suivantId} pour station {stationId}"); }
@@ -511,9 +512,9 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine($"Avertissement: Ligne arc incomplète ignorée: {ligne}");
                     }
                 }
-                // Note: nbLiensCrees compte les appels à AjouterLien. Le nombre final dans LiensNoeuds peut être différent si AjouterLien gère les doublons.
+
                 Console.WriteLine($"Appels à AjouterLien effectués: {nbLiensCrees}. Nombre final de liens dans Graphe.LiensNoeuds: {this.LiensNoeuds.Count}");
-                return this.LiensNoeuds.Count; // Retourne le nombre réel de liens dans la liste
+                return this.LiensNoeuds.Count;
             }
             catch (Exception ex)
             {
@@ -524,7 +525,8 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-        #region Ajout de lien entre noeuds
+        #region Ajout de lien entre les noeuds
+
         /// <summary>
         /// Ajoute un lien pondéré entre deux nœuds.
         /// </summary>
@@ -533,12 +535,9 @@ namespace Projet_problème_scientifique_info
             if (!ListeAdjacence.ContainsKey(noeud1)) ListeAdjacence[noeud1] = new List<int>();
             if (!ListeAdjacence.ContainsKey(noeud2)) ListeAdjacence[noeud2] = new List<int>();
 
-            // Ajout à la liste d'adjacence (non-orienté)
             if (!ListeAdjacence[noeud1].Contains(noeud2)) ListeAdjacence[noeud1].Add(noeud2);
             if (!ListeAdjacence[noeud2].Contains(noeud1)) ListeAdjacence[noeud2].Add(noeud1);
 
-            // Ajout à la liste des liens (évite les doublons exacts de paires non ordonnées si possible)
-            // Note: La vérification de doublon ici est basique. Si A->B puis B->A sont ajoutés, les deux seront présents.
             bool lienExiste = LiensNoeuds.Any(l =>
                 (l.Noeud1.Id == noeud1 && l.Noeud2.Id == noeud2) ||
                 (l.Noeud1.Id == noeud2 && l.Noeud2.Id == noeud1)
@@ -551,132 +550,111 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-        #region Algo    
-        /// <summary>
-        /// Implémente l'algorithme de Welsh-Powell pour colorer un graphe.
-        /// Cet algorithme attribue des couleurs aux sommets de manière à ce que deux sommets adjacents
-        /// n'aient jamais la même couleur, tout en essayant de minimiser le nombre de couleurs utilisées.
-        /// </summary>
-        /// <returns>Un dictionnaire associant chaque sommet à sa couleur (représentée par un entier).</returns>
-        public Dictionary<int, int> ColorerGrapheWelshPowell()
-        {
-            Console.WriteLine("Début de la coloration de Welsh-Powell...");
+        //#region Algo de Welsh Powell  
 
-            // Dictionnaire pour stocker la couleur de chaque sommet
-            Dictionary<int, int> couleurs = new Dictionary<int, int>();
+        ///// <summary>
+        ///// Implémente l'algorithme de Welsh-Powell pour colorer un graphe. Cet algorithme attribue des couleurs aux sommets 
+        ///// de manière à ce que deux sommets adjacents n'aient jamais la même couleur, tout en essayant de minimiser le nombre de couleurs utilisées.
+        ///// </summary>
+        ///// <returns> Un dictionnaire associant chaque sommet à sa couleur (représentée par un entier).</returns>
+        //public Dictionary<int, int> ColorerGrapheWelshPowell()
+        //{
+        //    Console.WriteLine("Début de la coloration de Welsh-Powell...");
 
-            // Initialiser tous les sommets avec la couleur -1 (non coloré)
-            foreach (var sommet in Stations.Keys)
-            {
-                couleurs[sommet] = -1;
-            }
+        //    Dictionary<int, int> couleurs = new Dictionary<int, int>();    /// Dictionnaire pour stocker la couleur de chaque sommet
 
-            // Créer un dictionnaire pour stocker le degré de chaque sommet
-            Dictionary<int, int> degres = new Dictionary<int, int>();
+        //    foreach (var sommet in Stations.Keys)
+        //    {
+        //        couleurs[sommet] = -1;
+        //    }
 
-            // Calculer le degré de chaque sommet
-            foreach (var sommet in Stations.Keys)
-            {
-                // Compter le nombre de liens pour ce sommet
-                int degre = 0;
-                foreach (var lien in LiensNoeuds)
-                {
-                    if (lien.Noeud1.Id == sommet || lien.Noeud2.Id == sommet)
-                    {
-                        degre++;
-                    }
-                }
-                degres[sommet] = degre;
+        //    Dictionary<int, int> degres = new Dictionary<int, int>();   /// Dictionnaire pour stocker le degré de chaque sommet
 
-                // Debug
-                Console.WriteLine($"Station {sommet} ({Stations[sommet].Nom}) a un degré de {degre}");
-            }
+        //    foreach (var sommet in Stations.Keys)
+        //    {
+        //        int degre = 0;
+        //        foreach (var lien in LiensNoeuds)
+        //        {
+        //            if (lien.Noeud1.Id == sommet || lien.Noeud2.Id == sommet)
+        //            {
+        //                degre++;
+        //            }
+        //        }
+        //        degres[sommet] = degre;
 
-            // Trier les sommets par ordre décroissant de degré
-            List<int> sommetsTries = Stations.Keys.ToList();
-            sommetsTries.Sort((a, b) => degres[b].CompareTo(degres[a]));
+        //        Console.WriteLine($"Station {sommet} ({Stations[sommet].Nom}) a un degré de {degre}");
+        //    }
 
-            // Debug
-            Console.WriteLine("Ordre de traitement des stations:");
-            foreach (var sommet in sommetsTries)
-            {
-                Console.WriteLine($"Station {sommet} ({Stations[sommet].Nom}) - Degré: {degres[sommet]}");
-            }
+        //    List<int> sommetsTries = Stations.Keys.ToList();
+        //    sommetsTries.Sort((a, b) => degres[b].CompareTo(degres[a]));
 
-            // Couleur actuelle
-            int couleurActuelle = 0;
+        //    Console.WriteLine("Ordre de traitement des stations:");
+        //    foreach (var sommet in sommetsTries)
+        //    {
+        //        Console.WriteLine($"Station {sommet} ({Stations[sommet].Nom}) - Degré: {degres[sommet]}");
+        //    }
 
-            // Tant qu'il reste des sommets non colorés
-            while (sommetsTries.Any(s => couleurs[s] == -1))
-            {
-                Console.WriteLine($"Traitement de la couleur {couleurActuelle}");
+        //    int couleurActuelle = 0;
 
-                // Pour chaque sommet non coloré dans l'ordre de degré décroissant
-                foreach (var sommet in sommetsTries)
-                {
-                    // Si le sommet n'est pas encore coloré
-                    if (couleurs[sommet] == -1)
-                    {
-                        // Vérifier si on peut attribuer la couleur actuelle
-                        bool peutColorer = true;
+        //    while (sommetsTries.Any(s => couleurs[s] == -1))     /// Tant qu'il reste des sommets non colorés
+        //    {
+        //        Console.WriteLine($"Traitement de la couleur {couleurActuelle}");
+        //        foreach (var sommet in sommetsTries)
+        //        {
+        //            if (couleurs[sommet] == -1)
+        //            {
+        //                bool peutColorer = true;
 
-                        // Récupérer tous les voisins du sommet
-                        List<int> voisins = new List<int>();
-                        foreach (var lien in LiensNoeuds)
-                        {
-                            if (lien.Noeud1.Id == sommet)
-                            {
-                                voisins.Add(lien.Noeud2.Id);
-                            }
-                            else if (lien.Noeud2.Id == sommet)
-                            {
-                                voisins.Add(lien.Noeud1.Id);
-                            }
-                        }
+        //                List<int> voisins = new List<int>();
+        //                foreach (var lien in LiensNoeuds)
+        //                {
+        //                    if (lien.Noeud1.Id == sommet)
+        //                    {
+        //                        voisins.Add(lien.Noeud2.Id);
+        //                    }
+        //                    else if (lien.Noeud2.Id == sommet)
+        //                    {
+        //                        voisins.Add(lien.Noeud1.Id);
+        //                    }
+        //                }
 
-                        // Vérifier tous les voisins du sommet
-                        foreach (var voisin in voisins)
-                        {
-                            // Si un voisin a déjà la couleur actuelle, on ne peut pas l'utiliser
-                            if (couleurs.ContainsKey(voisin) && couleurs[voisin] == couleurActuelle)
-                            {
-                                peutColorer = false;
-                                Console.WriteLine($"  Station {sommet} ({Stations[sommet].Nom}) ne peut pas être colorée en {couleurActuelle} car voisine de {voisin} ({Stations[voisin].Nom})");
-                                break;
-                            }
-                        }
+        //                foreach (var voisin in voisins)
+        //                {
+        //                    if (couleurs.ContainsKey(voisin) && couleurs[voisin] == couleurActuelle)    /// Si un voisin a déjà la couleur actuelle, on ne peut pas l'utiliser
+        //                    {
+        //                        peutColorer = false;
+        //                        Console.WriteLine($"  Station {sommet} ({Stations[sommet].Nom}) ne peut pas être colorée en {couleurActuelle} car voisine de {voisin} ({Stations[voisin].Nom})");
+        //                        break;
+        //                    }
+        //                }
 
-                        // Si aucun voisin n'a la couleur actuelle, on l'attribue à ce sommet
-                        if (peutColorer)
-                        {
-                            couleurs[sommet] = couleurActuelle;
-                            Console.WriteLine($"  Station {sommet} ({Stations[sommet].Nom}) colorée en {couleurActuelle}");
-                        }
-                    }
-                }
+        //                if (peutColorer)    /// Si aucun voisin n'a la couleur actuelle, on l'attribue à ce sommet
+        //                {
+        //                    couleurs[sommet] = couleurActuelle;
+        //                    Console.WriteLine($"  Station {sommet} ({Stations[sommet].Nom}) colorée en {couleurActuelle}");
+        //                }
+        //            }
+        //        }
+        //        couleurActuelle++;
+        //    }
 
-                // Passer à la couleur suivante
-                couleurActuelle++;
-            }
+        //    int erreurs = 0;
+        //    foreach (var lien in LiensNoeuds)
+        //    {
+        //        int id1 = lien.Noeud1.Id;
+        //        int id2 = lien.Noeud2.Id;
 
-            // Vérification finale
-            int erreurs = 0;
-            foreach (var lien in LiensNoeuds)
-            {
-                int id1 = lien.Noeud1.Id;
-                int id2 = lien.Noeud2.Id;
+        //        if (couleurs[id1] == couleurs[id2])
+        //        {
+        //            erreurs++;
+        //            Console.WriteLine($"ERREUR: Stations voisines avec même couleur: {id1} ({Stations[id1].Nom}) et {id2} ({Stations[id2].Nom}) - Couleur: {couleurs[id1]}");
+        //        }
+        //    }
 
-                if (couleurs[id1] == couleurs[id2])
-                {
-                    erreurs++;
-                    Console.WriteLine($"ERREUR: Stations voisines avec même couleur: {id1} ({Stations[id1].Nom}) et {id2} ({Stations[id2].Nom}) - Couleur: {couleurs[id1]}");
-                }
-            }
+        //    Console.WriteLine($"Coloration terminée. {couleurActuelle} couleurs utilisées. {erreurs} erreurs détectées.");
 
-            Console.WriteLine($"Coloration terminée. {couleurActuelle} couleurs utilisées. {erreurs} erreurs détectées.");
-
-            return couleurs;
-        }
-        #endregion
+        //    return couleurs;
+        //}
+        //#endregion
     }
 }

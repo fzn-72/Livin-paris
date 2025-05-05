@@ -11,8 +11,10 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ModuleStats
     {
+        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
 
+        #region Menu principal Stats
         /// <summary>
         /// Affiche le menu principal des statistiques
         /// </summary>
@@ -25,7 +27,6 @@ namespace Projet_problème_scientifique_info
                 Console.Clear();
                 GestionBDD.AfficherTitre("MODULE STATISTIQUES");
 
-                // Afficher les options en fonction du type d'utilisateur
                 if (SessionUtilisateur.EstConnecte())
                 {
                     if (SessionUtilisateur.TypeUtilisateur == "client")
@@ -155,7 +156,6 @@ namespace Projet_problème_scientifique_info
                 }
                 else
                 {
-                    // Utilisateur non connecté
                     Console.WriteLine("1. Afficher les statistiques générales");
                     Console.WriteLine("2. Afficher les meilleurs cuisiniers");
                     Console.WriteLine("3. Afficher les plats les plus populaires");
@@ -188,6 +188,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
+        #endregion
 
         #region Statistiques pour clients
 
@@ -237,7 +238,6 @@ namespace Projet_problème_scientifique_info
                                     id, date, prix, statut, nombrePlats);
                             }
 
-                            // Ajouter l'option d'exportation XML
                             Console.WriteLine("\nOptions :");
                             Console.WriteLine("1. Exporter ces données au format XML");
                             Console.WriteLine("2. Retour au menu précédent");
@@ -412,7 +412,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Dépenses totales
+                    /// Dépenses totales
                     string queryTotal = @"
                         SELECT COUNT(id_commande) AS nombre_commandes,
                                SUM(CAST(REPLACE(REPLACE(prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS total_depenses
@@ -439,7 +439,7 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Dépenses par mois
+                    /// Dépenses par mois
                     Console.WriteLine("\nDépenses par mois :");
                     string queryMois = @"
                         SELECT DATE_FORMAT(date_commande, '%Y-%m') AS mois,
@@ -488,7 +488,6 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
-        // Ajouter cette méthode à la classe ModuleStats pour exporter les statistiques d'un client
         private static void ExporterStatistiquesClient(string idClient)
         {
             Console.Clear();
@@ -496,11 +495,9 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Créer l'objet de statistiques client
                 ExportStatistiques stats = new ExportStatistiques();
                 stats.IdClient = idClient;
 
-                // Récupérer les informations du client
                 string requeteClient = @"
             SELECT nom_client, prenom_client, email_client
             FROM CLIENT
@@ -521,7 +518,7 @@ namespace Projet_problème_scientifique_info
                     stats.Email = client["email_client"] != DBNull.Value ? client["email_client"].ToString() : "";
                 }
 
-                // Récupérer l'historique des commandes
+                /// Récupérer l'historique des commandes
                 string requeteCommandes = @"
             SELECT c.id_commande, c.date_commande, c.prix_total_commande, c.statut_commande
             FROM COMMANDE c
@@ -545,13 +542,13 @@ namespace Projet_problème_scientifique_info
                             Statut = row["statut_commande"] != DBNull.Value ? row["statut_commande"].ToString() : ""
                         };
 
-                        // Convertir le prix total en décimal pour le calcul des dépenses totales
+                        /// Convertir le prix total en décimal pour le calcul des dépenses totales
                         if (decimal.TryParse(cmd.PrixTotal.Replace(" euros", "").Replace(",", "."), out decimal prix))
                         {
                             totalDepenses += prix;
                         }
 
-                        // Récupérer les lignes de commande
+                        /// Récupérer les lignes de commande
                         string requeteLignes = @"
                     SELECT lc.id_ligne, p.nom_plat, lc.prix_unitaire, lc.quantite, 
                            cu.nom_cuisinier, cu.prenom_cuisinier
@@ -579,7 +576,7 @@ namespace Projet_problème_scientifique_info
                                     Quantite = ligne["quantite"] != DBNull.Value ? Convert.ToInt32(ligne["quantite"]) : 0
                                 };
 
-                                // Construire le nom complet du cuisinier
+                                /// Construire le nom complet du cuisinier
                                 string nomCuisinier = ligne["prenom_cuisinier"] != DBNull.Value ? ligne["prenom_cuisinier"].ToString() : "";
                                 nomCuisinier += " " + (ligne["nom_cuisinier"] != DBNull.Value ? ligne["nom_cuisinier"].ToString() : "");
                                 lc.NomCuisinier = nomCuisinier.Trim();
@@ -594,7 +591,7 @@ namespace Projet_problème_scientifique_info
                     stats.DepensesTotales = totalDepenses;
                 }
 
-                // Récupérer les plats préférés
+                /// Récupérer les plats préférés
                 string requetePlats = @"
             SELECT p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat,
                    COUNT(lc.id_ligne) AS nombre_commandes
@@ -625,7 +622,7 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-                // Exporter les statistiques en XML
+                /// Exporter les statistiques en XML
                 string nomFichier = $"StatistiquesClient_{stats.NomClient}_{stats.PrenomClient}_{DateTime.Now:yyyyMMdd_HHmmss}.xml";
                 string cheminFichier = ExportXML.ExporterDonnees(stats, nomFichier);
 
@@ -806,7 +803,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Afficher la note moyenne
                     string queryMoyenne = "SELECT note_moyenne_cuisinier FROM CUISINIER WHERE id_cuisinier = @IdCuisinier";
                     MySqlCommand cmdMoyenne = new MySqlCommand(queryMoyenne, connection);
                     cmdMoyenne.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
@@ -821,7 +817,6 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine("Vous n'avez pas encore reçu d'évaluations.\n");
                     }
 
-                    // Afficher les évaluations détaillées
                     string query = @"
                          SELECT e.id_evaluation, e.note_evaluation, e.commentaire_evaluation, e.date_evaluation,
                                 c.nom_client, c.prenom_client
@@ -960,7 +955,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Statistiques globales
+                    /// Statistiques globales
                     string queryGlobal = @"
                         SELECT COUNT(DISTINCT c.id_commande) AS nombre_commandes,
                                COUNT(DISTINCT lc.id_ligne) AS nombre_plats_vendus,
@@ -989,7 +984,7 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Statistiques par mois
+                    /// Statistiques par mois
                     Console.WriteLine("\nStatistiques par mois :");
                     string queryMois = @"
                         SELECT DATE_FORMAT(c.date_commande, '%Y-%m') AS mois,
@@ -1026,7 +1021,7 @@ namespace Projet_problème_scientifique_info
                                     mois, nombreCommandes, nombrePlatsVendus, chiffreAffaires);
                             }
 
-                            // Ajouter l'option d'exportation XML
+                            /// Ajouter l'option d'exportation XML
                             Console.WriteLine("\nOptions :");
                             Console.WriteLine("1. Exporter ces données au format XML");
                             Console.WriteLine("2. Retour au menu précédent");
@@ -1055,7 +1050,6 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
-        // Ajouter cette méthode à la classe ModuleStats pour exporter les statistiques d'un cuisinier
         private static void ExporterStatistiquesCuisinier(string idCuisinier)
         {
             Console.Clear();
@@ -1063,11 +1057,9 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Créer l'objet de statistiques cuisinier
                 StatistiquesCuisinier stats = new StatistiquesCuisinier();
                 stats.IdCuisinier = idCuisinier;
 
-                // Récupérer les informations du cuisinier
                 string requeteCuisinier = @"
             SELECT nom_cuisinier, prenom_cuisinier, note_moyenne_cuisinier
             FROM CUISINIER
@@ -1088,9 +1080,8 @@ namespace Projet_problème_scientifique_info
                     stats.NoteMoyenne = cuisinier["note_moyenne_cuisinier"] != DBNull.Value ? Convert.ToDecimal(cuisinier["note_moyenne_cuisinier"]) : 0;
                 }
 
-                // Remplacer cette partie dans la méthode ExporterStatistiquesCuisinier:
 
-                // Récupérer les statistiques de vente
+                /// Récupérer les statistiques de vente
                 string requeteVentes = @"
     SELECT COUNT(DISTINCT c.id_commande) AS nombre_commandes,
            COUNT(DISTINCT lc.id_ligne) AS nombre_plats_vendus,
@@ -1109,7 +1100,7 @@ namespace Projet_problème_scientifique_info
                     stats.ChiffreAffaires = row["chiffre_affaires"] != DBNull.Value ? Convert.ToDecimal(row["chiffre_affaires"]) : 0;
                 }
 
-                // Récupérer les plats populaires
+                /// Récupérer les plats populaires
                 string requetePlats = @"
             SELECT p.id_plat, p.nom_plat, p.type_plat, p.prix_unitaire_plat,
                    COUNT(lc.id_ligne) AS nombre_commandes
@@ -1139,7 +1130,7 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-                // Récupérer les clients fréquents
+                /// Récupérer les clients fréquents
                 string requeteClients = @"
             SELECT cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client,
                    COUNT(DISTINCT c.id_commande) AS nombre_commandes
@@ -1171,7 +1162,7 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-                // Exporter les statistiques en XML
+                /// Exporter les statistiques en XML
                 string nomFichier = $"StatistiquesCuisinier_{stats.NomCuisinier}_{stats.PrenomCuisinier}_{DateTime.Now:yyyyMMdd_HHmmss}.xml";
                 string cheminFichier = ExportXML.ExporterDonnees(stats, nomFichier);
 
@@ -1372,7 +1363,7 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine("Aucune commande trouvée pour calculer la moyenne.");
                     }
 
-                    // Moyenne par mois
+                    /// Moyenne par mois
                     Console.WriteLine("\nMoyenne des prix par mois :");
                     string requeteMois = @"
                         SELECT DATE_FORMAT(date_commande, '%Y-%m') AS mois,
@@ -1708,7 +1699,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Statistiques générales
                     string queryGeneral = @"
                         SELECT 
                             (SELECT COUNT(*) FROM CLIENT) AS nombre_clients,
@@ -1739,7 +1729,7 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Statistiques par mois
+                    /// Statistiques par mois
                     Console.WriteLine("\nStatistiques par mois :");
                     string queryMois = @"
                         SELECT DATE_FORMAT(date_commande, '%Y-%m') AS mois,
@@ -1770,7 +1760,6 @@ namespace Projet_problème_scientifique_info
                                     mois, nombreCommandes, chiffreAffaires);
                             }
 
-                            // Ajouter l'option d'exportation XML
                             Console.WriteLine("\nOptions :");
                             Console.WriteLine("1. Exporter ces données au format XML");
                             Console.WriteLine("2. Retour au menu précédent");
@@ -1799,7 +1788,6 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
 
-        // Ajouter cette méthode à la classe ModuleStats pour exporter les statistiques globales
         private static void ExporterStatistiquesGlobales()
         {
             Console.Clear();
@@ -1807,10 +1795,9 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Créer l'objet de statistiques globales
                 StatistiquesGlobales stats = new StatistiquesGlobales();
 
-                // Récupérer les statistiques générales
+                /// Récupérer les statistiques générales
                 string requeteGeneral = @"
             SELECT 
                 (SELECT COUNT(*) FROM CLIENT) AS nombre_clients,
@@ -1831,7 +1818,7 @@ namespace Projet_problème_scientifique_info
                     stats.ChiffreAffairesTotal = row["chiffre_affaires_total"] != DBNull.Value ? Convert.ToDecimal(row["chiffre_affaires_total"]) : 0;
                 }
 
-                // Récupérer les statistiques par mois
+                /// Récupérer les statistiques par mois
                 string requeteMois = @"
             SELECT DATE_FORMAT(date_commande, '%Y-%m') AS mois,
                    COUNT(*) AS nombre_commandes,
@@ -1858,9 +1845,7 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-                // Remplacer cette partie dans la méthode ExporterStatistiquesGlobales:
-
-                // Récupérer les meilleurs cuisiniers
+                /// Récupérer les meilleurs cuisiniers
                 string requeteCuisiniers = @"
     SELECT cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier, cu.note_moyenne_cuisinier,
            COUNT(DISTINCT c.id_commande) AS nombre_commandes,
@@ -1893,7 +1878,7 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-                // Ajouter une requête pour récupérer les plats les plus populaires
+                /// Ajouter une requête pour récupérer les plats les plus populaires
                 string requetePlatsPopulaires = @"
     SELECT p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat, p.prix_unitaire_plat,
            COUNT(lc.id_ligne) AS nombre_commandes,
@@ -1908,11 +1893,7 @@ namespace Projet_problème_scientifique_info
 
                 DataTable platsPopulaires = GestionBDD.ExecuterRequeteTable(requetePlatsPopulaires, null);
 
-                // Les plats populaires ne sont pas utilisés dans l'export des statistiques globales
-                // Cette partie peut être supprimée ou commentée car la classe StatistiquesGlobales
-                // n'a pas de propriété PlatsPopulaires
-
-                // Exporter les statistiques en XML
+                /// Exporter les statistiques en XML
                 string nomFichier = $"StatistiquesGlobales_{DateTime.Now:yyyyMMdd_HHmmss}.xml";
                 string cheminFichier = ExportXML.ExporterDonnees(stats, nomFichier);
 
@@ -1958,7 +1939,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Nombre de plats disponibles par type
+                    /// Nombre de plats disponibles par type
                     string queryPlats = @"
                         SELECT type_plat, COUNT(*) AS nombre_plats
                         FROM PLAT
@@ -1992,7 +1973,7 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Nombre de plats disponibles par nationalité
+                    /// Nombre de plats disponibles par nationalité
                     Console.WriteLine("\nPlats disponibles par nationalité :");
                     string queryNationalites = @"
                         SELECT nationalite_plat, COUNT(*) AS nombre_plats
@@ -2026,7 +2007,7 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Nombre de cuisiniers par spécialité
+                    /// Nombre de cuisiniers par spécialité
                     Console.WriteLine("\nCuisiniers par spécialité :");
                     string queryCuisiniers = @"
                         SELECT specialite_cuisinier AS specialite, COUNT(*) AS nombre_cuisiniers
@@ -2065,7 +2046,7 @@ namespace Projet_problème_scientifique_info
                 GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
             }
 
-            // Ajouter l'option d'exportation XML
+            /// Ajouter l'option d'exportation XML
             Console.WriteLine("\nOptions :");
             Console.WriteLine("1. Exporter ces données au format XML");
             Console.WriteLine("2. Retour au menu précédent");
@@ -2214,10 +2195,6 @@ namespace Projet_problème_scientifique_info
                 GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
             }
 
-            // Ajouter une option d'exportation dans la méthode AfficherPlatsPopulaires
-            // À la fin de la méthode, avant le "Appuyez sur une touche pour continuer", ajouter:
-
-            // Ajouter l'option d'exportation XML
             Console.WriteLine("\nOptions :");
             Console.WriteLine("1. Exporter la liste des plats au format XML");
             Console.WriteLine("2. Retour au menu précédent");
@@ -2229,7 +2206,6 @@ namespace Projet_problème_scientifique_info
             {
                 ModulePlat.ExporterListePlats();
             }
-
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }

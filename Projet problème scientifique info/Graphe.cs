@@ -75,9 +75,9 @@ namespace Projet_problème_scientifique_info
 
         #region Ajout de liens
         /// <summary>
-        /// Ajoute un lien entre les nœuds noeud1 et noeud2 dans la structure du graphe.
-        /// Vérifie et initialise les listes d'adjacence si nécessaire, puis ajoute la connexion en évitant les doublons.
+        /// Ajoute un lien entre les nœuds noeud1 et noeud2 dans la structure du graphe. Vérifie et initialise les listes d'adjacence si nécessaire, puis ajoute la connexion en évitant les doublons.
         /// Met également à jour la matrice d'adjacence pour représenter cette connexion et enregistre le lien dans la liste des "Lien".
+        /// Similaire à la méthode AjouterLien de la classe MetroGRaphe mais fonctionne pour des noeuds génériques 
         /// </summary>
         public void AjouterLien(T noeud1, T noeud2)
         {
@@ -114,7 +114,6 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-
         #region Chargement liens depuis fichier
         /// <summary>
         /// Charge les liens du graphe depuis un fichier spécifié.
@@ -140,7 +139,6 @@ namespace Projet_problème_scientifique_info
             }
         }
         #endregion
-
 
         #region Parcours BFS 
         /// <summary>
@@ -176,7 +174,6 @@ namespace Projet_problème_scientifique_info
             }
         }
         #endregion
-
 
         #region Parcours DFS
         /// <summary>
@@ -218,7 +215,6 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-
         #region Vérification de la connexité du grahe
         /// <summary>
         /// Vérifie si le graphe est connexe, c'est-à-dire si tous les sommets sont accessibles à partir de n'importe quel sommet.
@@ -255,7 +251,6 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-
         #region Vérification cycle dans le graphe
 
         /// <summary>
@@ -283,7 +278,6 @@ namespace Projet_problème_scientifique_info
             return false;
         }
 
-
         /// <summary>
         /// Vérifie si le graphe contient un cycle en utilisant une recherche en profondeur (DFS).
         /// Explore tous les nœuds du graphe et pour chaque nœud non visité, appelle la méthode `ContientCycleDFS`
@@ -307,7 +301,6 @@ namespace Projet_problème_scientifique_info
             return false;
         }
         #endregion
-
 
         #region Vérification autres propriétes du graphe
         /// <summary>
@@ -372,8 +365,9 @@ namespace Projet_problème_scientifique_info
             }
             Console.WriteLine();
         }
-        #endregion
 
+
+        #endregion
 
         #region Tri des sommets 
         /// <summary>

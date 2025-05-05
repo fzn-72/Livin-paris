@@ -190,7 +190,7 @@ namespace Projet_problème_scientifique_info
             catch (Exception ex)
             {
                 AfficherMessageErreur($"Erreur lors de la génération d'un nouvel ID : {ex.Message}");
-                return new Random().Next(1000, 9999); // Fallback en cas d'erreur
+                return new Random().Next(1000, 9999); 
             }
         }
 
@@ -286,7 +286,7 @@ namespace Projet_problème_scientifique_info
             catch (Exception ex)
             {
                 AfficherMessageErreur($"Erreur lors de l'exécution de la requête table : {ex.Message}");
-                return new DataTable(); // Retourne une table vide en cas d'erreur
+                return new DataTable(); 
             }
         }
 
@@ -692,7 +692,7 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-        #region Affichage du graphe client_cuisinier
+        #region Affichage du graphe client-cuisinier
         /// <summary>
         /// Affiche et analyse le graphe des relations entre clients et cuisiniers
         /// </summary>
@@ -701,7 +701,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             AfficherTitre("Analyse des relations clients-cuisiniers");
 
-            // Créer et construire le graphe
             ClientCuisinierGraphe graphe = new ClientCuisinierGraphe();
             bool grapheConstruit = graphe.ConstruireGraphe();
 
@@ -714,12 +713,10 @@ namespace Projet_problème_scientifique_info
 
             Console.WriteLine("\n=== Propriétés du graphe ===");
 
-            // 1. Appliquer l'algorithme de Welsh-Powell pour la coloration
-            int nombreCouleurs = graphe.AppliquerWelshPowell();
+            int nombreCouleurs = graphe.AlgoWelshPowell(); /// 1.Appliquer l'algorithme de Welsh-Powell pour la coloration
             Console.WriteLine($"\nNombre minimal de couleurs nécessaires : {nombreCouleurs}");
 
-            // 2. Vérifier si le graphe est biparti
-            bool estBiparti = graphe.EstBiparti();
+            bool estBiparti = graphe.EstBiparti();  /// 2. Vérifier si le graphe est biparti
             Console.WriteLine($"\nLe graphe est-il biparti ? {(estBiparti ? "OUI" : "NON")}");
             if (estBiparti)
             {
@@ -730,8 +727,7 @@ namespace Projet_problème_scientifique_info
                 Console.WriteLine("Justification : Il existe des clients ou des cuisiniers qui doivent avoir la même couleur que leurs voisins.");
             }
 
-            // 3. Vérifier si le graphe est planaire
-            bool estPlanaire = graphe.EstPlanaire();
+            bool estPlanaire = graphe.EstPlanaire();    /// 3. Vérifier si le graphe est planaire
             Console.WriteLine($"\nLe graphe est-il planaire ? {(estPlanaire ? "OUI" : "NON")}");
             if (estPlanaire)
             {
@@ -742,12 +738,10 @@ namespace Projet_problème_scientifique_info
                 Console.WriteLine("Justification : Le nombre d'arêtes est supérieur à 3n-6, où n est le nombre de sommets.");
             }
 
-            // 4. Identifier les groupes indépendants
-            List<List<string>> groupesIndependants = graphe.IdentifierGroupesIndependants();
+            List<List<string>> groupesIndependants = graphe.IdentifierGroupesIndependants();   /// 4. Identifier les groupes indépendants
             Console.WriteLine($"\nNombre de groupes indépendants de clients : {groupesIndependants.Count}");
 
-            // 5. Visualiser le graphe
-            string cheminImage = Path.Combine(
+            string cheminImage = Path.Combine(    /// 5. Visualiser le graphe
                 Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
                 "graphe_clients_cuisiniers.png");
 

@@ -11,8 +11,10 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ModulePlat
     {
+        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
 
+        #region Menu principal Plat
         /// <summary>
         /// Affiche le menu principal du module Plats
         /// </summary>
@@ -25,7 +27,7 @@ namespace Projet_problème_scientifique_info
                 Console.Clear();
                 GestionBDD.AfficherTitre("MODULE PLATS");
 
-                // Afficher les options en fonction du type d'utilisateur
+                /// Afficher les options en fonction du type d'utilisateur
                 if (SessionUtilisateur.EstConnecte())
                 {
                     if (SessionUtilisateur.TypeUtilisateur == "client")
@@ -133,10 +135,10 @@ namespace Projet_problème_scientifique_info
                                 AjouterNouveauPlat();
                                 break;
                             case "5":
-                                ModifierPlat(true); // Admin peut modifier tous les plats
+                                ModifierPlat(true); /// Admin peut modifier tous les plats
                                 break;
                             case "6":
-                                SupprimerPlat(true); // Admin peut supprimer tous les plats
+                                SupprimerPlat(true); /// Admin peut supprimer tous les plats
                                 break;
                             case "7":
                                 GererIngredients();
@@ -155,7 +157,7 @@ namespace Projet_problème_scientifique_info
                 }
                 else
                 {
-                    // Utilisateur non connecté
+                    /// Utilisateur non connecté
                     Console.WriteLine("1. Consulter les plats disponibles");
                     Console.WriteLine("2. Exporter la liste des plats au format XML");
                     Console.WriteLine("3. Rechercher un plat");
@@ -167,7 +169,6 @@ namespace Projet_problème_scientifique_info
                     switch (choix)
                     {
                         case "1":
-                            //AfficherPlatsDisponibles();
                             ConsulterPlatsDisponibles();
                             break;
                         case "2":
@@ -189,6 +190,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
+        #endregion
 
         #region Affichage des plats
 
@@ -405,7 +407,6 @@ namespace Projet_problème_scientifique_info
                     Console.WriteLine($"Cuisinier : {cuisinier}");
                     Console.WriteLine($"Note du cuisinier : {noteCuisinier}/10");
 
-                    // Afficher les ingrédients du plat
                     string requeteIngredients = @"
                         SELECT i.id_ingredient, i.nom_ingredient, i.categorie_ingredient, i.origine_ingredient, i.allergene_ingredient
                         FROM INGREDIENT i
@@ -432,7 +433,7 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine("\nAucun ingrédient trouvé pour ce plat.");
                     }
 
-                    // Afficher les évaluations du cuisinier
+                    /// Afficher les évaluations du cuisinier
                     if (!string.IsNullOrEmpty(idCuisinier))
                     {
                         string requeteEvaluations = @"
@@ -776,7 +777,7 @@ namespace Projet_problème_scientifique_info
                             Console.WriteLine($"Date de péremption : {datePeremption}");
                             Console.WriteLine($"Cuisinier : {nomCuisinier} (Note moyenne : {noteCuisinier}/10)");
 
-                            // Afficher les ingrédients du plat
+                            /// Afficher les ingrédients du plat
                             Console.WriteLine("\nIngrédients :");
                             AfficherIngredientsPlat(idPlat);
                         }
@@ -862,7 +863,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("AJOUTER UN NOUVEAU PLAT");
 
-            // Vérifier si l'utilisateur est un cuisinier ou un admin
             if (!(SessionUtilisateur.TypeUtilisateur == "cuisinier" || SessionUtilisateur.TypeUtilisateur == "admin"))
             {
                 GestionBDD.AfficherMessageErreur("Vous n'êtes pas autorisé à ajouter des plats.");
@@ -871,7 +871,7 @@ namespace Projet_problème_scientifique_info
 
             string idCuisinier = SessionUtilisateur.IdUtilisateur;
 
-            // Si l'utilisateur est un admin, demander pour quel cuisinier ajouter le plat
+            /// Si l'utilisateur est un admin, demander pour quel cuisinier ajouter le plat
             if (SessionUtilisateur.TypeUtilisateur == "admin")
             {
                 Console.WriteLine("Vous êtes connecté en tant qu'administrateur.");
@@ -943,7 +943,7 @@ namespace Projet_problème_scientifique_info
                     {
                         GestionBDD.AfficherMessageSucces("Plat ajouté avec succès !");
 
-                        // Ajouter les ingrédients au plat
+                        /// Ajouter les ingrédients au plat
                         Console.WriteLine("\nVoulez-vous ajouter des ingrédients à ce plat ? (O/N) : ");
                         if (Console.ReadLine().ToUpper() == "O")
                         {
@@ -971,7 +971,7 @@ namespace Projet_problème_scientifique_info
 
             while (continuerAjout)
             {
-                // Afficher la liste des ingrédients disponibles
+                /// Afficher la liste des ingrédients disponibles
                 Console.WriteLine("\n--- INGRÉDIENTS DISPONIBLES ---");
                 string queryIngredients = "SELECT id_ingredient, nom_ingredient, categorie_ingredient FROM INGREDIENT ORDER BY nom_ingredient";
                 MySqlCommand cmdIngredients = new MySqlCommand(queryIngredients, connection);
@@ -1004,7 +1004,7 @@ namespace Projet_problème_scientifique_info
                 Console.Write("\nID de l'ingrédient à ajouter : ");
                 string idIngredient = Console.ReadLine();
 
-                // Ajouter l'ingrédient au plat
+                /// Ajouter l'ingrédient au plat
                 string queryContient = "INSERT INTO contient (id_plat, id_ingredient) VALUES (@IdPlat, @IdIngredient)";
                 MySqlCommand cmdContient = new MySqlCommand(queryContient, connection);
                 cmdContient.Parameters.AddWithValue("@IdPlat", idPlat);
@@ -1043,7 +1043,7 @@ namespace Projet_problème_scientifique_info
             Console.Write("Entrez l'ID du plat à modifier : ");
             string idPlat = Console.ReadLine();
 
-            // Vérifier si le plat existe et si l'utilisateur a le droit de le modifier
+            /// Vérifier si le plat existe et si l'utilisateur a le droit de le modifier
             if (!estAdmin && !PlatAppartientAuCuisinier(idPlat, SessionUtilisateur.IdUtilisateur))
             {
                 GestionBDD.AfficherMessageErreur("Vous n'êtes pas autorisé à modifier ce plat ou le plat n'existe pas.");
@@ -1056,7 +1056,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Récupérer les informations actuelles du plat
+                    /// Récupérer les informations actuelles du plat
                     string queryInfo = @"
                         SELECT nom_plat, description_plat, type_plat, prix_unitaire_plat, 
                                regime_alimentaire_plat, portion_dispo_plat, nationalite_plat
@@ -1126,7 +1126,6 @@ namespace Projet_problème_scientifique_info
                             if (string.IsNullOrWhiteSpace(nouvelleNationalite))
                                 nouvelleNationalite = nationaliteActuelle;
 
-                            // Mettre à jour le plat
                             string queryUpdate = @"
                                 UPDATE PLAT
                                 SET nom_plat = @NomPlat,
@@ -1154,24 +1153,21 @@ namespace Projet_problème_scientifique_info
                             {
                                 GestionBDD.AfficherMessageSucces("Plat modifié avec succès !");
 
-                                // Proposer de modifier les ingrédients
+                                /// Proposer de modifier les ingrédients
                                 Console.Write("\nVoulez-vous modifier les ingrédients du plat ? (O/N) : ");
                                 if (Console.ReadLine().ToUpper() == "O")
                                 {
-                                    // Afficher les ingrédients actuels
                                     Console.WriteLine("\nIngrédients actuels :");
                                     AfficherIngredientsPlat(idPlat);
 
                                     Console.Write("\nVoulez-vous supprimer tous les ingrédients et en ajouter de nouveaux ? (O/N) : ");
                                     if (Console.ReadLine().ToUpper() == "O")
                                     {
-                                        // Supprimer tous les ingrédients
                                         string queryDelete = "DELETE FROM contient WHERE id_plat = @IdPlat";
                                         MySqlCommand cmdDelete = new MySqlCommand(queryDelete, connection);
                                         cmdDelete.Parameters.AddWithValue("@IdPlat", idPlat);
                                         cmdDelete.ExecuteNonQuery();
 
-                                        // Ajouter de nouveaux ingrédients
                                         AjouterIngredientsAuPlat(idPlat, connection);
                                     }
                                     else
@@ -1214,14 +1210,12 @@ namespace Projet_problème_scientifique_info
             Console.Write("Entrez l'ID du plat à supprimer : ");
             string idPlat = Console.ReadLine();
 
-            // Vérifier si le plat existe et si l'utilisateur a le droit de le supprimer
             if (!estAdmin && !PlatAppartientAuCuisinier(idPlat, SessionUtilisateur.IdUtilisateur))
             {
                 GestionBDD.AfficherMessageErreur("Vous n'êtes pas autorisé à supprimer ce plat ou le plat n'existe pas.");
                 return;
             }
 
-            // Vérifier si le plat est utilisé dans des commandes
             if (PlatUtiliseDansCommandes(idPlat))
             {
                 Console.WriteLine("Ce plat est utilisé dans des commandes existantes.");
@@ -1247,13 +1241,13 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Supprimer d'abord les relations dans la table contient
+                    /// Supprimer d'abord les relations dans la table contient
                     string queryContient = "DELETE FROM contient WHERE id_plat = @IdPlat";
                     MySqlCommand cmdContient = new MySqlCommand(queryContient, connection);
                     cmdContient.Parameters.AddWithValue("@IdPlat", idPlat);
                     cmdContient.ExecuteNonQuery();
 
-                    // Supprimer le plat
+                    /// Supprimer le plat
                     string queryPlat = "DELETE FROM PLAT WHERE id_plat = @IdPlat";
                     MySqlCommand cmdPlat = new MySqlCommand(queryPlat, connection);
                     cmdPlat.Parameters.AddWithValue("@IdPlat", idPlat);
@@ -1465,7 +1459,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si l'ingrédient existe
+                    /// Vérifier si l'ingrédient existe
                     string checkQuery = "SELECT * FROM INGREDIENT WHERE id_ingredient = @IdIngredient";
                     MySqlCommand checkCmd = new MySqlCommand(checkQuery, connection);
                     checkCmd.Parameters.AddWithValue("@IdIngredient", idIngredient);
@@ -1577,7 +1571,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si l'ingrédient existe
+                    /// Vérifier si l'ingrédient existe
                     string checkQuery = "SELECT nom_ingredient FROM INGREDIENT WHERE id_ingredient = @IdIngredient";
                     MySqlCommand checkCmd = new MySqlCommand(checkQuery, connection);
                     checkCmd.Parameters.AddWithValue("@IdIngredient", idIngredient);
@@ -1589,7 +1583,7 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Vérifier si l'ingrédient est utilisé dans des plats
+                    /// Vérifier si l'ingrédient est utilisé dans des plats
                     string checkUsageQuery = "SELECT COUNT(*) FROM contient WHERE id_ingredient = @IdIngredient";
                     MySqlCommand checkUsageCmd = new MySqlCommand(checkUsageQuery, connection);
                     checkUsageCmd.Parameters.AddWithValue("@IdIngredient", idIngredient);
@@ -1691,6 +1685,7 @@ namespace Projet_problème_scientifique_info
 
         #endregion
 
+        #region Export XML
         /// <summary>
         /// Exporte la liste des plats au format XML
         /// </summary>
@@ -1701,10 +1696,9 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Créer l'objet pour stocker la liste des plats
                 ExportPlats exportPlats = new ExportPlats();
 
-                // Récupérer tous les plats
+                /// Récupérer tous les plats
                 string requetePlats = @"
             SELECT p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat, p.prix_unitaire_plat, 
                    p.portion_dispo_plat, p.description_plat,
@@ -1736,7 +1730,6 @@ namespace Projet_problème_scientifique_info
                             NoteCuisinier = row["note_moyenne_cuisinier"] != DBNull.Value ? Convert.ToDecimal(row["note_moyenne_cuisinier"]) : 0
                         };
 
-                        // Récupérer les ingrédients pour ce plat
                         string requeteIngredients = @"
                     SELECT i.nom_ingredient, i.categorie_ingredient, i.origine_ingredient
                     FROM CONTIENT c
@@ -1765,10 +1758,8 @@ namespace Projet_problème_scientifique_info
                             }
                         }
 
-                        // Essayer de récupérer les évaluations si la table de liaison existe
                         try
                         {
-                            // Vérifier d'abord si la table concerne existe
                             string requeteVerifTable = @"
                         SELECT COUNT(*) 
                         FROM information_schema.tables 
@@ -1817,14 +1808,14 @@ namespace Projet_problème_scientifique_info
                         }
                         catch (Exception ex)
                         {
-                            // Si une erreur se produit lors de la récupération des évaluations, on les ignore simplement
+                            /// Si une erreur se produit lors de la récupération des évaluations, on les ignore simplement
                             Console.WriteLine($"Note: Impossible de récupérer les évaluations: {ex.Message}");
                         }
 
                         exportPlats.ListePlats.Add(plat);
                     }
 
-                    // Exporter les plats en XML
+                    /// Exporter les plats en XML
                     string nomFichier = $"ListePlats_{DateTime.Now:yyyyMMdd_HHmmss}.xml";
                     string cheminFichier = ExportXML.ExporterDonnees(exportPlats, nomFichier);
 
@@ -1856,5 +1847,6 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
+        #endregion
     }
 }

@@ -42,7 +42,7 @@ namespace Projet_problème_scientifique_info
         #endregion
 
 
-        #region Attribution d'une position à un noeud
+        #region Attribution d'une position à un noeud et génération des meilleures positions possibles pour les noeuds
         /// <summary>
         /// Génère les positions des nœuds de manière aléatoire dans la zone définie par la largeur et la hauteur. 
         /// Chaque nœud est assigné une position (x, y) générée aléatoirement à l'intérieur de la zone de dessin.
@@ -56,10 +56,7 @@ namespace Projet_problème_scientifique_info
                 positionsNoeuds[noeud] = new Point(x, y);
             }
         }
-        #endregion
 
-
-        #region Génération des meilleures positions possibles pour les noeuds
         /// <summary>
         /// Génère les positions des nœuds en utilisant une disposition optimisée. 
         /// Cette méthode crée une instance de la classe DispositionGraphe pour calculer et attribuer les positions des nœuds en fonction de la taille du graphe et de la zone de dessin.
@@ -71,7 +68,6 @@ namespace Projet_problème_scientifique_info
             positionsNoeuds = disposition.CalculerPositions();
         }
         #endregion
-
 
         #region Construction du graphe avec coloration et affichage au format PNG
         /// <summary>

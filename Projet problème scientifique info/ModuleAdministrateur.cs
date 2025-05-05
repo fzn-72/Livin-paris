@@ -330,7 +330,7 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Vérifier si la commande existe
+                /// Vérifier si la commande existe
                 string requeteVerif = "SELECT c.id_commande, c.statut_commande, cl.nom_client, cl.prenom_client " +
                                      "FROM COMMANDE c " +
                                      "JOIN CLIENT cl ON c.id_client = cl.id_client " +
@@ -383,7 +383,7 @@ namespace Projet_problème_scientifique_info
                         return;
                 }
 
-                // Mettre à jour le statut de la commande
+                /// Mettre à jour le statut de la commande
                 Dictionary<string, object> parametresUpdate = new Dictionary<string, object>
                 {
                     { "@IdCommande", idCommande },
@@ -395,7 +395,7 @@ namespace Projet_problème_scientifique_info
 
                 if (resultat > 0)
                 {
-                    // Si la commande est marquée comme livrée, mettre à jour la date de livraison
+                    /// Si la commande est marquée comme livrée, mettre à jour la date de livraison
                     if (nouveauStatut == "Livrée")
                     {
                         string requeteDateLivraison = "UPDATE COMMANDE SET date_livraison = NOW() WHERE id_commande = @IdCommande";
@@ -531,7 +531,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("RECHERCHER LES ÉVALUATIONS D'UN CLIENT");
 
-            // Afficher la liste des clients
             var clients = GestionBDD.ObtenirListeClientsDetails();
             if (clients.Count == 0)
             {
@@ -616,7 +615,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("RECHERCHER LES ÉVALUATIONS D'UN CUISINIER");
 
-            // Afficher la liste des cuisiniers
             var cuisiniers = GestionBDD.ObtenirListeCuisiniersDetails();
             if (cuisiniers.Count == 0)
             {
@@ -679,7 +677,6 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine($"{idEvaluation}\t{dateEvaluation}\t{note}/10\t{client,-20}{commentaire}");
                     }
 
-                    // Calculer et afficher la note moyenne
                     string requeteMoyenne = "SELECT AVG(note_evaluation) FROM EVALUATION WHERE id_cuisinier = @IdCuisinier";
                     object resultatMoyenne = GestionBDD.ExecuterScalaire(requeteMoyenne, parametres);
 
@@ -716,7 +713,7 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Vérifier si l'évaluation existe
+                /// Vérifier si l'évaluation existe
                 string requeteVerif = @"
                     SELECT e.id_evaluation, cl.nom_client, cl.prenom_client, cu.nom_cuisinier, cu.prenom_cuisinier, cu.id_cuisinier
                     FROM EVALUATION e
@@ -758,7 +755,7 @@ namespace Projet_problème_scientifique_info
                     return;
                 }
 
-                // Supprimer l'évaluation
+                /// Supprimer l'évaluation
                 string requeteDeleteEffectue = "DELETE FROM effectue WHERE id_evaluation = @IdEvaluation";
                 Dictionary<string, object> parametresDeleteEffectue = new Dictionary<string, object>
                 {
@@ -777,7 +774,7 @@ namespace Projet_problème_scientifique_info
                 {
                     GestionBDD.AfficherMessageSucces("Évaluation supprimée avec succès !");
 
-                    // Mettre à jour la note moyenne du cuisinier
+                    /// Mettre à jour la note moyenne du cuisinier
                     string requeteMoyenne = "SELECT AVG(note_evaluation) FROM EVALUATION WHERE id_cuisinier = @IdCuisinier";
                     Dictionary<string, object> parametresMoyenne = new Dictionary<string, object>
                     {
@@ -815,7 +812,6 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
         #endregion
-
 
         #region Méthodes gestion plats 
         /// <summary>
@@ -984,7 +980,7 @@ namespace Projet_problème_scientifique_info
                     Console.WriteLine($"Portions disponibles : {portionDispo}");
                     Console.WriteLine($"Cuisinier : {cuisinier}");
 
-                    // Afficher les ingrédients du plat
+                    /// Afficher les ingrédients du plat
                     string requeteIngredients = @"
                         SELECT i.id_ingredient, i.nom_ingredient, i.categorie_ingredient, i.origine_ingredient
                         FROM INGREDIENT i
@@ -1152,7 +1148,7 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Vérifier si le plat existe
+                /// Vérifier si le plat existe
                 string requeteVerif = "SELECT * FROM PLAT WHERE id_plat = @IdPlat";
                 Dictionary<string, object> parametresVerif = new Dictionary<string, object>
                 {
@@ -1228,7 +1224,7 @@ namespace Projet_problème_scientifique_info
                 if (string.IsNullOrWhiteSpace(nouvelleDatePeremption))
                     nouvelleDatePeremption = datePeremptionActuelle;
 
-                // Mettre à jour le plat
+                /// Mettre à jour le plat
                 string requeteUpdate = @"
                     UPDATE PLAT SET 
                         nom_plat = @NomPlat, 
@@ -1289,7 +1285,7 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Vérifier si le plat existe
+                /// Vérifier si le plat existe
                 string requeteVerif = "SELECT nom_plat FROM PLAT WHERE id_plat = @IdPlat";
                 Dictionary<string, object> parametresVerif = new Dictionary<string, object>
                 {
@@ -1316,7 +1312,7 @@ namespace Projet_problème_scientifique_info
                     return;
                 }
 
-                // Vérifier si le plat est utilisé dans des commandes
+                /// Vérifier si le plat est utilisé dans des commandes
                 string requeteVerifCommandes = "SELECT COUNT(*) FROM LIGNE_COMMANDE WHERE id_plat = @IdPlat";
                 Dictionary<string, object> parametresVerifCommandes = new Dictionary<string, object>
                 {
@@ -1337,7 +1333,7 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Supprimer les références dans LIGNE_COMMANDE
+                    /// Supprimer les références dans LIGNE_COMMANDE
                     string requeteDeleteLignes = "DELETE FROM LIGNE_COMMANDE WHERE id_plat = @IdPlat";
                     Dictionary<string, object> parametresDeleteLignes = new Dictionary<string, object>
                     {
@@ -1346,7 +1342,7 @@ namespace Projet_problème_scientifique_info
                     GestionBDD.ExecuterRequete(requeteDeleteLignes, parametresDeleteLignes);
                 }
 
-                // Supprimer les références dans CONTIENT
+                /// Supprimer les références dans CONTIENT
                 string requeteDeleteContient = "DELETE FROM contient WHERE id_plat = @IdPlat";
                 Dictionary<string, object> parametresDeleteContient = new Dictionary<string, object>
                 {
@@ -1354,7 +1350,7 @@ namespace Projet_problème_scientifique_info
                 };
                 GestionBDD.ExecuterRequete(requeteDeleteContient, parametresDeleteContient);
 
-                // Supprimer les références dans APPARTIENT
+                /// Supprimer les références dans APPARTIENT
                 string requeteDeleteAppartient = "DELETE FROM appartient WHERE id_plat = @IdPlat";
                 Dictionary<string, object> parametresDeleteAppartient = new Dictionary<string, object>
                 {
@@ -1362,7 +1358,7 @@ namespace Projet_problème_scientifique_info
                 };
                 GestionBDD.ExecuterRequete(requeteDeleteAppartient, parametresDeleteAppartient);
 
-                // Supprimer le plat
+                /// Supprimer finalement le plat
                 string requeteDeletePlat = "DELETE FROM PLAT WHERE id_plat = @IdPlat";
                 Dictionary<string, object> parametresDeletePlat = new Dictionary<string, object>
                 {

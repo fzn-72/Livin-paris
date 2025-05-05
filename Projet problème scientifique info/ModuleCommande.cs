@@ -11,8 +11,10 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ModuleCommande
     {
+        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
 
+        #region Menu principal de la classe commande
         /// <summary>
         /// Affiche le menu principal du module commande
         /// </summary>
@@ -25,7 +27,7 @@ namespace Projet_problème_scientifique_info
                 Console.Clear();
                 GestionBDD.AfficherTitre("MODULE COMMANDES");
 
-                // Afficher différentes options selon le type d'utilisateur
+                /// Afficher différentes options selon le type d'utilisateur
                 if (SessionUtilisateur.TypeUtilisateur == "client")
                 {
                     Console.WriteLine("1. Créer une nouvelle commande");
@@ -59,7 +61,7 @@ namespace Projet_problème_scientifique_info
                 }
                 else
                 {
-                    // Utilisateur non connecté ou type inconnu
+                    /// Utilisateur non connecté ou type inconnu
                     Console.WriteLine("1. Consulter les plats disponibles");
                     Console.WriteLine("2. Retour au menu principal");
                 }
@@ -165,7 +167,6 @@ namespace Projet_problème_scientifique_info
                     switch (choix)
                     {
                         case "1":
-                            //ModulePlat.AfficherPlatsDisponibles();
                             ModulePlat.ConsulterPlatsDisponibles();
                             break;
                         case "2":
@@ -178,35 +179,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
-
-        // Dans la classe ModuleCommande, ajoutez la méthode suivante :
-        /// <summary>
-        /// Valide si toutes les lignes de commande ont un cuisinier associé avant de marquer la commande comme livrée
-        /// </summary>
-        /// <param name="idCommande">ID de la commande</param>
-        /// <returns>True si toutes les lignes ont un cuisinier, sinon False</returns>
-        private static bool ToutesLignesOntCuisinier(string idCommande)
-        {
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string requete = "SELECT COUNT(*) FROM LIGNE_COMMANDE WHERE id_commande = @IdCommande AND id_cuisinier IS NULL";
-                    MySqlCommand cmd = new MySqlCommand(requete, connection);
-                    cmd.Parameters.AddWithValue("@IdCommande", idCommande);
-
-                    int count = Convert.ToInt32(cmd.ExecuteScalar());
-                    return count == 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                GestionBDD.AfficherMessageErreur($"Erreur lors de la vérification des cuisiniers : {ex.Message}");
-                return false; // En cas d'erreur, on considère que la validation a échoué
-            }
-        }
+        #endregion
 
         #region Fonctionnalités pour les clients
         /// <summary>
@@ -217,24 +190,20 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("CRÉER UNE NOUVELLE COMMANDE");
 
-            // Vérifier que l'utilisateur est connecté en tant que client
             if (!SessionUtilisateur.EstConnecte() || SessionUtilisateur.TypeUtilisateur != "client")
             {
                 GestionBDD.AfficherMessageErreur("Vous devez être connecté en tant que client pour créer une commande.");
                 return;
             }
 
-            // Récupérer l'ID du client connecté
             string idClient = SessionUtilisateur.IdUtilisateur;
 
-            // Générer un nouvel ID de commande
             int idCommande = GestionBDD.GenererNouvelID("COMMANDE", "id_commande");
 
-            // Saisir les informations de la commande
             Console.Write("Commentaire (facultatif) : ");
             string commentaire = Console.ReadLine();
 
-            // Créer la commande
+
             Dictionary<string, object> parametresCommande = new Dictionary<string, object>
           {
               { "@IdCommande", idCommande },
@@ -252,7 +221,7 @@ namespace Projet_problème_scientifique_info
             {
                 GestionBDD.AfficherMessageSucces($"Commande #{idCommande} créée avec succès !");
 
-                // Ajouter des lignes de commande
+                /// Ajouter des lignes de commande
                 Console.Write("Voulez-vous ajouter des plats à cette commande maintenant ? (O/N) : ");
                 if (Console.ReadLine().ToUpper() == "O")
                 {
@@ -280,7 +249,7 @@ namespace Projet_problème_scientifique_info
                 continuerAjout = Console.ReadLine().ToUpper() == "O";
             }
 
-            // Recalculer le prix total de la commande
+            /// Recalculer le prix total de la commande
             decimal nouveauPrix = CalculerPrixTotal(idCommande);
             if (nouveauPrix >= 0)
             {
@@ -303,7 +272,7 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("AJOUTER UNE LIGNE DE COMMANDE");
 
-            // Afficher les plats disponibles
+            /// Afficher les plats disponibles
             string requetePlats = "SELECT id_plat, nom_plat, type_plat, prix_unitaire_plat, nationalite_plat, " +
                                  "regime_alimentaire_plat FROM PLAT ORDER BY type_plat, nom_plat";
             DataTable plats = GestionBDD.ExecuterRequeteTable(requetePlats, new Dictionary<string, object>());
@@ -333,7 +302,7 @@ namespace Projet_problème_scientifique_info
             Console.Write("\nID du plat à ajouter : ");
             string idPlat = Console.ReadLine();
 
-            // Vérifier si le plat existe
+            /// Vérifier si le plat existe
             string requeteVerifPlat = "SELECT COUNT(*) FROM PLAT WHERE id_plat = @IdPlat";
             Dictionary<string, object> parametresVerifPlat = new Dictionary<string, object>
           {
@@ -347,7 +316,7 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Récupérer le prix unitaire du plat
+            /// Récupérer le prix unitaire du plat
             string requetePrixPlat = "SELECT prix_unitaire_plat FROM PLAT WHERE id_plat = @IdPlat";
             Dictionary<string, object> parametresPrixPlat = new Dictionary<string, object>
           {
@@ -363,10 +332,10 @@ namespace Projet_problème_scientifique_info
             Console.Write("Métro le plus proche pour la livraison : ");
             string metroLivraison = Console.ReadLine();
 
-            // Générer un nouvel ID de ligne
+            /// Générer un nouvel ID de ligne
             int idLigne = GestionBDD.GenererNouvelID("LIGNE_COMMANDE", "id_ligne");
 
-            // Ajouter la ligne de commande
+            /// Ajouter la ligne de commande
             Dictionary<string, object> parametresLigne = new Dictionary<string, object>
           {
               { "@IdLigne", idLigne },
@@ -387,7 +356,7 @@ namespace Projet_problème_scientifique_info
 
             if (resultat > 0)
             {
-                // Ajouter également dans la table appartient
+                /// Ajouter également dans la table appartient
                 Dictionary<string, object> parametresAppartient = new Dictionary<string, object>
               {
                   { "@IdPlat", idPlat },
@@ -493,7 +462,7 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("MES COMMANDES");
 
-            // Vérifier que l'utilisateur est connecté en tant que client
+            /// Vérifier que l'utilisateur est connecté en tant que client
             if (!SessionUtilisateur.EstConnecte() || SessionUtilisateur.TypeUtilisateur != "client")
             {
                 GestionBDD.AfficherMessageErreur("Vous devez être connecté en tant que client pour voir vos commandes.");
@@ -562,7 +531,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("ANNULER UNE COMMANDE");
 
-            // Vérifier que l'utilisateur est connecté en tant que client
             if (!SessionUtilisateur.EstConnecte() || SessionUtilisateur.TypeUtilisateur != "client")
             {
                 GestionBDD.AfficherMessageErreur("Vous devez être connecté en tant que client pour annuler une commande.");
@@ -571,7 +539,7 @@ namespace Projet_problème_scientifique_info
 
             string idClient = SessionUtilisateur.IdUtilisateur;
 
-            // Afficher les commandes du client qui peuvent être annulées
+            /// Afficher les commandes du client qui peuvent être annulées
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -617,7 +585,7 @@ namespace Projet_problème_scientifique_info
                     Console.Write("\nID de la commande à annuler : ");
                     string idCommande = Console.ReadLine();
 
-                    // Vérifier que la commande appartient bien au client
+                    /// Vérifier que la commande appartient bien au client
                     string requeteVerif = "SELECT COUNT(*) FROM COMMANDE WHERE id_commande = @IdCommande AND id_client = @IdClient";
                     MySqlCommand cmdVerif = new MySqlCommand(requeteVerif, connection);
                     cmdVerif.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -632,7 +600,7 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Vérifier que la commande peut être annulée
+                    /// Vérifier que la commande peut être annulée
                     string requeteStatut = "SELECT statut_commande FROM COMMANDE WHERE id_commande = @IdCommande";
                     MySqlCommand cmdStatut = new MySqlCommand(requeteStatut, connection);
                     cmdStatut.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -646,7 +614,7 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Demander confirmation
+                    /// Demander confirmation
                     Console.Write("Êtes-vous sûr de vouloir annuler cette commande ? (O/N) : ");
                     if (Console.ReadLine().ToUpper() != "O")
                     {
@@ -656,7 +624,7 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Annuler la commande
+                    /// Annuler la commande
                     string requeteAnnulation = "UPDATE COMMANDE SET statut_commande = 'Annulée' WHERE id_commande = @IdCommande";
                     MySqlCommand cmdAnnulation = new MySqlCommand(requeteAnnulation, connection);
                     cmdAnnulation.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -698,7 +666,7 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Récupérer les commandes livrées du client
+                /// Récupérer les commandes livrées du client
                 string requeteCommandes = @"
                     SELECT DISTINCT c.id_commande, c.date_commande, c.date_livraison, c.statut_commande,
                            cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier
@@ -741,7 +709,7 @@ namespace Projet_problème_scientifique_info
                 Console.Write("\nEntrez l'ID de la commande pour laquelle vous souhaitez évaluer le cuisinier : ");
                 string idCommandeEval = Console.ReadLine();
 
-                // Vérifier si la commande existe et appartient au client
+                /// Vérifier si la commande existe et appartient au client
                 string requeteVerifCommande = @"
                     SELECT c.id_commande, cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier
                     FROM COMMANDE c
@@ -770,7 +738,7 @@ namespace Projet_problème_scientifique_info
                 string nomCuisinier = commande["nom_cuisinier"] != DBNull.Value ? commande["nom_cuisinier"].ToString() : "N/A";
                 string prenomCuisinier = commande["prenom_cuisinier"] != DBNull.Value ? commande["prenom_cuisinier"].ToString() : "N/A";
 
-                // Vérifier si le client a déjà évalué ce cuisinier pour cette commande
+                /// Vérifier si le client a déjà évalué ce cuisinier pour cette commande
                 string requeteVerifEvaluation = @"
                     SELECT e.id_evaluation
                     FROM EVALUATION e
@@ -793,7 +761,7 @@ namespace Projet_problème_scientifique_info
                     Console.Write("Voulez-vous modifier votre évaluation ? (O/N) : ");
                     if (Console.ReadLine().ToUpper() == "O")
                     {
-                        // Modifier l'évaluation existante
+                        /// Modifier l'évaluation existante
                         ModifierEvaluation(idEvaluationExistante.ToString(), idCuisinier);
                     }
                     return;
@@ -814,10 +782,10 @@ namespace Projet_problème_scientifique_info
                 Console.Write("Commentaire : ");
                 string commentaire = Console.ReadLine();
 
-                // Générer un nouvel ID d'évaluation
+                /// Générer un nouvel ID d'évaluation
                 int idEvaluation = GestionBDD.GenererNouvelID("EVALUATION", "id_evaluation");
 
-                // Ajouter l'évaluation
+                /// Ajouter l'évaluation
                 Dictionary<string, object> parametresEvaluation = new Dictionary<string, object>
                 {
                     { "@IdEvaluation", idEvaluation },
@@ -835,7 +803,7 @@ namespace Projet_problème_scientifique_info
 
                 if (resultatEvaluation > 0)
                 {
-                    // Lier l'évaluation au client
+                    /// Lier l'évaluation au client
                     Dictionary<string, object> parametresEffectue = new Dictionary<string, object>
                     {
                         { "@IdEvaluation", idEvaluation },
@@ -845,7 +813,7 @@ namespace Projet_problème_scientifique_info
                     string requeteEffectue = "INSERT INTO effectue (id_evaluation, id_client) VALUES (@IdEvaluation, @IdClient)";
                     GestionBDD.ExecuterRequete(requeteEffectue, parametresEffectue);
 
-                    // Mettre à jour la note moyenne du cuisinier
+                    /// Mettre à jour la note moyenne du cuisinier
                     string requeteMoyenne = "SELECT AVG(note_evaluation) FROM EVALUATION WHERE id_cuisinier = @IdCuisinier";
                     Dictionary<string, object> parametresMoyenne = new Dictionary<string, object>
                     {
@@ -884,148 +852,12 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
-
-        //private static void EvaluerCuisinier()
-        //{
-        //    Console.Clear();
-        //    GestionBDD.AfficherTitre("ÉVALUER UN CUISINIER");
-
-        //    // Vérifier que l'utilisateur est connecté en tant que client
-        //    if (!SessionUtilisateur.EstConnecte() || SessionUtilisateur.TypeUtilisateur != "client")
-        //    {
-        //        GestionBDD.AfficherMessageErreur("Vous devez être connecté en tant que client pour évaluer un cuisinier.");
-        //        return;
-        //    }
-
-        //    string idClient = SessionUtilisateur.IdUtilisateur;
-
-        //    try
-        //    {
-        //        using (MySqlConnection connection = new MySqlConnection(connectionString))
-        //        {
-        //            connection.Open();
-
-        //            // Récupérer les cuisiniers qui ont préparé des plats pour ce client
-        //            string requete = "SELECT DISTINCT cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier " +
-        //                            "FROM CUISINIER cu " +
-        //                            "JOIN LIGNE_COMMANDE lc ON cu.id_cuisinier = lc.id_cuisinier " +
-        //                            "JOIN COMMANDE c ON lc.id_commande = c.id_commande " +
-        //                            "WHERE c.id_client = @IdClient " +
-        //                            "AND c.statut_commande = 'Livrée' " +
-        //                            "ORDER BY cu.nom_cuisinier, cu.prenom_cuisinier";
-
-        //            MySqlCommand cmd = new MySqlCommand(requete, connection);
-        //            cmd.Parameters.AddWithValue("@IdClient", idClient);
-
-        //            using (MySqlDataReader reader = cmd.ExecuteReader())
-        //            {
-        //                if (reader.HasRows)
-        //                {
-        //                    Console.WriteLine("\nCuisiniers disponibles pour évaluation :");
-        //                    Console.WriteLine("ID\tNom\t\tPrénom");
-        //                    Console.WriteLine("------------------------------");
-
-        //                    while (reader.Read())
-        //                    {
-        //                        string id = reader["id_cuisinier"].ToString();
-        //                        string nom = reader["nom_cuisinier"] == DBNull.Value ? "N/A" : reader["nom_cuisinier"].ToString();
-        //                        string prenom = reader["prenom_cuisinier"] == DBNull.Value ? "N/A" : reader["prenom_cuisinier"].ToString();
-
-        //                        Console.WriteLine($"{id}\t{nom,-15}{prenom}");
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    Console.WriteLine("Aucun cuisinier disponible pour évaluation.");
-        //                    Console.WriteLine("\nAppuyez sur une touche pour continuer...");
-        //                    Console.ReadKey();
-        //                    return;
-        //                }
-        //            }
-
-        //            Console.Write("\nID du cuisinier à évaluer : ");
-        //            string idCuisinier = Console.ReadLine();
-
-        //            // Vérifier si le client a déjà évalué ce cuisinier
-        //            string requeteVerif = "SELECT COUNT(*) FROM EVALUATION WHERE id_client = @IdClient AND id_cuisinier = @IdCuisinier";
-        //            MySqlCommand cmdVerif = new MySqlCommand(requeteVerif, connection);
-        //            cmdVerif.Parameters.AddWithValue("@IdClient", idClient);
-        //            cmdVerif.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
-
-        //            int count = Convert.ToInt32(cmdVerif.ExecuteScalar());
-        //            if (count > 0)
-        //            {
-        //                Console.WriteLine("Vous avez déjà évalué ce cuisinier. Voulez-vous modifier votre évaluation ? (O/N) : ");
-        //                if (Console.ReadLine().ToUpper() != "O")
-        //                {
-        //                    return;
-        //                }
-        //            }
-
-        //            // Saisir l'évaluation
-        //            Console.Write("Note (1-10) : ");
-        //            string note = Console.ReadLine();
-
-        //            Console.Write("Commentaire : ");
-        //            string commentaire = Console.ReadLine();
-
-        //            // Générer un nouvel ID d'évaluation
-        //            int idEvaluation = GestionBDD.GenererNouvelID("EVALUATION", "id_evaluation");
-
-        //            // Ajouter ou mettre à jour l'évaluation
-        //            string requeteEvaluation;
-        //            MySqlCommand cmdEvaluation;
-
-        //            if (count > 0)
-        //            {
-        //                // Mettre à jour l'évaluation existante
-        //                requeteEvaluation = "UPDATE EVALUATION SET note = @Note, commentaire = @Commentaire, date_evaluation = NOW() " +
-        //                                   "WHERE id_client = @IdClient AND id_cuisinier = @IdCuisinier";
-        //                cmdEvaluation = new MySqlCommand(requeteEvaluation, connection);
-        //                cmdEvaluation.Parameters.AddWithValue("@Note", note);
-        //                cmdEvaluation.Parameters.AddWithValue("@Commentaire", commentaire);
-        //                cmdEvaluation.Parameters.AddWithValue("@IdClient", idClient);
-        //                cmdEvaluation.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
-        //            }
-        //            else
-        //            {
-        //                // Ajouter une nouvelle évaluation
-        //                requeteEvaluation = "INSERT INTO EVALUATION (id_evaluation, id_client, id_cuisinier, note, commentaire, date_evaluation) " +
-        //                                   "VALUES (@IdEvaluation, @IdClient, @IdCuisinier, @Note, @Commentaire, NOW())";
-        //                cmdEvaluation = new MySqlCommand(requeteEvaluation, connection);
-        //                cmdEvaluation.Parameters.AddWithValue("@IdEvaluation", idEvaluation);
-        //                cmdEvaluation.Parameters.AddWithValue("@IdClient", idClient);
-        //                cmdEvaluation.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
-        //                cmdEvaluation.Parameters.AddWithValue("@Note", note);
-        //                cmdEvaluation.Parameters.AddWithValue("@Commentaire", commentaire);
-        //            }
-
-        //            int resultat = cmdEvaluation.ExecuteNonQuery();
-        //            if (resultat > 0)
-        //            {
-        //                GestionBDD.AfficherMessageSucces("Évaluation enregistrée avec succès !");
-        //            }
-        //            else
-        //            {
-        //                GestionBDD.AfficherMessageErreur("Erreur lors de l'enregistrement de l'évaluation.");
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
-        //    }
-
-        //    Console.WriteLine("\nAppuyez sur une touche pour continuer...");
-        //    Console.ReadKey();
-        //} //Ancienne version : celle du moduleClient
         
         /// <summary>
         /// Permet à un cuisinier de mettre à jour le statut d'une ligne de commande (appelé depuis le menu)
         /// </summary>
         private static void MettreAJourStatutLigneCommande()
         {
-            // Vérifier que l'utilisateur est un cuisinier
             if (!SessionUtilisateur.EstCuisinier())
             {
                 SessionUtilisateur.AfficherMessageDroitsInsuffisants();
@@ -1044,7 +876,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si la ligne existe et appartient à un plat du cuisinier
+                    /// Vérifier si la ligne existe et appartient à un plat du cuisinier
                     string requeteVerif = @"
                 SELECT lc.id_ligne, lc.id_plat, p.nom_plat, lc.statut_ligne
                 FROM LIGNE_COMMANDE lc
@@ -1097,7 +929,7 @@ namespace Projet_problème_scientifique_info
                             return;
                     }
 
-                    // Appeler la méthode avec les paramètres
+                    /// Appeler la méthode avec les paramètres
                     MettreAJourStatutLigneCommande(idLigne, nouveauStatut, connection);
                 }
             }
@@ -1120,7 +952,7 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Récupérer les détails de l'évaluation
+                /// Récupérer les détails de l'évaluation
                 string requeteEvaluation = @"
                     SELECT e.note_evaluation, e.commentaire_evaluation
                     FROM EVALUATION e
@@ -1161,7 +993,7 @@ namespace Projet_problème_scientifique_info
                 Console.Write("Nouveau commentaire : ");
                 string nouveauCommentaire = Console.ReadLine();
 
-                // Mettre à jour l'évaluation
+                /// Mettre à jour l'évaluation
                 Dictionary<string, object> parametresUpdate = new Dictionary<string, object>
                 {
                     { "@IdEvaluation", idEvaluation },
@@ -1178,7 +1010,7 @@ namespace Projet_problème_scientifique_info
 
                 if (resultatUpdate > 0)
                 {
-                    // Mettre à jour la note moyenne du cuisinier
+                    /// Mettre à jour la note moyenne du cuisinier
                     string requeteMoyenne = "SELECT AVG(note_evaluation) FROM EVALUATION WHERE id_cuisinier = @IdCuisinier";
                     Dictionary<string, object> parametresMoyenne = new Dictionary<string, object>
                     {
@@ -1227,7 +1059,6 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         private static void VoirCommandesAPreparer()
         {
-            // Vérifier que l'utilisateur est un cuisinier
             if (!SessionUtilisateur.EstCuisinier())
             {
                 SessionUtilisateur.AfficherMessageDroitsInsuffisants();
@@ -1307,7 +1138,7 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Vérifier si la commande existe et contient des plats du cuisinier
+                /// Vérifier si la commande existe et contient des plats du cuisinier
                 string requeteVerif = @"
             SELECT COUNT(*) 
             FROM COMMANDE c
@@ -1332,7 +1163,7 @@ namespace Projet_problème_scientifique_info
                     return;
                 }
 
-                // Récupérer les informations de la commande
+                /// Récupérer les informations de la commande
                 string requeteCommande = @"
             SELECT c.id_commande, c.date_commande, c.date_livraison, c.prix_total_commande, c.statut_commande, 
                    c.commentaire_commande, cl.nom_client, cl.prenom_client
@@ -1366,7 +1197,7 @@ namespace Projet_problème_scientifique_info
                     Console.WriteLine($"Prix total : {prix}");
                     Console.WriteLine($"Commentaire : {commentaire}");
 
-                    // Récupérer uniquement les lignes de commande qui concernent ce cuisinier
+                    /// Récupérer uniquement les lignes de commande qui concernent ce cuisinier
                     string requeteLignes = @"
                 SELECT lc.id_ligne, p.nom_plat, lc.prix_unitaire, lc.quantite, lc.statut_ligne,
                        lc.date_livraison_voulue, lc.metro_le_plus_proche_livraison
@@ -1590,7 +1421,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("MES ÉVALUATIONS");
 
-            // Vérifier que l'utilisateur est connecté en tant que cuisinier
             if (!SessionUtilisateur.EstConnecte() || SessionUtilisateur.TypeUtilisateur != "cuisinier")
             {
                 GestionBDD.AfficherMessageErreur("Vous devez être connecté en tant que cuisinier pour voir vos évaluations.");
@@ -1638,7 +1468,6 @@ namespace Projet_problème_scientifique_info
                                 Console.WriteLine($"{id}\t{note}\t{dateEvaluation}\t{client,-15}{commentaire}");
                             }
 
-                            // Calculer la note moyenne
                             reader.Close();
                             string requeteMoyenne = "SELECT AVG(note) FROM EVALUATION WHERE id_cuisinier = @IdCuisinier";
                             MySqlCommand cmdMoyenne = new MySqlCommand(requeteMoyenne, connection);
@@ -1675,7 +1504,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("STATISTIQUES DE MES PLATS");
 
-            // Vérifier que l'utilisateur est connecté en tant que cuisinier
             if (!SessionUtilisateur.EstConnecte() || SessionUtilisateur.TypeUtilisateur != "cuisinier")
             {
                 GestionBDD.AfficherMessageErreur("Vous devez être connecté en tant que cuisinier pour voir vos statistiques.");
@@ -1690,7 +1518,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Statistiques des plats les plus préparés
+                    /// Statistiques des plats les plus préparés
                     Console.WriteLine("\nPlats les plus préparés :");
                     string requetePlats = "SELECT p.id_plat, p.nom_plat, COUNT(lc.id_ligne) AS nombre_preparations " +
                                          "FROM PLAT p " +
@@ -1725,7 +1553,7 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Statistiques des clients servis
+                    /// Statistiques des clients servis
                     Console.WriteLine("\nClients les plus servis :");
                     string requeteClients = "SELECT c.id_client, c.nom_client, c.prenom_client, COUNT(DISTINCT lc.id_commande) AS nombre_commandes " +
                                            "FROM CLIENT c " +
@@ -1763,7 +1591,7 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Statistiques par période
+                    /// Statistiques par période
                     Console.WriteLine("\nStatistiques par période :");
                     Console.WriteLine("1. Dernière semaine");
                     Console.WriteLine("2. Dernier mois");
@@ -1784,7 +1612,7 @@ namespace Projet_problème_scientifique_info
                             periode = "YEAR";
                             break;
                         default:
-                            periode = "MONTH"; // Par défaut
+                            periode = "MONTH";
                             break;
                     }
 
@@ -1843,14 +1671,14 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si la commande existe et si l'utilisateur a le droit de la voir
+                    /// Vérifier si la commande existe et si l'utilisateur a le droit de la voir
                     string requeteVerif = "";
                     MySqlCommand cmdVerif = new MySqlCommand();
                     cmdVerif.Connection = connection;
 
                     if (SessionUtilisateur.TypeUtilisateur == "client")
                     {
-                        // Un client ne peut voir que ses propres commandes
+                        /// Un client ne peut voir que ses propres commandes
                         requeteVerif = "SELECT COUNT(*) FROM COMMANDE WHERE id_commande = @IdCommande AND id_client = @IdClient";
                         cmdVerif.CommandText = requeteVerif;
                         cmdVerif.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -1858,7 +1686,7 @@ namespace Projet_problème_scientifique_info
                     }
                     else if (SessionUtilisateur.TypeUtilisateur == "cuisinier")
                     {
-                        // Un cuisinier peut voir les commandes qui lui sont assignées
+                        /// Un cuisinier peut voir les commandes qui lui sont assignées
                         requeteVerif = "SELECT COUNT(*) FROM LIGNE_COMMANDE WHERE id_commande = @IdCommande AND id_cuisinier = @IdCuisinier";
                         cmdVerif.CommandText = requeteVerif;
                         cmdVerif.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -1866,7 +1694,7 @@ namespace Projet_problème_scientifique_info
                     }
                     else if (SessionUtilisateur.TypeUtilisateur == "admin")
                     {
-                        // Un admin peut voir toutes les commandes
+                        /// Un admin peut voir toutes les commandes
                         requeteVerif = "SELECT COUNT(*) FROM COMMANDE WHERE id_commande = @IdCommande";
                         cmdVerif.CommandText = requeteVerif;
                         cmdVerif.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -1888,7 +1716,6 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Afficher les informations de la commande
                     string requeteCommande = "SELECT c.id_commande, c.date_commande, c.date_livraison, c.statut_commande, " +
                                             "c.prix_total_commande, c.commentaire_commande, " +
                                             "cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client, cl.tel_client " +
@@ -1928,7 +1755,6 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Afficher les lignes de commande
                     string requeteLignes = "SELECT lc.id_ligne, lc.id_plat, p.nom_plat, lc.prix_unitaire, " +
                                           "lc.date_livraison_voulue, lc.statut_ligne, " +
                                           "lc.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier " +
@@ -1994,14 +1820,12 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("CRÉER UNE NOUVELLE COMMANDE");
 
-            // Vérifier que l'utilisateur est connecté en tant qu'administrateur
             if (!SessionUtilisateur.EstConnecte() || SessionUtilisateur.TypeUtilisateur != "admin")
             {
                 GestionBDD.AfficherMessageErreur("Vous devez être connecté en tant qu'administrateur pour créer une commande.");
                 return;
             }
 
-            // Sélectionner un client
             Console.WriteLine("Sélectionnez un client :");
             Console.WriteLine("1. Rechercher un client");
             Console.WriteLine("2. Saisir l'ID du client directement");
@@ -2011,7 +1835,6 @@ namespace Projet_problème_scientifique_info
             string idClient = "";
             if (choixClient == "1")
             {
-                // Rechercher un client
                 Console.Write("Entrez le nom ou l'email du client : ");
                 string recherche = Console.ReadLine();
 
@@ -2066,12 +1889,10 @@ namespace Projet_problème_scientifique_info
             }
             else
             {
-                // Saisir l'ID directement
                 Console.Write("ID du client : ");
                 idClient = Console.ReadLine();
             }
 
-            // Vérifier que le client existe
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -2096,18 +1917,16 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Générer un nouvel ID de commande
             int idCommande = GestionBDD.GenererNouvelID("COMMANDE", "id_commande");
 
-            // Saisir les informations de la commande
             Console.Write("Commentaire (facultatif) : ");
             string commentaire = Console.ReadLine();
 
             Console.Write("Statut (En attente, Confirmée, En préparation, Prête à livrer, En livraison, Livrée, Annulée) : ");
             string statut = Console.ReadLine();
 
-            // Créer la commande
-            Dictionary<string, object> parametresCommande = new Dictionary<string, object>
+
+            Dictionary<string, object> parametresCommande = new Dictionary<string, object>  /// Création de la commande
           {
               { "@IdCommande", idCommande },
               { "@Commentaire", commentaire },
@@ -2124,7 +1943,6 @@ namespace Projet_problème_scientifique_info
             {
                 GestionBDD.AfficherMessageSucces($"Commande #{idCommande} créée avec succès !");
 
-                // Ajouter des lignes de commande
                 Console.Write("Voulez-vous ajouter des plats à cette commande maintenant ? (O/N) : ");
                 if (Console.ReadLine().ToUpper() == "O")
                 {
@@ -2278,7 +2096,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si la commande existe
                     string requeteVerif = "SELECT COUNT(*) FROM COMMANDE WHERE id_commande = @IdCommande";
                     MySqlCommand cmdVerif = new MySqlCommand(requeteVerif, connection);
                     cmdVerif.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -2292,7 +2109,6 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Récupérer les informations actuelles
                     string requeteInfo = "SELECT c.statut_commande, c.commentaire_commande, c.id_client " +
                                         "FROM COMMANDE c " +
                                         "WHERE c.id_commande = @IdCommande";
@@ -2331,7 +2147,6 @@ namespace Projet_problème_scientifique_info
                     if (string.IsNullOrWhiteSpace(nouvelIdClient))
                         nouvelIdClient = idClientActuel;
 
-                    // Mettre à jour la commande
                     string requeteUpdate = "UPDATE COMMANDE SET " +
                                           "statut_commande = @Statut, " +
                                           "commentaire_commande = @Commentaire, " +
@@ -2387,7 +2202,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si la commande existe
                     string requeteVerif = "SELECT c.id_commande, c.statut_commande, cl.nom_client, cl.prenom_client " +
                                         "FROM COMMANDE c " +
                                         "JOIN CLIENT cl ON c.id_client = cl.id_client " +
@@ -2417,19 +2231,19 @@ namespace Projet_problème_scientifique_info
                                 return;
                             }
 
-                            // Supprimer les lignes de commande
+                            /// Supprimer les lignes de commande
                             string deleteLignes = "DELETE FROM LIGNE_COMMANDE WHERE id_commande = @IdCommande";
                             MySqlCommand cmdDeleteLignes = new MySqlCommand(deleteLignes, connection);
                             cmdDeleteLignes.Parameters.AddWithValue("@IdCommande", idCommande);
                             cmdDeleteLignes.ExecuteNonQuery();
 
-                            // Supprimer les relations dans la table appartient
+                            /// Supprimer les relations dans la table appartient
                             string deleteAppartient = "DELETE FROM appartient WHERE id_commande = @IdCommande";
                             MySqlCommand cmdDeleteAppartient = new MySqlCommand(deleteAppartient, connection);
                             cmdDeleteAppartient.Parameters.AddWithValue("@IdCommande", idCommande);
                             cmdDeleteAppartient.ExecuteNonQuery();
 
-                            // Supprimer la commande
+                            /// Supprimer la commande
                             string deleteCommande = "DELETE FROM COMMANDE WHERE id_commande = @IdCommande";
                             MySqlCommand cmdDeleteCommande = new MySqlCommand(deleteCommande, connection);
                             cmdDeleteCommande.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -2481,7 +2295,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si la commande existe
+                    /// Vérifier si la commande existe
                     string requeteVerif = "SELECT COUNT(*) FROM COMMANDE WHERE id_commande = @IdCommande";
                     MySqlCommand cmdVerif = new MySqlCommand(requeteVerif, connection);
                     cmdVerif.Parameters.AddWithValue("@IdCommande", idCommande);
@@ -2501,7 +2315,6 @@ namespace Projet_problème_scientifique_info
                         Console.Clear();
                         GestionBDD.AfficherTitre($"GÉRER LES LIGNES DE LA COMMANDE #{idCommande}");
 
-                        // Afficher les lignes actuelles
                         string requeteLignes = "SELECT lc.id_ligne, lc.id_plat, p.nom_plat, lc.prix_unitaire, " +
                                             "lc.date_livraison_voulue, lc.statut_ligne, " +
                                             "lc.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier " +
@@ -2578,7 +2391,7 @@ namespace Projet_problème_scientifique_info
                                 break;
                         }
 
-                        // Recalculer le prix total de la commande
+                        /// Recalculer le prix total de la commande
                         if (choix == "1" || choix == "2" || choix == "3")
                         {
                             decimal nouveauPrix = CalculerPrixTotal(idCommande);
@@ -2614,7 +2427,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si la ligne existe
                     string requeteVerif = "SELECT lc.id_ligne, lc.id_plat, p.nom_plat, lc.prix_unitaire, " +
                                         "lc.date_livraison_voulue, lc.statut_ligne, lc.id_commande " +
                                         "FROM LIGNE_COMMANDE lc " +
@@ -2657,7 +2469,7 @@ namespace Projet_problème_scientifique_info
                     if (string.IsNullOrWhiteSpace(nouvelIdPlat))
                         nouvelIdPlat = idPlat;
 
-                    // Vérifier si le nouveau plat existe
+                    /// Vérifier si le nouveau plat existe
                     if (nouvelIdPlat != idPlat)
                     {
                         string requeteVerifPlat = "SELECT COUNT(*) FROM PLAT WHERE id_plat = @IdPlat";
@@ -2686,7 +2498,7 @@ namespace Projet_problème_scientifique_info
                     if (string.IsNullOrWhiteSpace(nouveauStatut))
                         nouveauStatut = statutLigne;
 
-                    // Mettre à jour la ligne
+                    /// Mettre à jour la ligne
                     string requeteUpdate = "UPDATE LIGNE_COMMANDE SET " +
                                           "id_plat = @IdPlat, " +
                                           "prix_unitaire = @PrixUnitaire, " +
@@ -2704,17 +2516,15 @@ namespace Projet_problème_scientifique_info
                     int resultat = cmdUpdate.ExecuteNonQuery();
                     if (resultat > 0)
                     {
-                        // Mettre à jour la table appartient si le plat a changé
+                        /// Mettre à jour la table appartient si le plat a changé
                         if (nouvelIdPlat != idPlat)
                         {
-                            // Supprimer l'ancienne relation
                             string deleteAppartient = "DELETE FROM appartient WHERE id_plat = @IdPlatAncien AND id_commande = @IdCommande";
                             MySqlCommand cmdDeleteAppartient = new MySqlCommand(deleteAppartient, connection);
                             cmdDeleteAppartient.Parameters.AddWithValue("@IdPlatAncien", idPlat);
                             cmdDeleteAppartient.Parameters.AddWithValue("@IdCommande", idCommande);
                             cmdDeleteAppartient.ExecuteNonQuery();
 
-                            // Ajouter la nouvelle relation
                             string insertAppartient = "INSERT INTO appartient (id_plat, id_commande) VALUES (@IdPlatNouveau, @IdCommande)";
                             MySqlCommand cmdInsertAppartient = new MySqlCommand(insertAppartient, connection);
                             cmdInsertAppartient.Parameters.AddWithValue("@IdPlatNouveau", nouvelIdPlat);
@@ -2750,7 +2560,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si la ligne existe
+                    /// Vérifier si la ligne existe
                     string requeteVerif = "SELECT lc.id_ligne, lc.id_plat, p.nom_plat, lc.id_commande " +
                                         "FROM LIGNE_COMMANDE lc " +
                                         "JOIN PLAT p ON lc.id_plat = p.id_plat " +
@@ -2786,7 +2596,7 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Supprimer la ligne
+                    /// Supprimer la ligne
                     string deleteLigne = "DELETE FROM LIGNE_COMMANDE WHERE id_ligne = @IdLigne";
                     MySqlCommand cmdDeleteLigne = new MySqlCommand(deleteLigne, connection);
                     cmdDeleteLigne.Parameters.AddWithValue("@IdLigne", idLigne);
@@ -2794,14 +2604,14 @@ namespace Projet_problème_scientifique_info
 
                     if (resultat > 0)
                     {
-                        // Vérifier s'il reste d'autres lignes avec ce plat dans cette commande
+                        /// Vérifier s'il reste d'autres lignes avec ce plat dans cette commande
                         string requeteVerifPlat = "SELECT COUNT(*) FROM LIGNE_COMMANDE WHERE id_plat = @IdPlat AND id_commande = @IdCommande";
                         MySqlCommand cmdVerifPlat = new MySqlCommand(requeteVerifPlat, connection);
                         cmdVerifPlat.Parameters.AddWithValue("@IdPlat", idPlat);
                         cmdVerifPlat.Parameters.AddWithValue("@IdCommande", idCommande);
                         int countPlat = Convert.ToInt32(cmdVerifPlat.ExecuteScalar());
 
-                        // S'il n'y a plus de lignes avec ce plat, supprimer la relation dans appartient
+                        /// S'il n'y a plus de lignes avec ce plat, supprimer la relation dans appartient
                         if (countPlat == 0)
                         {
                             string deleteAppartient = "DELETE FROM appartient WHERE id_plat = @IdPlat AND id_commande = @IdCommande";
@@ -2951,7 +2761,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si la ligne existe
                     string requeteVerif = "SELECT lc.id_ligne, lc.id_plat, p.nom_plat, lc.id_commande, lc.id_cuisinier " +
                                         "FROM LIGNE_COMMANDE lc " +
                                         "JOIN PLAT p ON lc.id_plat = p.id_plat " +
@@ -2977,7 +2786,6 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Afficher les cuisiniers disponibles
                     string requeteCuisiniers = "SELECT id_cuisinier, nom_cuisinier, prenom_cuisinier, specialite_cuisinier " +
                                              "FROM CUISINIER " +
                                              "ORDER BY nom_cuisinier, prenom_cuisinier";
@@ -3017,7 +2825,6 @@ namespace Projet_problème_scientifique_info
                     Console.Write("ID du cuisinier à assigner : ");
                     string idCuisinier = Console.ReadLine();
 
-                    // Vérifier si le cuisinier existe
                     string requeteVerifCuisinier = "SELECT COUNT(*) FROM CUISINIER WHERE id_cuisinier = @IdCuisinier";
                     MySqlCommand cmdVerifCuisinier = new MySqlCommand(requeteVerifCuisinier, connection);
                     cmdVerifCuisinier.Parameters.AddWithValue("@IdCuisinier", idCuisinier);
@@ -3028,7 +2835,6 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Mettre à jour la ligne
                     string requeteUpdate = "UPDATE LIGNE_COMMANDE SET id_cuisinier = @IdCuisinier, statut_ligne = 'En préparation' WHERE id_ligne = @IdLigne";
                     MySqlCommand cmdUpdate = new MySqlCommand(requeteUpdate, connection);
                     cmdUpdate.Parameters.AddWithValue("@IdLigne", idLigne);
@@ -3052,6 +2858,36 @@ namespace Projet_problème_scientifique_info
 
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
+        }
+        #endregion
+
+        #region Méthode utilitaire
+        /// <summary>
+        /// Valide si toutes les lignes de commande ont un cuisinier associé avant de marquer la commande comme livrée
+        /// </summary>
+        /// <param name="idCommande">ID de la commande</param>
+        /// <returns>True si toutes les lignes ont un cuisinier, sinon False</returns>
+        private static bool ToutesLignesOntCuisinier(string idCommande)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string requete = "SELECT COUNT(*) FROM LIGNE_COMMANDE WHERE id_commande = @IdCommande AND id_cuisinier IS NULL";
+                    MySqlCommand cmd = new MySqlCommand(requete, connection);
+                    cmd.Parameters.AddWithValue("@IdCommande", idCommande);
+
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+                    return count == 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur lors de la vérification des cuisiniers : {ex.Message}");
+                return false; /// En cas d'erreur, on considère que la validation a échoué
+            }
         }
         #endregion
     }

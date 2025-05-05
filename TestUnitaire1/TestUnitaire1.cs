@@ -20,7 +20,6 @@ namespace Projet_problème_scientifique_info
             Assert.AreEqual(0, lienDefault.Poids);
         }
 
-
         [TestMethod]
         public void TestLienInitialisation()
         {          
@@ -56,10 +55,8 @@ namespace Projet_problème_scientifique_info
         [TestMethod]
         public void TestConstructeurParDefaut()
         {
-            // Arrange & Act
             Graphe<int> graphe = new Graphe<int>();
 
-            // Assert
             Assert.IsNotNull(graphe.ListeAdjacence);
             Assert.IsNotNull(graphe.LiensNoeuds);
             Assert.AreEqual(0, graphe.ListeAdjacence.Count);
@@ -80,7 +77,6 @@ namespace Projet_problème_scientifique_info
         [TestMethod]
         public void TestKruskalGrapheSimple()
         {
-            // Arrange
             var noeud1 = new Noeud<int>(1, 1);
             var noeud2 = new Noeud<int>(2, 2);
             var noeud3 = new Noeud<int>(3, 3);
@@ -96,17 +92,14 @@ namespace Projet_problème_scientifique_info
 
             var liens = new List<Lien<int>> { lien1, lien2, lien3, lien4, lien5 };
 
-            // Act
             var chemin = CalculDistance.KruskalArbreCouvranceMinimal(noeud1, noeud4, noeuds, liens);
 
-            // Assert
             Assert.IsNotNull(chemin);
             Assert.IsTrue(chemin.Count > 0);
             Assert.AreEqual(noeud1, chemin.First());
             Assert.AreEqual(noeud4, chemin.Last());
 
-            // Vérifier que le chemin est continu (chaque nœud est connecté au suivant)
-            for (int i = 0; i < chemin.Count - 1; i++)
+            for (int i = 0; i < chemin.Count - 1; i++)  /// Vérifier que le chemin est continu (chaque nœud est connecté au suivant)
             {
                 bool estConnecte = liens.Any(l =>
                     (l.Noeud1.Equals(chemin[i]) && l.Noeud2.Equals(chemin[i + 1])) ||
@@ -119,7 +112,7 @@ namespace Projet_problème_scientifique_info
         [TestMethod]
         public void TestKruskalCheminDirect()
         {
-            // Arrange
+            
             var noeud1 = new Noeud<int>(1, 1);
             var noeud2 = new Noeud<int>(2, 2);
             var noeud3 = new Noeud<int>(3, 3);
@@ -128,16 +121,14 @@ namespace Projet_problème_scientifique_info
 
             var lien1 = new Lien<int>(noeud1, noeud2, 5);
             var lien2 = new Lien<int>(noeud2, noeud3, 10);
-            var lien3 = new Lien<int>(noeud1, noeud3, 20); // Lien direct mais plus coûteux
+            var lien3 = new Lien<int>(noeud1, noeud3, 20);
 
             var liens = new List<Lien<int>> { lien1, lien2, lien3 };
 
-            // Act
             var chemin = CalculDistance.KruskalArbreCouvranceMinimal(noeud1, noeud3, noeuds, liens);
 
-            // Assert
             Assert.IsNotNull(chemin);
-            Assert.AreEqual(3, chemin.Count); // noeud1 -> noeud2 -> noeud3
+            Assert.AreEqual(3, chemin.Count); 
             Assert.AreEqual(noeud1, chemin[0]);
             Assert.AreEqual(noeud2, chemin[1]);
             Assert.AreEqual(noeud3, chemin[2]);
@@ -146,7 +137,6 @@ namespace Projet_problème_scientifique_info
         [TestMethod]
         public void TestKruskalGrapheDeconnecte()
         {
-            // Arrange
             var noeud1 = new Noeud<int>(1, 1);
             var noeud2 = new Noeud<int>(2, 2);
             var noeud3 = new Noeud<int>(3, 3);
@@ -159,18 +149,15 @@ namespace Projet_problème_scientifique_info
 
             var liens = new List<Lien<int>> { lien1, lien2 };
 
-            // Act
             var chemin = CalculDistance.KruskalArbreCouvranceMinimal(noeud1, noeud4, noeuds, liens);
 
-            // Assert
             Assert.IsNotNull(chemin);
-            Assert.AreEqual(0, chemin.Count); // Pas de chemin possible
+            Assert.AreEqual(0, chemin.Count); 
         }
 
         [TestMethod]
         public void TestKruskalGrapheAvecCycles()
         {
-            // Arrange
             var noeud1 = new Noeud<int>(1, 1);
             var noeud2 = new Noeud<int>(2, 2);
             var noeud3 = new Noeud<int>(3, 3);
@@ -178,26 +165,22 @@ namespace Projet_problème_scientifique_info
 
             var noeuds = new List<Noeud<int>> { noeud1, noeud2, noeud3, noeud4 };
 
-            // Créer un graphe avec un cycle: 1-2-3-4-1
-            var lien1 = new Lien<int>(noeud1, noeud2, 10);
+            var lien1 = new Lien<int>(noeud1, noeud2, 10); /// Créer un graphe avec un cycle: 1-2-3-4-1
             var lien2 = new Lien<int>(noeud2, noeud3, 5);
             var lien3 = new Lien<int>(noeud3, noeud4, 8);
             var lien4 = new Lien<int>(noeud4, noeud1, 15);
-            var lien5 = new Lien<int>(noeud1, noeud3, 20); // Lien supplémentaire
+            var lien5 = new Lien<int>(noeud1, noeud3, 20); 
 
             var liens = new List<Lien<int>> { lien1, lien2, lien3, lien4, lien5 };
-
-            // Act
+        
             var chemin = CalculDistance.KruskalArbreCouvranceMinimal(noeud1, noeud4, noeuds, liens);
 
-            // Assert
             Assert.IsNotNull(chemin);
             Assert.IsTrue(chemin.Count > 0);
             Assert.AreEqual(noeud1, chemin.First());
             Assert.AreEqual(noeud4, chemin.Last());
 
-            // Vérifier que l'ACM contient exactement n-1 arêtes (3 arêtes pour 4 nœuds)
-            var aretes = new HashSet<(int, int)>();
+            var aretes = new HashSet<(int, int)>();  /// Vérifier que l'APCM contient exactement n-1 arêtes (3 arêtes pour 4 nœuds)
             for (int i = 0; i < chemin.Count - 1; i++)
             {
                 int min = System.Math.Min(chemin[i].Id, chemin[i + 1].Id);
@@ -205,14 +188,12 @@ namespace Projet_problème_scientifique_info
                 aretes.Add((min, max));
             }
 
-            // Le chemin peut contenir moins d'arêtes que l'ACM complet
-            Assert.IsTrue(aretes.Count <= noeuds.Count - 1);
+            Assert.IsTrue(aretes.Count <= noeuds.Count - 1);  /// Le chemin peut contenir moins d'arêtes que l'ACM complet
         }
 
         [TestMethod]
         public void TestKruskalCheminOptimal()
         {
-            // Arrange
             var noeud1 = new Noeud<int>(1, 1);
             var noeud2 = new Noeud<int>(2, 2);
             var noeud3 = new Noeud<int>(3, 3);
@@ -221,8 +202,7 @@ namespace Projet_problème_scientifique_info
 
             var noeuds = new List<Noeud<int>> { noeud1, noeud2, noeud3, noeud4, noeud5 };
 
-            // Créer un graphe où le chemin optimal est 1-3-5
-            var lien1 = new Lien<int>(noeud1, noeud2, 10);
+            var lien1 = new Lien<int>(noeud1, noeud2, 10);  /// Créer un graphe où le chemin optimal est 1-3-5
             var lien2 = new Lien<int>(noeud2, noeud5, 8);
             var lien3 = new Lien<int>(noeud1, noeud3, 3);
             var lien4 = new Lien<int>(noeud3, noeud5, 2);
@@ -231,12 +211,10 @@ namespace Projet_problème_scientifique_info
 
             var liens = new List<Lien<int>> { lien1, lien2, lien3, lien4, lien5, lien6 };
 
-            // Act
             var chemin = CalculDistance.KruskalArbreCouvranceMinimal(noeud1, noeud5, noeuds, liens);
 
-            // Assert
             Assert.IsNotNull(chemin);
-            Assert.AreEqual(3, chemin.Count); // Le chemin optimal devrait être 1-3-5
+            Assert.AreEqual(3, chemin.Count); /// Le chemin optimal devrait être 1-3-5
             Assert.AreEqual(noeud1, chemin[0]);
             Assert.AreEqual(noeud3, chemin[1]);
             Assert.AreEqual(noeud5, chemin[2]);
@@ -245,7 +223,6 @@ namespace Projet_problème_scientifique_info
         [TestMethod]
         public void TestKruskalNoeudsIdentiques()
         {
-            // Arrange
             var noeud1 = new Noeud<int>(1, 1);
             var noeud2 = new Noeud<int>(2, 2);
             var noeud3 = new Noeud<int>(3, 3);
@@ -257,55 +234,47 @@ namespace Projet_problème_scientifique_info
 
             var liens = new List<Lien<int>> { lien1, lien2 };
 
-            // Act
             var chemin = CalculDistance.KruskalArbreCouvranceMinimal(noeud1, noeud1, noeuds, liens);
 
-            // Assert
             Assert.IsNotNull(chemin);
-            Assert.AreEqual(1, chemin.Count); // Départ et arrivée sont identiques
+            Assert.AreEqual(1, chemin.Count); 
             Assert.AreEqual(noeud1, chemin[0]);
         }
 
         [TestMethod]
         public void TestKruskalGrapheVide()
         {
-            // Arrange
             var noeud1 = new Noeud<int>(1, 1);
             var noeud2 = new Noeud<int>(2, 2);
 
             var noeuds = new List<Noeud<int>> { noeud1, noeud2 };
-            var liens = new List<Lien<int>>(); // Aucun lien
+            var liens = new List<Lien<int>>();
 
-            // Act
             var chemin = CalculDistance.KruskalArbreCouvranceMinimal(noeud1, noeud2, noeuds, liens);
 
-            // Assert
             Assert.IsNotNull(chemin);
-            Assert.AreEqual(0, chemin.Count); // Pas de chemin possible
+            Assert.AreEqual(0, chemin.Count);
         }
 
         [TestMethod]
         public void TestKruskalPoidsNegatifs()
         {
-            // Arrange
             var noeud1 = new Noeud<int>(1, 1);
             var noeud2 = new Noeud<int>(2, 2);
             var noeud3 = new Noeud<int>(3, 3);
 
             var noeuds = new List<Noeud<int>> { noeud1, noeud2, noeud3 };
 
-            var lien1 = new Lien<int>(noeud1, noeud2, -5); // Poids négatif
+            var lien1 = new Lien<int>(noeud1, noeud2, -5);
             var lien2 = new Lien<int>(noeud2, noeud3, 10);
             var lien3 = new Lien<int>(noeud1, noeud3, 20);
 
             var liens = new List<Lien<int>> { lien1, lien2, lien3 };
 
-            // Act
             var chemin = CalculDistance.KruskalArbreCouvranceMinimal(noeud1, noeud3, noeuds, liens);
 
-            // Assert
             Assert.IsNotNull(chemin);
-            Assert.AreEqual(3, chemin.Count); // noeud1 -> noeud2 -> noeud3
+            Assert.AreEqual(3, chemin.Count); /// noeud1 -> noeud2 -> noeud3
             Assert.AreEqual(noeud1, chemin[0]);
             Assert.AreEqual(noeud2, chemin[1]);
             Assert.AreEqual(noeud3, chemin[2]);
@@ -314,7 +283,6 @@ namespace Projet_problème_scientifique_info
         [TestMethod]
         public void TestKruskalPerformance()
         {
-            // Arrange - Créer un graphe plus grand
             int nbNoeuds = 100;
             var noeuds = new List<Noeud<int>>();
             var liens = new List<Lien<int>>();
@@ -324,25 +292,22 @@ namespace Projet_problème_scientifique_info
                 noeuds.Add(new Noeud<int>(i, i));
             }
 
-            // Créer une grille de connexions
             for (int i = 0; i < nbNoeuds; i++)
             {
                 for (int j = i + 1; j < nbNoeuds; j++)
                 {
-                    if (j == i + 1 || j == i + 10) // Connecter aux voisins proches
+                    if (j == i + 1 || j == i + 10) /// Connecter aux voisins proches
                     {
                         liens.Add(new Lien<int>(noeuds[i], noeuds[j], (i * j) % 50));
                     }
                 }
             }
 
-            // Act
             var debut = System.DateTime.Now;
             var chemin = CalculDistance.KruskalArbreCouvranceMinimal(noeuds[0], noeuds[nbNoeuds - 1], noeuds, liens);
             var fin = System.DateTime.Now;
             var duree = (fin - debut).TotalMilliseconds;
 
-            // Assert
             Assert.IsNotNull(chemin);
             Assert.IsTrue(chemin.Count > 0);
             Assert.IsTrue(duree < 1000, $"L'algorithme a pris {duree}ms, ce qui est trop long");

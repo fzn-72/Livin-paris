@@ -9,21 +9,20 @@ using System.Globalization;
 namespace Projet_problème_scientifique_info
 {
     /// <summary>
-    /// Classe pour calculer des distances entre stations et trouver les chemins les plus courts
-    /// en utilisant différents algorithmes de graphes.
+    /// Classe pour calculer des distances entre stations et trouver les chemins les plus courts (PCC) en utilisant différents algorithmes de graphes.
     /// </summary>
     public class CalculDistance
     {
 
-        #region Affichage de la distance entre deux stations 
+        #region Calcul et affichage de la distance entre deux stations et acquisition des coordonnées des stations
+
         /// <summary>
-        /// Affiche la distance entre deux stations en utilisant leurs coordonnées GPS
-        /// et la formule de Haversine pour le calcul.
+        /// Affiche la distance entre deux stations en utilisant leurs coordonnées GPS et la formule de Haversine pour le calcul.
         /// </summary>
         public static void DistanceEntreDeuxStations()
         {
-            string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            //string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            //string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
 
             if (!File.Exists(chemin))
             {
@@ -55,21 +54,17 @@ namespace Projet_problème_scientifique_info
                     Console.WriteLine("Station " + station2 + " introuvable !");
             }
         }
-        #endregion
-         
 
-        #region Récupération des coordonnées des stations 
         /// <summary>
-        /// Récupère les coordonnées GPS (latitude, longitude) d'une station
-        /// à partir du fichier CSV des noeuds.
+        /// Récupère les coordonnées GPS (latitude, longitude) d'une station à partir du fichier CSV des noeuds.
         /// </summary>
-        static (double, double) AcquisitionCoordonnees(string chemin, string stationName)
+        public static (double, double) AcquisitionCoordonnees(string chemin, string stationName)
         {
             try
             {
                 string[] lignes = File.ReadAllLines(chemin);
 
-                foreach (string ligne in lignes.Skip(1)) 
+                foreach (string ligne in lignes.Skip(1))
                 {
                     var data = ligne.Split(',');
                     if (data.Length < 5)
@@ -78,7 +73,7 @@ namespace Projet_problème_scientifique_info
                     }
                     string nomStation = data[2].Trim().Trim('"');
 
-                    
+
                     if (nomStation.Equals(stationName, StringComparison.OrdinalIgnoreCase))
                     {
                         try
@@ -98,17 +93,14 @@ namespace Projet_problème_scientifique_info
             {
                 Console.WriteLine($"Erreur lors de la recherche de la station: {ex.Message}");
             }
-            return (0, 0); 
+            return (0, 0);
+
         }
-        #endregion
 
-
-        #region Calcul de la distance par la formule de Haversine 
         /// <summary>
-        /// Calcule la distance entre deux points GPS en utilisant la formule de Haversine.
-        /// Retourne la distance en kilomètres.
+        /// Calcule la distance entre deux points GPS en utilisant la formule de Haversine et la retourne en kilomètres.
         /// </summary>
-        static double Haversine(double lat1, double long1, double lat2, double long2)
+        public static double Haversine(double lat1, double long1, double lat2, double long2)
         {
             const double R = 6371;
             double deltaPhi = ConversionEnRadian(lat2 - lat1);
@@ -124,25 +116,23 @@ namespace Projet_problème_scientifique_info
 
             return c;
         }
+
         /// <summary>
-        /// Convertit des degrés en radians pour les calculs trigonométriques.
+        /// Convertit des degrés en radians pour les calculs de trigo.
         /// </summary>
-        static double ConversionEnRadian(double degre)
+        public static double ConversionEnRadian(double degre)
         {
             return Math.PI * degre / 180.0;
         }
         #endregion
 
-
-        #region Les 3 algorithmes de recherche du PCC
+        #region Les 3 algorithmes de recherche de PCC
 
         /// <summary>
-        /// Implémente l'algorithme de Bellman-Ford pour trouver le chemin le plus court
-        /// entre deux noeuds, capable de gérer les poids négatifs.
+        /// Implémente l'algorithme de Bellman-Ford pour trouver le chemin le plus court entre deux noeuds, capable de gérer les poids négatifs.
         /// </summary>
         public static List<Noeud<int>> BellmanFordChemin(Noeud<int> depart, Noeud<int> arrivee, List<Noeud<int>> noeuds, List<Lien<int>> liens)
         {
-            
             var distances = new Dictionary<Noeud<int>, double>();
             var predecesseurs = new Dictionary<Noeud<int>, Noeud<int>>();
 
@@ -153,13 +143,11 @@ namespace Projet_problème_scientifique_info
             }
             distances[depart] = 0;
 
-            
             for (int i = 0; i < noeuds.Count - 1; i++)
             {
                 bool changementEffectue = false;
                 foreach (var lien in liens)
                 {
-                    
                     if (distances.ContainsKey(lien.Noeud1) && distances.ContainsKey(lien.Noeud2))
                     {
                         if (distances[lien.Noeud1] != double.PositiveInfinity &&
@@ -170,7 +158,6 @@ namespace Projet_problème_scientifique_info
                             changementEffectue = true;
                         }
 
-                        
                         if (distances[lien.Noeud2] != double.PositiveInfinity &&
                             distances[lien.Noeud2] + lien.Poids < distances[lien.Noeud1])
                         {
@@ -181,12 +168,12 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-                
                 if (!changementEffectue)
+                {
                     break;
+                }
             }
 
-            
             foreach (var lien in liens)
             {
                 if (distances.ContainsKey(lien.Noeud1) && distances.ContainsKey(lien.Noeud2))
@@ -207,18 +194,15 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            
             var chemin = new List<Noeud<int>>();
             Noeud<int> noeudActuel = arrivee;
 
-            
             if (predecesseurs[arrivee] == null && !arrivee.Equals(depart))
             {
                 Console.WriteLine("Aucun chemin n'a été trouvé entre ces deux stations.");
                 return chemin; 
             }
 
-            
             while (noeudActuel != null)
             {
                 chemin.Insert(0, noeudActuel);
@@ -229,12 +213,10 @@ namespace Projet_problème_scientifique_info
         }
 
         /// <summary>
-        /// Implémente l'algorithme de Dijkstra pour trouver le chemin le plus court
-        /// entre deux noeuds, optimal pour les graphes sans poids négatifs.
+        /// Implémente l'algorithme de Dijkstra pour trouver le chemin le plus court entre deux noeuds, optimal pour les graphes sans poids négatifs.
         /// </summary>
         public static List<Noeud<int>> DijkstraChemin(Noeud<int> depart, Noeud<int> arrivee, List<Noeud<int>> noeuds, List<Lien<int>> liens)
         {
-            
             var distances = new Dictionary<Noeud<int>, double>();
             var predecesseurs = new Dictionary<Noeud<int>, Noeud<int>>();
             var traites = new HashSet<Noeud<int>>();
@@ -246,14 +228,12 @@ namespace Projet_problème_scientifique_info
             }
             distances[depart] = 0;
 
-            
             var voisins = new Dictionary<Noeud<int>, List<(Noeud<int>, double)>>();
             foreach (var n in noeuds)
             {
                 voisins[n] = new List<(Noeud<int>, double)>();
             }
 
-            
             foreach (var lien in liens)
             {
                 if (voisins.ContainsKey(lien.Noeud1) && voisins.ContainsKey(lien.Noeud2))
@@ -263,7 +243,6 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            
             while (traites.Count < noeuds.Count)
             {
                 
@@ -279,13 +258,12 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-                
                 if (noeudCourant == null || noeudCourant.Equals(arrivee))
+                {
                     break;
-
-                
+                }
+                   
                 traites.Add(noeudCourant);
-
                 
                 foreach (var (voisin, poids) in voisins[noeudCourant])
                 {
@@ -301,38 +279,30 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            
             var chemin = new List<Noeud<int>>();
             Noeud<int> noeudActuel = arrivee;
 
-            
             if (predecesseurs[arrivee] == null && !arrivee.Equals(depart))
             {
                 Console.WriteLine("Aucun chemin n'a été trouvé entre ces deux stations.");
                 return chemin; 
             }
 
-            
             while (noeudActuel != null)
             {
                 chemin.Insert(0, noeudActuel);
                 noeudActuel = predecesseurs[noeudActuel];
             }
-
             return chemin;
         }
 
-
-
         /// <summary>
-        /// Implémente l'algorithme de Floyd-Warshall pour trouver le chemin le plus court
-        /// entre deux noeuds, calculant tous les chemins possibles.
+        /// Implémente l'algorithme de Floyd-Warshall pour trouver le chemin le plus court entre deux noeuds, calculant tous les chemins possibles.
         /// </summary>
         public static List<Noeud<int>> FloydWarshallChemin(Noeud<int> depart, Noeud<int> arrivee, List<Noeud<int>> noeuds, List<Lien<int>> liens)
         {
             int n = noeuds.Count;
 
-            
             var noeudToIndex = new Dictionary<Noeud<int>, int>();
             var indexToNoeud = new Dictionary<int, Noeud<int>>();
 
@@ -342,11 +312,9 @@ namespace Projet_problème_scientifique_info
                 indexToNoeud[i] = noeuds[i];
             }
 
-            
             double[,] distances = new double[n, n];
             int[,] predecesseurs = new int[n, n];
-
-            
+ 
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
@@ -366,12 +334,10 @@ namespace Projet_problème_scientifique_info
                 distances[i, j] = lien.Poids;
                 distances[j, i] = lien.Poids;
 
-      
                 predecesseurs[i, j] = i;
                 predecesseurs[j, i] = j;
             }
 
-          
             for (int k = 0; k < n; k++)
             {
                 for (int i = 0; i < n; i++)
@@ -387,20 +353,17 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            
             var chemin = new List<Noeud<int>>();
 
             int departIndex = noeudToIndex[depart];
             int arriveeIndex = noeudToIndex[arrivee];
 
-            
             if (double.IsInfinity(distances[departIndex, arriveeIndex]))
             {
                 Console.WriteLine("Aucun chemin n'a été trouvé entre ces deux stations.");
                 return chemin; 
             }
 
-            
             int courantIndex = arriveeIndex;
             while (courantIndex != departIndex)
             {
@@ -412,21 +375,15 @@ namespace Projet_problème_scientifique_info
             return chemin;
         }
 
-        #endregion
-
-
-        #region Trouver le chemin le plus court
         /// <summary>
-        /// Trouve et affiche le chemin le plus court entre deux stations en utilisant
-        /// l'algorithme choisi par l'utilisateur (Dijkstra, Bellman-Ford ou Floyd-Warshall).
+        /// Trouve et affiche le chemin le plus court entre deux stations en utilisant l'algorithme choisi par l'utilisateur (Dijkstra, Bellman-Ford ou Floyd-Warshall).
         /// </summary>
         public static void CheminLePlusCourt()
         {
-            //string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
-            //string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
-
+            string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            //string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+            //string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
 
             if (!File.Exists(cheminFichierNoeuds))
             {
@@ -442,7 +399,6 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                
                 var stations = ChargerStationsDirectement(cheminFichierNoeuds);
                 if (stations.Count == 0)
                 {
@@ -450,7 +406,6 @@ namespace Projet_problème_scientifique_info
                     return;
                 }
 
-                
                 Console.WriteLine("Entrez le nom de deux stations pour trouver le chemin le plus court entre elles.");
                 Console.WriteLine("La saisie se fait sans accents (grave, aigu, circonflexe), sans cédille et sans tréma, et en respectant les espaces");
                 Console.WriteLine();
@@ -459,7 +414,6 @@ namespace Projet_problème_scientifique_info
                 Console.Write("Station d'arrivée : ");
                 string stationArrivee = Console.ReadLine();
 
-                
                 Console.WriteLine();
                 Console.WriteLine("Choisissez l'algorithme à utiliser :");
                 Console.WriteLine("1. Dijkstra (optimal pour les graphes sans poids négatifs)");
@@ -468,17 +422,16 @@ namespace Projet_problème_scientifique_info
                 Console.Write("Votre choix (1, 2 ou 3) : ");
                 string choixAlgo = Console.ReadLine();
 
-                int algorithmeChoisi = 1; 
+                int algorithmeChoisi = 1;
                 if (choixAlgo == "2")
                 {
-                    algorithmeChoisi = 2; 
+                    algorithmeChoisi = 2;
                 }
                 else if (choixAlgo == "3")
                 {
-                    algorithmeChoisi = 3; 
+                    algorithmeChoisi = 3;
                 }
 
-              
                 var stationDep = TrouverStation(stations, stationDepart);
                 var stationArr = TrouverStation(stations, stationArrivee);
 
@@ -496,38 +449,30 @@ namespace Projet_problème_scientifique_info
                          "de Floyd-Warshall";
                 Console.WriteLine($"Recherche du chemin entre {stationDep.Nom} et {stationArr.Nom} avec l'algorithme {nomAlgo}...");
 
-                
                 var (noeuds, liens) = ConstruireGrapheComplet(stations, cheminFichierArcs);
 
-               
                 var mapIdToNoeud = noeuds.ToDictionary(n => n.Id);
 
-              
                 if (!mapIdToNoeud.ContainsKey(stationDep.Id) || !mapIdToNoeud.ContainsKey(stationArr.Id))
                 {
                     Console.WriteLine("Erreur: Les stations ne sont pas correctement mappées dans le graphe.");
                     return;
                 }
 
-          
                 var noeudDepart = mapIdToNoeud[stationDep.Id];
                 var noeudArrivee = mapIdToNoeud[stationArr.Id];
 
-          
                 var grapheAdjacence = ConstruireGrapheAdjacence(noeuds, liens);
                 bool sontConnectes = VerifierConnectivite(grapheAdjacence, noeudDepart, noeudArrivee);
 
                 if (!sontConnectes)
                 {
-               
                     AjouterConnexionsSupplementaires(stations, noeuds, liens, grapheAdjacence);
 
-             
                     sontConnectes = VerifierConnectivite(grapheAdjacence, noeudDepart, noeudArrivee);
 
                     if (!sontConnectes)
                     {
-              
                         double distance = Haversine(stationDep.Latitude, stationDep.Longitude, stationArr.Latitude, stationArr.Longitude);
                         int poids = Math.Max((int)(distance * 1000), 1);
 
@@ -537,7 +482,6 @@ namespace Projet_problème_scientifique_info
                     }
                 }
 
-        
                 List<Noeud<int>> chemin;
                 switch (algorithmeChoisi)
                 {
@@ -558,7 +502,6 @@ namespace Projet_problème_scientifique_info
                     return;
                 }
 
-       
                 AfficherChemin(chemin, stations);
             }
             catch (Exception ex)
@@ -566,17 +509,13 @@ namespace Projet_problème_scientifique_info
                 Console.WriteLine($"Une erreur est survenue: {ex.Message}");
             }
         }
-
-
-
         #endregion
-
 
         #region Lecture du fichier CSV et chargement des stations
         /// <summary>
         /// Charge la liste des stations depuis le fichier CSV des noeuds en ignorant les lignes mal formatées.
         /// </summary>
-        private static List<Station> ChargerStationsDirectement(string cheminFichier)
+        public static List<Station> ChargerStationsDirectement(string cheminFichier)
         {
             var stations = new List<Station>();
             try
@@ -596,7 +535,6 @@ namespace Projet_problème_scientifique_info
 
                         double longitude = 0, latitude = 0;
 
-                  
                         if (double.TryParse(data[3].Trim().Trim('"').Replace('.', ','), out double lon))
                             longitude = lon;
                         else if (double.TryParse(data[3].Trim().Trim('"'), out lon))
@@ -607,7 +545,6 @@ namespace Projet_problème_scientifique_info
                         else if (double.TryParse(data[4].Trim().Trim('"'), out lat))
                             latitude = lat;
 
-                      
                         string commune = data.Length > 5 ? data[5].Trim().Trim('"') : "Paris";
                         string codeInsee = data.Length > 6 ? data[6].Trim().Trim('"') : "75000";
 
@@ -625,25 +562,21 @@ namespace Projet_problème_scientifique_info
             }
             return stations;
         }
-        #endregion
 
-
-        #region Recherche de station par son nom dans la liste (crée précédemment à partir du fichier) des stations
         /// <summary>
         /// Trouve une station par son nom (recherche insensible à la casse) dans la liste des stations chargées.
         /// </summary>
-        private static Station TrouverStation(List<Station> stations, string nom)
+        public static Station TrouverStation(List<Station> stations, string nom)
         {
             return stations.FirstOrDefault(s => s.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
         }
         #endregion
 
-
         #region Construction du graphe en entier
         /// <summary>
         /// Construit le graphe complet (noeuds et liens) à partir des stations et des connexions du fichier CSV des arcs.
         /// </summary>
-        private static (List<Noeud<int>>, List<Lien<int>>) ConstruireGrapheComplet(List<Station> stations, string cheminFichierArcs)
+        public static (List<Noeud<int>>, List<Lien<int>>) ConstruireGrapheComplet(List<Station> stations, string cheminFichierArcs)
         {
             var noeuds = new List<Noeud<int>>();
             var liens = new List<Lien<int>>();
@@ -663,8 +596,11 @@ namespace Projet_problème_scientifique_info
                 foreach (string ligne in lignes.Skip(1)) 
                 {
                     var data = ligne.Split(',');
-                    if (data.Length < 3) continue;
-
+                    if (data.Length < 3)
+                    {
+                        continue;
+                    }
+                       
                     try
                     {
                         int id1 = int.Parse(data[1].Trim().Trim('"'));
@@ -680,7 +616,6 @@ namespace Projet_problème_scientifique_info
 
                             if (station1 != null && station2 != null)
                             {
-                              
                                 double distance = Haversine(station1.Latitude, station1.Longitude, station2.Latitude, station2.Longitude);
                                 int poids = Math.Max((int)(distance * 1000), 1); 
 
@@ -688,9 +623,9 @@ namespace Projet_problème_scientifique_info
                             }
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                    
+                        Console.WriteLine($"Erreur lors du traitement de la ligne '{ligne}': {ex.Message}");
                     }
                 }
             }
@@ -699,7 +634,6 @@ namespace Projet_problème_scientifique_info
                 Console.WriteLine($"Erreur lors du chargement des arcs: {ex.Message}");
             }
 
-          
             var stationsParNom = new Dictionary<string, List<Station>>(StringComparer.OrdinalIgnoreCase);
             foreach (var station in stations)
             {
@@ -770,14 +704,11 @@ namespace Projet_problème_scientifique_info
             }
             return (noeuds, liens);
         }
-        #endregion
 
-
-        #region Construction d'un graphe d'adjacence améliorant la vérification de la connectivité entre noeuds 
         /// <summary>
         /// Construit un graphe d'adjacence à partir des noeuds et liens pour faciliter les vérifications de connectivité.
         /// </summary>
-        private static Dictionary<Noeud<int>, List<Noeud<int>>> ConstruireGrapheAdjacence(List<Noeud<int>> noeuds, List<Lien<int>> liens)
+        public static Dictionary<Noeud<int>, List<Noeud<int>>> ConstruireGrapheAdjacence(List<Noeud<int>> noeuds, List<Lien<int>> liens)
         {
             var graphe = new Dictionary<Noeud<int>, List<Noeud<int>>>();
 
@@ -789,18 +720,18 @@ namespace Projet_problème_scientifique_info
             foreach (var lien in liens)
             {
                 graphe[lien.Noeud1].Add(lien.Noeud2);
-                graphe[lien.Noeud2].Add(lien.Noeud1); 
+                graphe[lien.Noeud2].Add(lien.Noeud1);
             }
             return graphe;
         }
         #endregion
 
+        #region Vérification de la connexion entre deux noeuds (parcours BFS) et ajout de connexion pour bien relier deux stations
 
-        #region Vérification de la connexion entre deux noeuds (parcours BFS)
         /// <summary>
         /// Vérifie si deux noeuds sont connectés dans le graphe en utilisant un parcours en largeur (BFS).
         /// </summary>
-        private static bool VerifierConnectivite(Dictionary<Noeud<int>, List<Noeud<int>>> graphe, Noeud<int> depart, Noeud<int> arrivee)
+        public static bool VerifierConnectivite(Dictionary<Noeud<int>, List<Noeud<int>>> graphe, Noeud<int> depart, Noeud<int> arrivee)
         {
             if (depart.Equals(arrivee)) return true;
 
@@ -828,14 +759,11 @@ namespace Projet_problème_scientifique_info
             }
             return false;
         }
-        #endregion
 
-
-        #region Ajout de connexions pour bien relier les stations 
         /// <summary>
         /// Ajoute des connexions supplémentaires au graphe pour assurer la connectivité entre toutes les stations.
         /// </summary>
-        private static void AjouterConnexionsSupplementaires(List<Station> stations, List<Noeud<int>> noeuds, List<Lien<int>> liens, Dictionary<Noeud<int>, List<Noeud<int>>> grapheAdjacence)
+        public static void AjouterConnexionsSupplementaires(List<Station> stations, List<Noeud<int>> noeuds, List<Lien<int>> liens, Dictionary<Noeud<int>, List<Noeud<int>>> grapheAdjacence)
         {
             var mapIdToNoeud = noeuds.ToDictionary(n => n.Id);
 
@@ -856,7 +784,7 @@ namespace Projet_problème_scientifique_info
                         {
                             var noeud1 = mapIdToNoeud[station1.Id];
                             var noeud2 = mapIdToNoeud[station2.Id];
-                         
+
                             if (!grapheAdjacence[noeud1].Contains(noeud2))
                             {
                                 double distance = Haversine(station1.Latitude, station1.Longitude, station2.Latitude, station2.Longitude);
@@ -882,11 +810,11 @@ namespace Projet_problème_scientifique_info
                     {
                         var noeud1 = mapIdToNoeud[station1.Id];
                         var noeud2 = mapIdToNoeud[station2.Id];
-                    
+
                         if (!grapheAdjacence[noeud1].Contains(noeud2))
                         {
                             double distance = Haversine(station1.Latitude, station1.Longitude, station2.Latitude, station2.Longitude);
-                         
+
                             if (distance < 0.5)
                             {
                                 int poids = Math.Max((int)(distance * 1000), 1);
@@ -902,12 +830,11 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-
         #region Affichage du chemin et coloration du graphe métro
         /// <summary>
         /// Affiche le chemin trouvé entre deux stations avec des couleurs différentes pour chaque ligne de métro et indique les changements.
         /// </summary>
-        private static void AfficherChemin(List<Noeud<int>> chemin, List<Station> stations)
+        public static void AfficherChemin(List<Noeud<int>> chemin, List<Station> stations)
         {
             if (chemin.Count <= 1)
             {
@@ -1014,25 +941,24 @@ namespace Projet_problème_scientifique_info
         }
         #endregion
 
-
+        #region Algo de Kruskal
         /// <summary>
-        /// Implémente l'algorithme de Kruskal pour trouver l'arbre couvrant minimal
-        /// d'un graphe, en sélectionnant les arêtes de poids minimal sans créer de cycle.
+        /// Implémente l'algorithme de Kruskal pour trouver l'arbre couvrant minimal d'un graphe, en sélectionnant les arêtes de poids minimal sans créer de cycle.
         /// </summary>
         public static List<Noeud<int>> KruskalArbreCouvranceMinimal(Noeud<int> depart, Noeud<int> arrivee, List<Noeud<int>> noeuds, List<Lien<int>> liens)
         {
-            
+
             Dictionary<Noeud<int>, Noeud<int>> parent = new Dictionary<Noeud<int>, Noeud<int>>();
             Dictionary<Noeud<int>, int> rang = new Dictionary<Noeud<int>, int>();
 
-            
+
             void MakeSet(Noeud<int> noeud)
             {
                 parent[noeud] = noeud;
                 rang[noeud] = 0;
             }
 
-            
+
             Noeud<int> Find(Noeud<int> noeud)
             {
                 if (!parent[noeud].Equals(noeud))
@@ -1040,7 +966,6 @@ namespace Projet_problème_scientifique_info
                 return parent[noeud];
             }
 
-            
             void Union(Noeud<int> x, Noeud<int> y)
             {
                 Noeud<int> racineX = Find(x);
@@ -1060,7 +985,6 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-            
             var arbreCouvranceMinimal = new List<Lien<int>>();
             var noeudsACM = new HashSet<Noeud<int>>();
 
@@ -1069,35 +993,31 @@ namespace Projet_problème_scientifique_info
                 MakeSet(noeud);
             }
 
-            
             var liensTriesParPoids = liens.OrderBy(l => l.Poids).ToList();
 
-            
             foreach (var lien in liensTriesParPoids)
             {
                 Noeud<int> racine1 = Find(lien.Noeud1);
                 Noeud<int> racine2 = Find(lien.Noeud2);
 
-                
+
                 if (!racine1.Equals(racine2))
                 {
                     arbreCouvranceMinimal.Add(lien);
                     Union(lien.Noeud1, lien.Noeud2);
 
-                    
+
                     noeudsACM.Add(lien.Noeud1);
                     noeudsACM.Add(lien.Noeud2);
                 }
             }
 
-            
             if (noeudsACM.Count == 0 || !noeudsACM.Contains(depart) || !noeudsACM.Contains(arrivee))
             {
                 Console.WriteLine("Impossible de construire un arbre couvrant minimal incluant les stations de départ et d'arrivée.");
                 return new List<Noeud<int>>();
             }
 
-            
             var grapheACM = new Dictionary<Noeud<int>, List<Noeud<int>>>();
             foreach (var noeud in noeudsACM)
             {
@@ -1110,7 +1030,6 @@ namespace Projet_problème_scientifique_info
                 grapheACM[lien.Noeud2].Add(lien.Noeud1);
             }
 
-            
             var chemin = new List<Noeud<int>>();
             var visites = new HashSet<Noeud<int>>();
             var predecesseurs = new Dictionary<Noeud<int>, Noeud<int>>();
@@ -1141,7 +1060,6 @@ namespace Projet_problème_scientifique_info
                 }
             }
 
-           
             if (cheminTrouve)
             {
                 var noeudActuel = arrivee;
@@ -1156,9 +1074,9 @@ namespace Projet_problème_scientifique_info
             {
                 Console.WriteLine("Aucun chemin n'a été trouvé entre ces deux stations dans l'arbre couvrant minimal.");
             }
-
             return chemin;
         }
+        #endregion
     }
 }
 

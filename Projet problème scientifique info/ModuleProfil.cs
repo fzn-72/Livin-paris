@@ -11,8 +11,10 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ModuleProfil
     {
+        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
 
+        #region Menu principal Profil 
         /// <summary>
         /// Affiche le menu principal du module de gestion des profils.
         /// </summary>
@@ -25,7 +27,6 @@ namespace Projet_problème_scientifique_info
                 Console.Clear();
                 GestionBDD.AfficherTitre("MODULE PROFIL");
 
-                // Afficher les options en fonction du type d'utilisateur
                 if (SessionUtilisateur.EstConnecte())
                 {
                     if (SessionUtilisateur.TypeUtilisateur == "client")
@@ -151,7 +152,6 @@ namespace Projet_problème_scientifique_info
                 }
                 else
                 {
-                    // Utilisateur non connecté
                     Console.WriteLine("1. Se connecter");
                     Console.WriteLine("2. Créer un compte");
                     Console.WriteLine("3. Retour au menu principal");
@@ -176,6 +176,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
+        #endregion
 
         #region Connexion et création de compte
 
@@ -227,7 +228,6 @@ namespace Projet_problème_scientifique_info
                     string nomColonne = "";
                     string prenomColonne = "";
                     string emailColonne = "";
-                    string mdpColonne = "";
 
                     if (typeUtilisateur == "client")
                     {
@@ -270,7 +270,6 @@ namespace Projet_problème_scientifique_info
                             string prenom = reader.IsDBNull(reader.GetOrdinal(prenomColonne)) ? "" : reader[prenomColonne].ToString();
                             string emailUtilisateur = reader.IsDBNull(reader.GetOrdinal(emailColonne)) ? "" : reader[emailColonne].ToString();
 
-                            // Connecter l'utilisateur
                             SessionUtilisateur.Connecter(id, nom, prenom, typeUtilisateur, emailUtilisateur);
                         }
                         else
@@ -350,10 +349,10 @@ namespace Projet_problème_scientifique_info
             Console.Write("Rue : ");
             string rue = Console.ReadLine();
 
-            Console.Write("Métro le plus proche : ");
+            Console.Write("Métro le plus proche (la saisie se fait sans accents grave, aigu ou circonflexe, sans cédille et sans tréma, " +
+                "et en respectant les espaces et les tirets pour les noms de métros composés: ");
             string metro = Console.ReadLine();
 
-            // Vérifier si l'email existe déjà
             if (EmailClientExiste(email))
             {
                 GestionBDD.AfficherMessageErreur("Un compte avec cet email existe déjà.");
@@ -362,7 +361,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Générer un nouvel ID
             int idClient = GestionBDD.GenererNouvelID("CLIENT", "id_client");
 
             try
@@ -395,13 +393,11 @@ namespace Projet_problème_scientifique_info
                 {
                     GestionBDD.AfficherMessageSucces("Compte client créé avec succès !");
 
-                    // Demander si l'utilisateur souhaite se connecter
                     Console.Write("Souhaitez-vous vous connecter maintenant ? (O/N) : ");
                     string reponse = Console.ReadLine().ToUpper();
 
                     if (reponse == "O")
                     {
-                        // Connecter l'utilisateur
                         SessionUtilisateur.Connecter(idClient.ToString(), nom, prenom, "client", email);
                     }
                 }
@@ -454,7 +450,6 @@ namespace Projet_problème_scientifique_info
             Console.Write("Rue : ");
             string rue = Console.ReadLine();
 
-            // Vérifier si l'email existe déjà
             if (EmailCuisinierExiste(email))
             {
                 GestionBDD.AfficherMessageErreur("Un compte avec cet email existe déjà.");
@@ -463,7 +458,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Générer un nouvel ID
             int idCuisinier = GestionBDD.GenererNouvelID("CUISINIER", "id_cuisinier");
 
             try
@@ -493,13 +487,11 @@ namespace Projet_problème_scientifique_info
                 {
                     GestionBDD.AfficherMessageSucces("Compte cuisinier créé avec succès !");
 
-                    // Demander si l'utilisateur souhaite se connecter
                     Console.Write("Souhaitez-vous vous connecter maintenant ? (O/N) : ");
                     string reponse = Console.ReadLine().ToUpper();
 
                     if (reponse == "O")
                     {
-                        // Connecter l'utilisateur
                         SessionUtilisateur.Connecter(idCuisinier.ToString(), nom, prenom, "cuisinier", email);
                     }
                 }
@@ -525,7 +517,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("CRÉATION DE COMPTE ADMINISTRATEUR");
 
-            // Vérifier que l'utilisateur est un administrateur
             if (!SessionUtilisateur.EstAdmin())
             {
                 GestionBDD.AfficherMessageErreur("Vous n'avez pas les droits pour créer un compte administrateur.");
@@ -544,7 +535,7 @@ namespace Projet_problème_scientifique_info
             Console.Write("Mot de passe : ");
             string motDePasse = Console.ReadLine();
 
-            // Vérifier si l'email existe déjà
+
             if (EmailAdminExiste(email))
             {
                 GestionBDD.AfficherMessageErreur("Un compte administrateur avec cet email existe déjà.");
@@ -553,7 +544,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Générer un nouvel ID
             int idAdmin = GestionBDD.GenererNouvelID("ADMINISTRATEUR", "id_admin");
 
             try
@@ -651,7 +641,6 @@ namespace Projet_problème_scientifique_info
                             Console.WriteLine($"Métro le plus proche : {metro}");
                             Console.WriteLine($"Date d'inscription : {dateInscription}");
 
-                            // Afficher les adresses complémentaires
                             reader.Close();
                             AfficherAdressesClient(idClient, connection);
                         }
@@ -731,7 +720,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Récupérer les informations actuelles
                     string queryInfo = @"
                         SELECT nom_client, prenom_client, email_client, tel_client, 
                                type_client, nom_entreprise, nom_referent, code_postal_client, 
@@ -822,7 +810,6 @@ namespace Projet_problème_scientifique_info
                             if (string.IsNullOrWhiteSpace(nouveauMetro))
                                 nouveauMetro = metroActuel;
 
-                            // Mettre à jour le profil
                             string queryUpdate = @"
                                 UPDATE CLIENT
                                 SET nom_client = @Nom,
@@ -856,7 +843,6 @@ namespace Projet_problème_scientifique_info
                             {
                                 GestionBDD.AfficherMessageSucces("Profil modifié avec succès !");
 
-                                // Mettre à jour la session si l'email a changé
                                 if (nouvelEmail != emailActuel)
                                 {
                                     SessionUtilisateur.Connecter(idClient, nouveauNom, nouveauPrenom, "client", nouvelEmail);
@@ -944,7 +930,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Afficher l'adresse principale
+                    /// Afficher l'adresse principale
                     string queryPrincipale = @"
                         SELECT code_postal_client, rue_client, metro_le_plus_proche_client
                         FROM CLIENT
@@ -972,7 +958,7 @@ namespace Projet_problème_scientifique_info
                         }
                     }
 
-                    // Afficher les adresses complémentaires
+                    /// Afficher les adresses complémentaires
                     AfficherAdressesClient(idClient, connection);
                 }
             }
@@ -1011,7 +997,6 @@ namespace Projet_problème_scientifique_info
             Console.Write("Numéro d'appartement : ");
             string numeroAppartement = Console.ReadLine();
 
-            // Générer un nouvel ID
             int idAdresse = GestionBDD.GenererNouvelID("ADRESSE", "id_adresse");
 
             try
@@ -1064,7 +1049,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Afficher les adresses du client
                     string queryAdresses = @"
                         SELECT id_adresse, code_porte, complement_adresse, étage, numero_appartement
                         FROM ADRESSE
@@ -1108,7 +1092,6 @@ namespace Projet_problème_scientifique_info
                     Console.Write("\nEntrez l'ID de l'adresse à modifier : ");
                     string idAdresse = Console.ReadLine();
 
-                    // Vérifier si l'adresse appartient au client
                     string queryVerif = "SELECT COUNT(*) FROM ADRESSE WHERE id_adresse = @IdAdresse AND id_client = @IdClient";
                     MySqlCommand cmdVerif = new MySqlCommand(queryVerif, connection);
                     cmdVerif.Parameters.AddWithValue("@IdAdresse", idAdresse);
@@ -1121,7 +1104,7 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Récupérer les informations actuelles
+                    /// Récupérer les informations actuelles
                     string queryInfo = "SELECT code_porte, complement_adresse, étage, numero_appartement FROM ADRESSE WHERE id_adresse = @IdAdresse";
                     MySqlCommand cmdInfo = new MySqlCommand(queryInfo, connection);
                     cmdInfo.Parameters.AddWithValue("@IdAdresse", idAdresse);
@@ -1159,8 +1142,8 @@ namespace Projet_problème_scientifique_info
                             string nouveauNumeroAppartement = Console.ReadLine();
                             if (string.IsNullOrWhiteSpace(nouveauNumeroAppartement))
                                 nouveauNumeroAppartement = numeroAppartementActuel;
-
-                            // Mettre à jour l'adresse
+                            
+                            /// Mettre à jour l'adresse
                             string queryUpdate = @"
                                 UPDATE ADRESSE
                                 SET code_porte = @CodePorte,
@@ -1219,7 +1202,7 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Afficher les adresses du client
+                    /// Afficher les adresses du client
                     string queryAdresses = @"
                         SELECT id_adresse, code_porte, complement_adresse, étage, numero_appartement
                         FROM ADRESSE
@@ -1263,7 +1246,6 @@ namespace Projet_problème_scientifique_info
                     Console.Write("\nEntrez l'ID de l'adresse à supprimer : ");
                     string idAdresse = Console.ReadLine();
 
-                    // Vérifier si l'adresse appartient au client
                     string queryVerif = "SELECT COUNT(*) FROM ADRESSE WHERE id_adresse = @IdAdresse AND id_client = @IdClient";
                     MySqlCommand cmdVerif = new MySqlCommand(queryVerif, connection);
                     cmdVerif.Parameters.AddWithValue("@IdAdresse", idAdresse);
@@ -1283,7 +1265,6 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Supprimer l'adresse
                     string queryDelete = "DELETE FROM ADRESSE WHERE id_adresse = @IdAdresse";
                     MySqlCommand cmdDelete = new MySqlCommand(queryDelete, connection);
                     cmdDelete.Parameters.AddWithValue("@IdAdresse", idAdresse);
@@ -1851,7 +1832,6 @@ namespace Projet_problème_scientifique_info
                 {
                     connection.Open();
 
-                    // Vérifier si le client existe
                     string queryVerif = "SELECT nom_client, prenom_client FROM CLIENT WHERE id_client = @IdClient";
                     MySqlCommand cmdVerif = new MySqlCommand(queryVerif, connection);
                     cmdVerif.Parameters.AddWithValue("@IdClient", idClient);
@@ -1877,14 +1857,13 @@ namespace Projet_problème_scientifique_info
                             return;
                         }
 
-                        // Supprimer les adresses du client
                         string queryAdresses = "DELETE FROM ADRESSE WHERE id_client = @IdClient";
                         MySqlCommand cmdAdresses = new MySqlCommand(queryAdresses, connection);
                         cmdAdresses.Parameters.AddWithValue("@IdClient", idClient);
                         cmdAdresses.ExecuteNonQuery();
 
 
-                        // Vérifier si le client a des commandes
+                        /// Vérifier si le client a des commandes
                         string queryVerifCommandes = "SELECT COUNT(*) FROM COMMANDE WHERE id_client = @IdClient";
                         MySqlCommand cmdVerifCommandes = new MySqlCommand(queryVerifCommandes, connection);
                         cmdVerifCommandes.Parameters.AddWithValue("@IdClient", idClient);
@@ -1896,7 +1875,7 @@ namespace Projet_problème_scientifique_info
                             Console.Write("Voulez-vous supprimer également toutes ses commandes ? (O/N) : ");
                             if (Console.ReadLine().ToUpper() == "O")
                             {
-                                // Récupérer les IDs des commandes
+                                /// Récupérer les IDs des commandes
                                 string queryCommandes = "SELECT id_commande FROM COMMANDE WHERE id_client = @IdClient";
                                 MySqlCommand cmdCommandes = new MySqlCommand(queryCommandes, connection);
                                 cmdCommandes.Parameters.AddWithValue("@IdClient", idClient);
@@ -1910,7 +1889,7 @@ namespace Projet_problème_scientifique_info
                                     }
                                 }
 
-                                // Supprimer les lignes de commande pour chaque commande
+                                /// Supprimer les lignes de commande pour chaque commande
                                 foreach (string idCommande in idsCommandes)
                                 {
                                     string queryLignes = "DELETE FROM LIGNE_COMMANDE WHERE id_commande = @IdCommande";
@@ -1919,7 +1898,7 @@ namespace Projet_problème_scientifique_info
                                     cmdLignes.ExecuteNonQuery();
                                 }
 
-                                // Supprimer les commandes
+                                /// Supprimer les commandes
                                 string queryDeleteCommandes = "DELETE FROM COMMANDE WHERE id_client = @IdClient";
                                 MySqlCommand cmdDeleteCommandes = new MySqlCommand(queryDeleteCommandes, connection);
                                 cmdDeleteCommandes.Parameters.AddWithValue("@IdClient", idClient);
@@ -1932,7 +1911,7 @@ namespace Projet_problème_scientifique_info
                             }
                         }
 
-                        // Supprimer le client
+                        /// Supprimer le client
                         string queryClient = "DELETE FROM CLIENT WHERE id_client = @IdClient";
                         MySqlCommand cmdClient = new MySqlCommand(queryClient, connection);
                         cmdClient.Parameters.AddWithValue("@IdClient", idClient);
@@ -2198,7 +2177,6 @@ namespace Projet_problème_scientifique_info
             Console.Write("Email : ");
             string email = Console.ReadLine();
 
-            // Vérifier si l'email existe déjà
             if (EmailCuisinierExiste(email))
             {
                 GestionBDD.AfficherMessageErreur("Un cuisinier avec cet email existe déjà.");
@@ -2224,7 +2202,7 @@ namespace Projet_problème_scientifique_info
             decimal noteMoyenne = 0;
             if (!string.IsNullOrWhiteSpace(noteInput) && decimal.TryParse(noteInput, out decimal parsedNote))
             {
-                noteMoyenne = Math.Max(0, Math.Min(10, parsedNote)); // Limiter entre 0 et 10
+                noteMoyenne = Math.Max(0, Math.Min(10, parsedNote)); /// Limiter entre 0 et 10
             }
 
             try
@@ -2288,7 +2266,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("SUPPRIMER UN CUISINIER");
 
-            // Afficher la liste des cuisiniers
             var cuisiniers = GestionBDD.ObtenirListeCuisiniersDetails();
             if (cuisiniers.Count == 0)
             {
@@ -2312,7 +2289,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Vérifier si l'ID existe
             var cuisiDetails = GestionBDD.ObtenirDetailsCuisinier(idCuisinierStr);
             if (string.IsNullOrEmpty(cuisiDetails.id))
             {
@@ -2332,7 +2308,6 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Vérifier si le cuisinier a des plats
                 string queryVerifPlats = "SELECT COUNT(*) FROM PLAT WHERE id_cuisinier = @IdCuisinier";
                 Dictionary<string, object> parametresVerifPlats = new Dictionary<string, object>
         {
@@ -2350,7 +2325,6 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Supprimer les plats du cuisinier
                     string queryPlats = "DELETE FROM PLAT WHERE id_cuisinier = @IdCuisinier";
                     Dictionary<string, object> parametresPlats = new Dictionary<string, object>
             {
@@ -2359,8 +2333,6 @@ namespace Projet_problème_scientifique_info
                     GestionBDD.ExecuterRequete(queryPlats, parametresPlats);
                 }
 
-                // Vérifier si le cuisinier a des évaluations
-                // Utiliser une requête plus simple et plus robuste
                 string queryVerifEvaluations = @"
             SELECT COUNT(*) 
             FROM reçoit 
@@ -2375,7 +2347,6 @@ namespace Projet_problème_scientifique_info
 
                 if (nbEvaluations > 0)
                 {
-                    // Supprimer d'abord les relations dans la table reçoit
                     string queryRelationsEvaluations = @"
                 DELETE FROM reçoit 
                 WHERE id_cuisinier = @IdCuisinier";
@@ -2387,7 +2358,6 @@ namespace Projet_problème_scientifique_info
 
                     GestionBDD.ExecuterRequete(queryRelationsEvaluations, parametresRelationsEvaluations);
 
-                    // Ensuite, supprimer les évaluations qui ne sont plus liées à aucun cuisinier
                     string queryEvaluationsOrphelines = @"
                 DELETE FROM EVALUATION 
                 WHERE id_evaluation NOT IN (SELECT id_evaluation FROM reçoit)";
@@ -2395,7 +2365,7 @@ namespace Projet_problème_scientifique_info
                     GestionBDD.ExecuterRequete(queryEvaluationsOrphelines, null);
                 }
 
-                // Vérifier si le cuisinier est assigné à des lignes de commande
+                /// Vérifier si le cuisinier est assigné à des lignes de commande
                 string queryVerifLignesCommande = "SELECT COUNT(*) FROM LIGNE_COMMANDE WHERE id_cuisinier = @IdCuisinier";
                 Dictionary<string, object> parametresVerifLignesCommande = new Dictionary<string, object>
         {
@@ -2413,7 +2383,7 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Mettre à NULL l'id_cuisinier dans les lignes de commande
+                    /// Mettre à NULL l'id_cuisinier dans les lignes de commande
                     string queryLignesCommande = "UPDATE LIGNE_COMMANDE SET id_cuisinier = NULL WHERE id_cuisinier = @IdCuisinier";
                     Dictionary<string, object> parametresLignesCommande = new Dictionary<string, object>
             {
@@ -2422,7 +2392,7 @@ namespace Projet_problème_scientifique_info
                     GestionBDD.ExecuterRequete(queryLignesCommande, parametresLignesCommande);
                 }
 
-                // Supprimer le cuisinier
+                /// Supprimer le cuisinier
                 string queryCuisinier = "DELETE FROM CUISINIER WHERE id_cuisinier = @IdCuisinier";
                 Dictionary<string, object> parametresCuisinier = new Dictionary<string, object>
         {
@@ -2470,7 +2440,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("PLATS PAR CUISINIER");
 
-            // Afficher la liste des cuisiniers
             var cuisiniers = GestionBDD.ObtenirListeCuisiniersDetails();
             if (cuisiniers.Count == 0)
             {
@@ -2494,7 +2463,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Vérifier si l'ID existe
             var cuisiDetails = GestionBDD.ObtenirDetailsCuisinier(idCuisinierStr);
             if (string.IsNullOrEmpty(cuisiDetails.id))
             {
@@ -2564,7 +2532,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("COMMANDES PAR CUISINIER");
 
-            // Afficher la liste des cuisiniers
             var cuisiniers = GestionBDD.ObtenirListeCuisiniersDetails();
             if (cuisiniers.Count == 0)
             {
@@ -2588,7 +2555,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Vérifier si l'ID existe
             var cuisiDetails = GestionBDD.ObtenirDetailsCuisinier(idCuisinierStr);
             if (string.IsNullOrEmpty(cuisiDetails.id))
             {
@@ -2639,7 +2605,7 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine($"{idCommande}\t{dateCommande}\t{prixCommande}\t{statutCommande,-15}{client,-20}{nombrePlats}");
                     }
 
-                    // Afficher les détails des plats
+                    /// Afficher les détails des plats
                     Console.Write("\nVoulez-vous voir les détails des plats pour une commande ? (O/N) : ");
                     if (Console.ReadLine().ToUpper() == "O")
                     {
@@ -2751,7 +2717,7 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("ÉVALUATIONS D'UN CUISINIER");
 
-            // Afficher la liste des cuisiniers
+            /// Afficher la liste des cuisiniers
             var cuisiniers = GestionBDD.ObtenirListeCuisiniersDetails();
             if (cuisiniers.Count == 0)
             {
@@ -2775,7 +2741,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Vérifier si l'ID existe
             var cuisiDetails = GestionBDD.ObtenirDetailsCuisinier(idCuisinierStr);
             if (string.IsNullOrEmpty(cuisiDetails.id))
             {
@@ -2825,7 +2790,7 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine($"{idEvaluation}\t{note}\t{dateEvaluation}\t{client,-20}{commentaire}");
                     }
 
-                    // Calculer et afficher la note moyenne
+                    /// Calculer et afficher la note moyenne
                     string requeteMoyenne = "SELECT AVG(note_evaluation) FROM EVALUATION WHERE id_cuisinier = @IdCuisinier";
                     object resultatMoyenne = GestionBDD.ExecuterScalaire(requeteMoyenne, parametres);
 
@@ -2857,7 +2822,7 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("AJOUTER UNE ÉVALUATION");
 
-            // Sélectionner un client
+            /// Sélectionner un client
             var clients = GestionBDD.ObtenirListeClientsDetails();
             if (clients.Count == 0)
             {
@@ -2881,7 +2846,7 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Vérifier si l'ID client existe
+            /// Vérifier si l'ID client existe
             var clientDetails = GestionBDD.ObtenirDetailsClient(idClientStr);
             if (string.IsNullOrEmpty(clientDetails.id))
             {
@@ -2891,7 +2856,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Sélectionner un cuisinier
             var cuisiniers = GestionBDD.ObtenirListeCuisiniersDetails();
             if (cuisiniers.Count == 0)
             {
@@ -2915,7 +2879,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Vérifier si l'ID cuisinier existe
             var cuisiDetails = GestionBDD.ObtenirDetailsCuisinier(idCuisinierStr);
             if (string.IsNullOrEmpty(cuisiDetails.id))
             {
@@ -2925,7 +2888,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Vérifier si une évaluation existe déjà
             string queryVerifEvaluation = "SELECT COUNT(*) FROM EVALUATION WHERE id_client = @IdClient AND id_cuisinier = @IdCuisinier";
             Dictionary<string, object> parametresVerif = new Dictionary<string, object>
             {
@@ -2939,11 +2901,11 @@ namespace Projet_problème_scientifique_info
                 Console.Write("Ce client a déjà évalué ce cuisinier. Voulez-vous modifier l'évaluation existante ? (O/N) : ");
                 if (Console.ReadLine().ToUpper() == "O")
                 {
-                    // Récupérer l'ID de l'évaluation
+
                     string queryIdEvaluation = "SELECT id_evaluation FROM EVALUATION WHERE id_client = @IdClient AND id_cuisinier = @IdCuisinier";
                     string idEvaluation = GestionBDD.ExecuterScalaire(queryIdEvaluation, parametresVerif).ToString();
 
-                    // Appeler la méthode de modification avec l'ID récupéré
+                    /// Appeler la méthode de modification avec l'ID récupéré
                     ModifierEvaluationSpecifique(idEvaluation);
                     return;
                 }
@@ -2968,7 +2930,6 @@ namespace Projet_problème_scientifique_info
 
             try
             {
-                // Générer un nouvel ID
                 int idEvaluation = GestionBDD.GenererNouvelID("EVALUATION", "id_evaluation");
 
                 Dictionary<string, object> parametres = new Dictionary<string, object>
@@ -2989,7 +2950,6 @@ namespace Projet_problème_scientifique_info
                 {
                     GestionBDD.AfficherMessageSucces("Évaluation ajoutée avec succès !");
 
-                    // Mettre à jour la note moyenne du cuisinier
                     MettreAJourNoteMoyenneCuisinier(idCuisinierStr);
                 }
                 else
@@ -3014,7 +2974,7 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("MODIFIER UNE ÉVALUATION");
 
-            // Afficher la liste des évaluations
+            /// Afficher la liste des évaluations
             string requete = @"
                 SELECT e.id_evaluation, cl.nom_client, cl.prenom_client, 
                 cu.nom_cuisinier, cu.prenom_cuisinier, 
@@ -3072,7 +3032,7 @@ namespace Projet_problème_scientifique_info
         /// <param name="idEvaluationStr">ID de l'évaluation à modifier</param>
         private static void ModifierEvaluationSpecifique(string idEvaluationStr)
         {
-            // Vérifier si l'ID évaluation existe
+            /// Vérifier si l'ID évaluation existe
             string queryVerifEvaluation = @"
                     SELECT e.id_evaluation, r.id_cuisinier, e.note_evaluation, e.commentaire_evaluation,
                            cl.nom_client, cl.prenom_client,
@@ -3152,7 +3112,7 @@ namespace Projet_problème_scientifique_info
                 {
                     GestionBDD.AfficherMessageSucces("Évaluation modifiée avec succès !");
 
-                    // Mettre à jour la note moyenne du cuisinier
+                    /// Mettre à jour la note moyenne du cuisinier
                     MettreAJourNoteMoyenneCuisinier(idCuisinier);
                 }
                 else
@@ -3177,7 +3137,6 @@ namespace Projet_problème_scientifique_info
             Console.Clear();
             GestionBDD.AfficherTitre("SUPPRIMER UNE ÉVALUATION");
 
-            // Afficher la liste des évaluations
             string requete = @"
                 SELECT e.id_evaluation, cl.nom_client, cl.prenom_client, 
                        cu.nom_cuisinier, cu.prenom_cuisinier, e.note_evaluation, e.date_evaluation
@@ -3225,7 +3184,6 @@ namespace Projet_problème_scientifique_info
                 return;
             }
 
-            // Vérifier si l'ID évaluation existe
             string queryVerifEvaluation = @"SELECT e.id_evaluation, cu.id_cuisinier, 
                                             cl.nom_client, cl.prenom_client, 
                                             cu.nom_cuisinier, cu.prenom_cuisinier
@@ -3281,7 +3239,6 @@ namespace Projet_problème_scientifique_info
                 {
                     GestionBDD.AfficherMessageSucces("Évaluation supprimée avec succès !");
 
-                    // Mettre à jour la note moyenne du cuisinier
                     MettreAJourNoteMoyenneCuisinier(idCuisinier);
                 }
                 else
@@ -3306,7 +3263,7 @@ namespace Projet_problème_scientifique_info
         {
             try
             {
-                // Calculer la nouvelle note moyenne
+                /// Calculer la nouvelle note moyenne
                 string requeteMoyenne = "SELECT AVG(note_evaluation) FROM EVALUATION WHERE id_cuisinier = @IdCuisinier";
                 Dictionary<string, object> parametresMoyenne = new Dictionary<string, object>
                 {
@@ -3321,7 +3278,7 @@ namespace Projet_problème_scientifique_info
                     noteMoyenne = Convert.ToDecimal(resultatMoyenne);
                 }
 
-                // Mettre à jour la note moyenne du cuisinier
+                /// Mettre à jour la note moyenne du cuisinier
                 string requeteMiseAJour = "UPDATE CUISINIER SET note_moyenne_cuisinier = @NoteMoyenne WHERE id_cuisinier = @IdCuisinier";
                 Dictionary<string, object> parametresMiseAJour = new Dictionary<string, object>
                 {
@@ -3406,8 +3363,6 @@ namespace Projet_problème_scientifique_info
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
-
-                    // Récupérer les informations actuelles
                     string queryInfo = @"
                 SELECT nom_admin, prenom_admin, email_admin
                 FROM ADMINISTRATEUR
@@ -3448,7 +3403,6 @@ namespace Projet_problème_scientifique_info
                                 return;
                             }
 
-                            // Mettre à jour le profil
                             string queryUpdate = @"
                         UPDATE ADMINISTRATEUR
                         SET nom_admin = @Nom,
@@ -3468,7 +3422,6 @@ namespace Projet_problème_scientifique_info
                             {
                                 GestionBDD.AfficherMessageSucces("Profil modifié avec succès !");
 
-                                // Mettre à jour la session si l'email a changé
                                 if (nouvelEmail != emailActuel)
                                 {
                                     SessionUtilisateur.Connecter(idAdmin, nouveauNom, nouveauPrenom, "admin", nouvelEmail);
@@ -3560,7 +3513,7 @@ namespace Projet_problème_scientifique_info
                     queryVerif = $"SELECT COUNT(*) FROM {nomTable} WHERE {colonneId} = @IdUtilisateur AND {colonneMdp} = @AncienMotDePasse";
                     queryUpdate = $"UPDATE {nomTable} SET {colonneMdp} = @NouveauMotDePasse WHERE {colonneId} = @IdUtilisateur";
 
-                    // Vérifier l'ancien mot de passe
+                    /// Vérifier l'ancien mot de passe
                     MySqlCommand cmdVerif = new MySqlCommand(queryVerif, connection);
                     cmdVerif.Parameters.AddWithValue("@IdUtilisateur", idUtilisateur);
                     cmdVerif.Parameters.AddWithValue("@AncienMotDePasse", ancienMotDePasse);
@@ -3572,7 +3525,7 @@ namespace Projet_problème_scientifique_info
                         return;
                     }
 
-                    // Mettre à jour le mot de passe
+                    /// Mettre à jour le mot de passe
                     MySqlCommand cmdUpdate = new MySqlCommand(queryUpdate, connection);
                     cmdUpdate.Parameters.AddWithValue("@IdUtilisateur", idUtilisateur);
                     cmdUpdate.Parameters.AddWithValue("@NouveauMotDePasse", nouveauMotDePasse);
