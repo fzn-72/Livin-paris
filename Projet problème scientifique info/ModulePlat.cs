@@ -34,9 +34,10 @@ namespace Projet_problème_scientifique_info
                     {
                         Console.WriteLine("1. Consulter tous les plats disponibles");
                         Console.WriteLine("2. Exporter la liste des plats au format XML");
-                        Console.WriteLine("3. Rechercher un plat");
-                        Console.WriteLine("4. Voir les détails d'un plat");
-                        Console.WriteLine("5. Retour au menu principal");
+                        Console.WriteLine("3. Exporter la liste des plats au format JSON");
+                        Console.WriteLine("4. Rechercher un plat");
+                        Console.WriteLine("5. Voir les détails d'un plat");
+                        Console.WriteLine("6. Retour au menu principal");
                         Console.Write("\nChoisissez une option : ");
                         string choix = Console.ReadLine();
 
@@ -49,12 +50,15 @@ namespace Projet_problème_scientifique_info
                                 ExporterListePlats();
                                 break;
                             case "3":
-                                RechercherPlat();
+                                ExporterListePlatsJSON();
                                 break;
                             case "4":
-                                VoirDetailsPlat();
+                                RechercherPlat();
                                 break;
                             case "5":
+                                VoirDetailsPlat();
+                                break;
+                            case "6":
                                 continuer = false;
                                 break;
                             default:
@@ -66,6 +70,7 @@ namespace Projet_problème_scientifique_info
                     {
                         Console.WriteLine("1. Consulter tous les plats disponibles");
                         Console.WriteLine("2. Exporter la liste des plats disponibles au format XML");
+                        Console.WriteLine("8. Exporter la liste des plats disponibles au format JSON");
                         Console.WriteLine("3. Consulter mes plats");
                         Console.WriteLine("4. Ajouter un nouveau plat");
                         Console.WriteLine("5. Modifier un de mes plats");
@@ -84,21 +89,24 @@ namespace Projet_problème_scientifique_info
                                 ExporterListePlats();
                                 break;
                             case "3":
-                                AfficherPlatsCuisinier(SessionUtilisateur.IdUtilisateur);
+                                ExporterListePlatsJSON();
                                 break;
                             case "4":
-                                AjouterNouveauPlat();
+                                AfficherPlatsCuisinier(SessionUtilisateur.IdUtilisateur);
                                 break;
                             case "5":
-                                ModifierPlat();
+                                AjouterNouveauPlat();
                                 break;
                             case "6":
-                                SupprimerPlat();
+                                ModifierPlat();
                                 break;
                             case "7":
-                                GererIngredients();
+                                SupprimerPlat();
                                 break;
                             case "8":
+                                GererIngredients();
+                                break;
+                            case "9":
                                 continuer = false;
                                 break;
                             default:
@@ -116,7 +124,8 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine("6. Supprimer un plat");
                         Console.WriteLine("7. Gérer les ingrédients");
                         Console.WriteLine("8. Exporter la liste des plats au format XML");
-                        Console.WriteLine("9. Retour au menu principal");
+                        Console.WriteLine("9. Exporter la liste des plats au format JSON");
+                        Console.WriteLine("10. Retour au menu principal");
                         Console.Write("\nChoisissez une option : ");
                         string choix = Console.ReadLine();
 
@@ -147,6 +156,9 @@ namespace Projet_problème_scientifique_info
                                 ExporterListePlats(); 
                                 break;
                             case "9":
+                                ExporterListePlatsJSON();
+                                break;
+                            case "10":
                                 continuer = false;
                                 break;
                             default:
@@ -160,9 +172,10 @@ namespace Projet_problème_scientifique_info
                     /// Utilisateur non connecté
                     Console.WriteLine("1. Consulter les plats disponibles");
                     Console.WriteLine("2. Exporter la liste des plats au format XML");
-                    Console.WriteLine("3. Rechercher un plat");
-                    Console.WriteLine("4. Voir les détails d'un plat");
-                    Console.WriteLine("5. Retour au menu principal");
+                    Console.WriteLine("3. Exporter la liste des plats au format JSON");
+                    Console.WriteLine("4. Rechercher un plat");
+                    Console.WriteLine("5. Voir les détails d'un plat");
+                    Console.WriteLine("6. Retour au menu principal");
                     Console.Write("\nChoisissez une option : ");
                     string choix = Console.ReadLine();
 
@@ -175,12 +188,15 @@ namespace Projet_problème_scientifique_info
                             ExporterListePlats();
                             break;
                         case "3":
-                            RechercherPlat();
+                            ExporterListePlatsJSON();
                             break;
                         case "4":
-                            VoirDetailsPlat();
+                            RechercherPlat();
                             break;
                         case "5":
+                            VoirDetailsPlat();
+                            break;
+                        case "6":
                             continuer = false;
                             break;
                         default:
@@ -1848,5 +1864,154 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
         #endregion
+
+        #region Export JSON
+        /// <summary>
+        /// Exporte la liste des plats au format JSON
+        /// </summary>
+        public static void ExporterListePlatsJSON()
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("EXPORTER LA LISTE DES PLATS EN JSON");
+
+            try
+            {
+                /// Réutiliser la même structure de données que pour l'exportation XML
+                ExportPlats exportPlats = new ExportPlats();
+                exportPlats.DateExport = DateTime.Now;
+
+                /// Récupérer tous les plats
+                string requetePlats = @"
+            SELECT p.id_plat, p.nom_plat, p.type_plat, p.nationalite_plat, p.prix_unitaire_plat, 
+                   p.portion_dispo_plat, p.description_plat,
+                   c.id_cuisinier, c.nom_cuisinier, c.prenom_cuisinier, c.note_moyenne_cuisinier
+            FROM PLAT p
+            JOIN CUISINIER c ON p.id_cuisinier = c.id_cuisinier
+            ORDER BY p.type_plat, p.nom_plat";
+
+                DataTable platsData = GestionBDD.ExecuterRequeteTable(requetePlats, null);
+
+                if (platsData != null && platsData.Rows.Count > 0)
+                {
+                    exportPlats.NombrePlats = platsData.Rows.Count;
+
+                    foreach (DataRow row in platsData.Rows)
+                    {
+                        ExportPlats.Plat plat = new ExportPlats.Plat
+                        {
+                            IdPlat = row["id_plat"].ToString(),
+                            NomPlat = row["nom_plat"] != DBNull.Value ? row["nom_plat"].ToString() : "",
+                            TypePlat = row["type_plat"] != DBNull.Value ? row["type_plat"].ToString() : "",
+                            Nationalite = row["nationalite_plat"] != DBNull.Value ? row["nationalite_plat"].ToString() : "",
+                            Prix = row["prix_unitaire_plat"] != DBNull.Value ? row["prix_unitaire_plat"].ToString() : "0",
+                            PortionsDisponibles = row["portion_dispo_plat"] != DBNull.Value ? row["portion_dispo_plat"].ToString() : "0",
+                            Description = row["description_plat"] != DBNull.Value ? row["description_plat"].ToString() : "",
+                            IdCuisinier = row["id_cuisinier"].ToString(),
+                            NomCuisinier = row["nom_cuisinier"] != DBNull.Value ? row["nom_cuisinier"].ToString() : "",
+                            PrenomCuisinier = row["prenom_cuisinier"] != DBNull.Value ? row["prenom_cuisinier"].ToString() : "",
+                            NoteCuisinier = row["note_moyenne_cuisinier"] != DBNull.Value ? Convert.ToDecimal(row["note_moyenne_cuisinier"]) : 0
+                        };
+
+                        /// Récupérer les ingrédients pour ce plat
+                        string requeteIngredients = @"
+                    SELECT i.nom_ingredient, i.categorie_ingredient, i.origine_ingredient
+                    FROM CONTIENT c
+                    JOIN INGREDIENT i ON c.id_ingredient = i.id_ingredient
+                    WHERE c.id_plat = @IdPlat";
+
+                        Dictionary<string, object> parametresIngredients = new Dictionary<string, object>
+                {
+                    { "@IdPlat", plat.IdPlat }
+                };
+
+                        DataTable ingredientsData = GestionBDD.ExecuterRequeteTable(requeteIngredients, parametresIngredients);
+
+                        if (ingredientsData != null && ingredientsData.Rows.Count > 0)
+                        {
+                            foreach (DataRow ingredientRow in ingredientsData.Rows)
+                            {
+                                ExportPlats.Plat.Ingredient ingredient = new ExportPlats.Plat.Ingredient
+                                {
+                                    Nom = ingredientRow["nom_ingredient"] != DBNull.Value ? ingredientRow["nom_ingredient"].ToString() : "",
+                                    Categorie = ingredientRow["categorie_ingredient"] != DBNull.Value ? ingredientRow["categorie_ingredient"].ToString() : "",
+                                    Origine = ingredientRow["origine_ingredient"] != DBNull.Value ? ingredientRow["origine_ingredient"].ToString() : ""
+                                };
+
+                                plat.Ingredients.Add(ingredient);
+                            }
+                        }
+
+                        try
+                        {
+                            string requeteEvaluations = @"
+                        SELECT e.id_evaluation, e.note_evaluation, e.commentaire_evaluation, e.date_evaluation
+                        FROM EVALUATION e
+                        JOIN concerne c ON e.id_evaluation = c.id_evaluation
+                        WHERE c.id_plat = @IdPlat
+                        ORDER BY e.date_evaluation DESC";
+
+                            Dictionary<string, object> parametresEvaluations = new Dictionary<string, object>
+                    {
+                        { "@IdPlat", plat.IdPlat }
+                    };
+
+                            DataTable evaluationsData = GestionBDD.ExecuterRequeteTable(requeteEvaluations, parametresEvaluations);
+
+                            if (evaluationsData != null && evaluationsData.Rows.Count > 0)
+                            {
+                                foreach (DataRow evalRow in evaluationsData.Rows)
+                                {
+                                    ExportPlats.Plat.Evaluation evaluation = new ExportPlats.Plat.Evaluation
+                                    {
+                                        Note = evalRow["note_evaluation"] != DBNull.Value ? Convert.ToInt32(evalRow["note_evaluation"]) : 0,
+                                        Commentaire = evalRow["commentaire_evaluation"] != DBNull.Value ? evalRow["commentaire_evaluation"].ToString() : "",
+                                        Date = evalRow["date_evaluation"] != DBNull.Value ? Convert.ToDateTime(evalRow["date_evaluation"]) : DateTime.MinValue
+                                    };
+
+                                    plat.Evaluations.Add(evaluation);
+                                }
+                            }
+                        }
+                        catch
+                        {
+                        }
+
+                        exportPlats.ListePlats.Add(plat);
+                    }
+
+                    /// Exporter les plats en JSON
+                    string nomFichier = $"ListePlats_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+                    string cheminFichier = ExportJson.ExporterDonnees(exportPlats, nomFichier);
+
+                    if (cheminFichier != null)
+                    {
+                        GestionBDD.AfficherMessageSucces($"La liste des plats a été exportée avec succès dans le fichier : {cheminFichier}");
+
+                        Console.Write("\nVoulez-vous ouvrir le fichier JSON ? (O/N) : ");
+                        if (Console.ReadLine().ToUpper() == "O")
+                        {
+                            ExportJson.OuvrirFichierJSON(cheminFichier);
+                        }
+                    }
+                    else
+                    {
+                        GestionBDD.AfficherMessageErreur("Erreur lors de l'exportation de la liste des plats.");
+                    }
+                }
+                else
+                {
+                    GestionBDD.AfficherMessageErreur("Aucun plat trouvé dans la base de données.");
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
+        }
+        #endregion
+
     }
 }

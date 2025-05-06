@@ -1653,13 +1653,26 @@ namespace Projet_problème_scientifique_info
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
+                    Console.WriteLine("Comment souhaitez-vous trier les clients ? Ecrivez 'nom', 'rue' ou 'montant'.");
+                    string critere = Console.ReadLine().Trim();
+                    string orderBy = "";
+                    switch (critere.ToLower())
+                    {
+                        case "nom": orderBy = "cl.nom_client, cl.prenom_client"; break;
+                        case "rue": orderBy = "cl.rue_client"; break;
+                        case "montant": orderBy = "total_achats DESC"; break;
+                        default: orderBy = "cl.nom_client, cl.prenom_client"; break;
+                    }
 
-                    string query = @"
-                        SELECT id_client, nom_client, prenom_client, email_client, tel_client, type_client, date_inscription_client
-                        FROM CLIENT
-                        ORDER BY nom_client, prenom_client";
+                    string requete = $@"
+        SELECT cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client, cl.rue_client,
+               SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS total_achats
+        FROM CLIENT cl
+        LEFT JOIN COMMANDE c ON cl.id_client = c.id_client
+        GROUP BY cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client, cl.rue_client
+        ORDER BY {orderBy}";
 
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    MySqlCommand cmd = new MySqlCommand(requete, connection);
 
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {

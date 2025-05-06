@@ -1,0 +1,157 @@
+{
+  "DateExport": "2025-05-06T11:01:48.22893+02:00",
+  "Commandes": [
+    {
+      "IdCommande": "10",
+      "DateCommande": "2025-04-28T00:00:00",
+      "DateLivraison": null,
+      "StatutCommande": "Prêt pour livraison",
+      "PrixTotal": "3 euros",
+      "Commentaire": "",
+      "Client": {
+        "IdClient": "CL004",
+        "Nom": "Petit",
+        "Prenom": "Nathan",
+        "Email": "nathan.petit@gmail.com"
+      },
+      "LignesCommande": [
+        {
+          "IdLigne": "2",
+          "IdPlat": "P002",
+          "NomPlat": "Paris-Brest",
+          "PrixUnitaire": "3,4 euros",
+          "Quantite": 0,
+          "StatutLigne": "Prêt pour livraison",
+          "DateLivraisonVoulue": "2025-04-29T00:00:00",
+          "MetroLivraison": "Reaumur-Sebastopol",
+          "Cuisinier": {
+            "IdCuisinier": "C002",
+            "Nom": "Garcia",
+            "Prenom": "Sonia"
+          }
+        }
+      ]
+    },
+    {
+      "IdCommande": "9",
+      "DateCommande": "2025-04-28T00:00:00",
+      "DateLivraison": null,
+      "StatutCommande": "En préparation",
+      "PrixTotal": "6 euros",
+      "Commentaire": "",
+      "Client": {
+        "IdClient": "CL004",
+        "Nom": "Petit",
+        "Prenom": "Nathan",
+        "Email": "nathan.petit@gmail.com"
+      },
+      "LignesCommande": [
+        {
+          "IdLigne": "1",
+          "IdPlat": "P001",
+          "NomPlat": "Pâtes bolognaises",
+          "PrixUnitaire": "6 euros",
+          "Quantite": 0,
+          "StatutLigne": "En attente",
+          "DateLivraisonVoulue": "2025-04-28T00:00:00",
+          "MetroLivraison": "Reaumur-Sebastopol",
+          "Cuisinier": {
+            "IdCuisinier": "C001",
+            "Nom": "Lemoine",
+            "Prenom": "Mathieu"
+          }
+        }
+      ]
+    },
+    {
+      "IdCommande": "6",
+      "DateCommande": "2025-04-27T00:00:00",
+      "DateLivraison": "2025-04-28T00:00:00",
+      "StatutCommande": "Livrée",
+      "PrixTotal": "0",
+      "Commentaire": "",
+      "Client": {
+        "IdClient": "CL005",
+        "Nom": "Robert",
+        "Prenom": "Léa",
+        "Email": "lea.robert@gmail.com"
+      },
+      "LignesCommande": []
+    },
+    {
+      "IdCommande": "7",
+      "DateCommande": "2025-04-27T00:00:00",
+      "DateLivraison": null,
+      "StatutCommande": "Annulée",
+      "PrixTotal": "0",
+      "Commentaire": "",
+      "Client": {
+        "IdClient": "CL004",
+        "Nom": "Petit",
+        "Prenom": "Nathan",
+        "Email": "nathan.petit@gmail.com"
+      },
+      "LignesCommande": []
+    },
+    {
+      "IdCommande": "8",
+      "DateCommande": "2025-04-27T00:00:00",
+      "DateLivraison": null,
+      "StatutCommande": "Annulée",
+      "PrixTotal": "0",
+      "Commentaire": "",
+      "Client": {
+        "IdClient": "CL004",
+        "Nom": "Petit",
+        "Prenom": "Nathan",
+        "Email": "nathan.petit@gmail.com"
+      },
+      "LignesCommande": []
+    },
+    {
+      "IdCommande": "5",
+      "DateCommande": "2025-04-26T00:00:00",
+      "DateLivraison": null,
+      "StatutCommande": "En attente",
+      "PrixTotal": "0",
+      "Commentaire": "",
+      "Client": {
+        "IdClient": "CL002",
+        "Nom": "Martin",
+        "Prenom": "Lucas",
+        "Email": "lucas.martin@gmail.com"
+      },
+      "LignesCommande": []
+    },
+    {
+      "IdCommande": "2",
+      "DateCommande": "2025-04-25T00:00:00",
+      "DateLivraison": null,
+      "StatutCommande": "Annulée",
+      "PrixTotal": "0",
+      "Commentaire": "",
+      "Client": {
+        "IdClient": "CL001",
+        "Nom": "Durand",
+        "Prenom": "Alice",
+        "Email": "alice.durand@gmail.com"
+      },
+      "LignesCommande": []
+    },
+    {
+      "IdCommande": "3",
+      "DateCommande": "2025-04-25T00:00:00",
+      "DateLivraison": null,
+      "StatutCommande": "En attente",
+      "PrixTotal": "0",
+      "Commentaire": "",
+      "Client": {
+        "IdClient": "CL001",
+        "Nom": "Durand",
+        "Prenom": "Alice",
+        "Email": "alice.durand@gmail.com"
+      },
+      "LignesCommande": []
+    }
+  ]
+}

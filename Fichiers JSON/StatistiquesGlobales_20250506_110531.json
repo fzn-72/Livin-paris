@@ -1,0 +1,33 @@
+{
+  "NombreClients": 11,
+  "NombreCuisiniers": 10,
+  "NombrePlats": 4,
+  "NombreCommandes": 8,
+  "ChiffreAffairesTotal": 9.00,
+  "StatistiquesMensuelles": [
+    {
+      "Mois": "2025-04",
+      "NombreCommandes": 8,
+      "ChiffreAffaires": 9.00
+    }
+  ],
+  "MeilleursCuisiniers": [
+    {
+      "IdCuisinier": "C001",
+      "NomCuisinier": "Lemoine",
+      "PrenomCuisinier": "Mathieu",
+      "NoteMoyenne": 8.0,
+      "NombreCommandes": 1,
+      "ChiffreAffaires": 6.00
+    },
+    {
+      "IdCuisinier": "C002",
+      "NomCuisinier": "Garcia",
+      "PrenomCuisinier": "Sonia",
+      "NoteMoyenne": 7.0,
+      "NombreCommandes": 1,
+      "ChiffreAffaires": 3.00
+    }
+  ],
+  "DateExport": "2025-05-06T11:05:31.2659177+02:00"
+}

@@ -72,33 +72,51 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public static void MenuPrincipalTrajets()
         {
-            Console.Clear();
-            Console.WriteLine("Que souhaitez-vous faire ? Choisissez une option (1, 2 ou 3) : ");
-            Console.WriteLine("1. Construire et visualiser le graphe du métro");
-            Console.WriteLine("2. Calculer la distance entre deux stations de métro");
-            Console.WriteLine("3. Trouver le chemin le plus court entre deux stations");
+            bool continuer = true;
 
-            string choix = Console.ReadLine();
-
-            switch (choix)
+            while (continuer)
             {
-                case "1":
-                    ConstruireEtVisualiserGrapheMetro();
-                    break;
-                case "2":
-                    CalculDistance.DistanceEntreDeuxStations();
-                    break;
-                case "3":
-                    CalculDistance.CheminLePlusCourt();
-                    break;
-                default:
-                    Console.WriteLine("Option non valide.");
-                    break;
-            }
+                Console.Clear();
+                Console.WriteLine("Que souhaitez-vous faire ? Choisissez une option (1, 2, 3 ou 4) : ");
+                Console.WriteLine("1. Construire et visualiser le graphe du métro");
+                Console.WriteLine("2. Calculer la distance entre deux stations de métro");
+                Console.WriteLine("3. Trouver le chemin le plus court entre deux stations");
+                Console.WriteLine("4. Retour au menu principal");
 
+                string choix = Console.ReadLine();
+
+                try
+                {
+                    switch (choix)
+                    {
+                        case "1":
+                            ConstruireEtVisualiserGrapheMetro();
+                            break;
+                        case "2":
+                            CalculDistance.DistanceEntreDeuxStations();
+                            break;
+                        case "3":
+                            CalculDistance.CheminLePlusCourt();
+                            break;
+                        case "4":
+                            continuer = false;
+                            break;
+                        default:
+                            Console.WriteLine("Option non valide. Appuyez sur une touche pour continuer...");
+                            Console.ReadKey();
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Une erreur s'est produite: {ex.Message}");
+                    Console.WriteLine(ex.StackTrace);
+                    Console.WriteLine("Appuyez sur une touche pour continuer...");
+                    Console.ReadKey();
+                }
+            }
         }
         #endregion
-
 
         #region Ancienne méthode pour afficher le graphe de l'autre façon
         /*static void ConstruireEtVisualiserGrapheMetro()
@@ -135,62 +153,75 @@ namespace Projet_problème_scientifique_info
         }*/
         #endregion
 
-
         #region Construction et Visualisation du graphe
         /// <summary>
         /// Construit et visualise un graphe représentant le réseau de métro à partir de fichiers CSV contenant les nœuds (stations) et les arcs (liaisons).
         /// </summary>
         static void ConstruireEtVisualiserGrapheMetro()
         {
-
-            //string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            //string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
-            string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
-
             try
             {
-                
+                //string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+                //string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+                string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+                string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+
+                if (!File.Exists(cheminFichierNoeuds))
+                {
+                    Console.WriteLine($"Erreur: Le fichier {cheminFichierNoeuds} n'existe pas.");
+                    Console.WriteLine("Appuyez sur une touche pour continuer...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                if (!File.Exists(cheminFichierArcs))
+                {
+                    Console.WriteLine($"Erreur: Le fichier {cheminFichierArcs} n'existe pas.");
+                    Console.WriteLine("Appuyez sur une touche pour continuer...");
+                    Console.ReadKey();
+                    return;
+                }
+
                 MetroGraphe metroGraphe = new MetroGraphe(cheminFichierNoeuds, cheminFichierArcs);
 
-                
                 Console.WriteLine("Chargement des stations...");
                 int nbStations = metroGraphe.ChargerStations();
                 Console.WriteLine("Chargement des arcs et création des liens...");
                 int nbArcs = metroGraphe.ChargerArcs();
 
-                
-                if (nbStations > 0 && metroGraphe.LiensNoeuds.Any()) 
+                if (nbStations > 0 && metroGraphe.LiensNoeuds.Any())
                 {
                     Console.WriteLine($"Chargement terminé: {nbStations} stations, {metroGraphe.LiensNoeuds.Count} liens dans le graphe.");
                     Console.WriteLine("Génération de la visualisation...");
-                    string cheminImage = "graphe_metro.png"; 
+                    string cheminImage = "graphe_metro.png";
 
                     VisualisationMetroAmelioree visuMetro = new VisualisationMetroAmelioree(metroGraphe, 4000, 3000);
                     visuMetro.DessinerMetro(cheminImage);
 
-                    
                     try
                     {
-                        Console.WriteLine($"Image sauvegardée sous: {Path.GetFullPath(cheminImage)}"); 
+                        Console.WriteLine($"Image sauvegardée sous: {Path.GetFullPath(cheminImage)}");
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(cheminImage) { UseShellExecute = true });
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Erreur lors de l'ouverture de l'image : {ex.Message}");
                     }
-
-                   
                 }
                 else
                 {
                     Console.WriteLine("Erreur : Aucune station ou aucun lien n'a pu être chargé. Vérifiez les fichiers CSV et les chemins.");
                 }
+
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Une erreur générale est survenue : {ex.Message}");
                 Console.WriteLine(ex.StackTrace);
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
             }
         }
         #endregion

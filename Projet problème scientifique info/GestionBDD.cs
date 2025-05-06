@@ -71,7 +71,7 @@ namespace Projet_problème_scientifique_info
                     Console.WriteLine("3. MODULE STATISTIQUES : Consulter les statistiques publiques sans se connecter");
                     Console.WriteLine("4. MODULE TRAJETS : Consulter le graphe du métro, calculer une distance ou un plus court chemin");
                     Console.WriteLine("5. MODULE INFOS : A propos de l'application");
-                    Console.WriteLine("6. MODULE AUTRE : à venir");
+                    Console.WriteLine("6. MODULE AUTRE : Afficher le graphe client_cuisinier ou le menu d'exportation de données");
                     Console.WriteLine("7. Quitter l'application");
                     Console.Write("\nChoisissez une option : ");
                     string choix = Console.ReadLine();

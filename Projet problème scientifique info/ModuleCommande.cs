@@ -57,7 +57,8 @@ namespace Projet_problème_scientifique_info
                     Console.WriteLine("7. Suivre l'état des commandes");
                     Console.WriteLine("8. Assigner un cuisinier à une ligne de commande");
                     Console.WriteLine("9. Calculer le prix total d'une commande");
-                    Console.WriteLine("10. Retour au menu principal");
+                    Console.WriteLine("10. Exporter la liste des commandes au format JSON");
+                    Console.WriteLine("11. Retour au menu principal");
                 }
                 else
                 {
@@ -155,6 +156,9 @@ namespace Projet_problème_scientifique_info
                             CalculerPrixTotalCommande();
                             break;
                         case "10":
+                            ExporterCommandesJSON();
+                            break;
+                        case "11":
                             continuer = false;
                             break;
                         default:
@@ -2888,6 +2892,135 @@ namespace Projet_problème_scientifique_info
                 GestionBDD.AfficherMessageErreur($"Erreur lors de la vérification des cuisiniers : {ex.Message}");
                 return false; /// En cas d'erreur, on considère que la validation a échoué
             }
+        }
+        #endregion
+
+        #region Export JSON
+        /// <summary>
+        /// Exporte les commandes au format JSON
+        /// </summary>
+        public static void ExporterCommandesJSON()
+        {
+            Console.Clear();
+            GestionBDD.AfficherTitre("EXPORTER LES COMMANDES EN JSON");
+
+            try
+            {
+                var exportCommandes = new
+                {
+                    DateExport = DateTime.Now,
+                    Commandes = new List<object>()
+                };
+
+                string requeteCommandes = @"
+            SELECT c.id_commande, c.date_commande, c.date_livraison, c.statut_commande, 
+                   c.prix_total_commande, c.commentaire_commande,
+                   cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client
+            FROM COMMANDE c
+            JOIN CLIENT cl ON c.id_client = cl.id_client
+            ORDER BY c.date_commande DESC";
+
+                DataTable commandesData = GestionBDD.ExecuterRequeteTable(requeteCommandes, null);
+
+                if (commandesData != null && commandesData.Rows.Count > 0)
+                {
+                    foreach (DataRow row in commandesData.Rows)
+                    {
+                        string requeteLignes = @"
+                    SELECT lc.id_ligne, lc.id_plat, p.nom_plat, lc.prix_unitaire, lc.quantite, 
+                           lc.statut_ligne, lc.date_livraison_voulue, lc.metro_le_plus_proche_livraison,
+                           cu.id_cuisinier, cu.nom_cuisinier, cu.prenom_cuisinier
+                    FROM LIGNE_COMMANDE lc
+                    JOIN PLAT p ON lc.id_plat = p.id_plat
+                    JOIN CUISINIER cu ON p.id_cuisinier = cu.id_cuisinier
+                    WHERE lc.id_commande = @IdCommande";
+
+                        Dictionary<string, object> parametresLignes = new Dictionary<string, object>
+                {
+                    { "@IdCommande", row["id_commande"] }
+                };
+
+                        DataTable lignesData = GestionBDD.ExecuterRequeteTable(requeteLignes, parametresLignes);
+                        List<object> lignesCommande = new List<object>();
+
+                        if (lignesData != null && lignesData.Rows.Count > 0)
+                        {
+                            foreach (DataRow ligneRow in lignesData.Rows)
+                            {
+                                var ligne = new
+                                {
+                                    IdLigne = ligneRow["id_ligne"].ToString(),
+                                    IdPlat = ligneRow["id_plat"].ToString(),
+                                    NomPlat = ligneRow["nom_plat"] != DBNull.Value ? ligneRow["nom_plat"].ToString() : "",
+                                    PrixUnitaire = ligneRow["prix_unitaire"] != DBNull.Value ? ligneRow["prix_unitaire"].ToString() : "0",
+                                    Quantite = ligneRow["quantite"] != DBNull.Value ? Convert.ToInt32(ligneRow["quantite"]) : 0,
+                                    StatutLigne = ligneRow["statut_ligne"] != DBNull.Value ? ligneRow["statut_ligne"].ToString() : "",
+                                    DateLivraisonVoulue = ligneRow["date_livraison_voulue"] != DBNull.Value ? Convert.ToDateTime(ligneRow["date_livraison_voulue"]) : (DateTime?)null,
+                                    MetroLivraison = ligneRow["metro_le_plus_proche_livraison"] != DBNull.Value ? ligneRow["metro_le_plus_proche_livraison"].ToString() : "",
+                                    Cuisinier = new
+                                    {
+                                        IdCuisinier = ligneRow["id_cuisinier"].ToString(),
+                                        Nom = ligneRow["nom_cuisinier"] != DBNull.Value ? ligneRow["nom_cuisinier"].ToString() : "",
+                                        Prenom = ligneRow["prenom_cuisinier"] != DBNull.Value ? ligneRow["prenom_cuisinier"].ToString() : ""
+                                    }
+                                };
+
+                                lignesCommande.Add(ligne);
+                            }
+                        }
+
+                        var commande = new
+                        {
+                            IdCommande = row["id_commande"].ToString(),
+                            DateCommande = row["date_commande"] != DBNull.Value ? Convert.ToDateTime(row["date_commande"]) : DateTime.MinValue,
+                            DateLivraison = row["date_livraison"] != DBNull.Value ? Convert.ToDateTime(row["date_livraison"]) : (DateTime?)null,
+                            StatutCommande = row["statut_commande"] != DBNull.Value ? row["statut_commande"].ToString() : "",
+                            PrixTotal = row["prix_total_commande"] != DBNull.Value ? row["prix_total_commande"].ToString() : "0",
+                            Commentaire = row["commentaire_commande"] != DBNull.Value ? row["commentaire_commande"].ToString() : "",
+                            Client = new
+                            {
+                                IdClient = row["id_client"].ToString(),
+                                Nom = row["nom_client"] != DBNull.Value ? row["nom_client"].ToString() : "",
+                                Prenom = row["prenom_client"] != DBNull.Value ? row["prenom_client"].ToString() : "",
+                                Email = row["email_client"] != DBNull.Value ? row["email_client"].ToString() : ""
+                            },
+                            LignesCommande = lignesCommande
+                        };
+
+                        ((List<object>)exportCommandes.Commandes).Add(commande);
+                    }
+
+                    /// Exporter les commandes en JSON
+                    string nomFichier = $"Commandes_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+                    string cheminFichier = ExportJson.ExporterDonnees(exportCommandes, nomFichier);
+
+                    if (cheminFichier != null)
+                    {
+                        GestionBDD.AfficherMessageSucces($"Les commandes ont été exportées avec succès dans le fichier : {cheminFichier}");
+
+                        Console.Write("\nVoulez-vous ouvrir le fichier JSON ? (O/N) : ");
+                        if (Console.ReadLine().ToUpper() == "O")
+                        {
+                            ExportJson.OuvrirFichierJSON(cheminFichier);
+                        }
+                    }
+                    else
+                    {
+                        GestionBDD.AfficherMessageErreur("Erreur lors de l'exportation des commandes.");
+                    }
+                }
+                else
+                {
+                    GestionBDD.AfficherMessageErreur("Aucune commande trouvée dans la base de données.");
+                }
+            }
+            catch (Exception ex)
+            {
+                GestionBDD.AfficherMessageErreur($"Erreur : {ex.Message}");
+            }
+
+            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+            Console.ReadKey();
         }
         #endregion
     }

@@ -19,7 +19,9 @@ namespace Projet_problème_scientifique_info
         /// <summary>
         /// Affiche la distance entre deux stations en utilisant leurs coordonnées GPS et la formule de Haversine pour le calcul.
         /// </summary>
-        public static void DistanceEntreDeuxStations()
+       public static void DistanceEntreDeuxStations()
+    {
+        try
         {
             //string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
             string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
@@ -27,6 +29,8 @@ namespace Projet_problème_scientifique_info
             if (!File.Exists(chemin))
             {
                 Console.WriteLine("Erreur: Le fichier " + chemin + " n'existe pas.");
+                Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                Console.ReadKey();
                 return;
             }
 
@@ -37,7 +41,7 @@ namespace Projet_problème_scientifique_info
             string station1 = Console.ReadLine();
             Console.Write("Station 2 : ");
             string station2 = Console.ReadLine();
-            
+        
             (double lat1, double long1) = AcquisitionCoordonnees(chemin, station1);
             (double lat2, double long2) = AcquisitionCoordonnees(chemin, station2);
 
@@ -54,6 +58,15 @@ namespace Projet_problème_scientifique_info
                     Console.WriteLine("Station " + station2 + " introuvable !");
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Une erreur est survenue: {ex.Message}");
+            Console.WriteLine(ex.StackTrace);
+        }
+    
+        Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+        Console.ReadKey();
+    }
 
         /// <summary>
         /// Récupère les coordonnées GPS (latitude, longitude) d'une station à partir du fichier CSV des noeuds.
