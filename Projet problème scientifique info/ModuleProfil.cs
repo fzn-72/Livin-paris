@@ -1665,12 +1665,15 @@ namespace Projet_problème_scientifique_info
                     }
 
                     string requete = $@"
-        SELECT cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client, cl.rue_client,
-               SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS total_achats
-        FROM CLIENT cl
-        LEFT JOIN COMMANDE c ON cl.id_client = c.id_client
-        GROUP BY cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client, cl.rue_client
-        ORDER BY {orderBy}";
+                    SELECT cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client, cl.rue_client,
+                           cl.tel_client, cl.type_client, cl.date_inscription_client,
+                           SUM(CAST(REPLACE(REPLACE(c.prix_total_commande, ' euros', ''), ',', '.') AS DECIMAL(10,2))) AS total_achats
+                    FROM CLIENT cl
+                    LEFT JOIN COMMANDE c ON cl.id_client = c.id_client
+                    GROUP BY cl.id_client, cl.nom_client, cl.prenom_client, cl.email_client, cl.rue_client,
+                             cl.tel_client, cl.type_client, cl.date_inscription_client
+                    ORDER BY {orderBy}";
+
 
                     MySqlCommand cmd = new MySqlCommand(requete, connection);
 
@@ -1678,8 +1681,8 @@ namespace Projet_problème_scientifique_info
                     {
                         if (reader.HasRows)
                         {
-                            Console.WriteLine("{0,-5} {1,-15} {2,-15} {3,-25} {4,-15} {5,-15} {6,-20}",
-                                "ID", "Nom", "Prénom", "Email", "Téléphone", "Type", "Date d'inscription");
+                            Console.WriteLine("{0,-5} {1,-15} {2,-10} {3,-25} {4,-15} {5,-15} {6,-20} {7, -25} {8,-30}",
+                                "ID", "Nom", "Prénom", "Email", "Téléphone", "Type", "Date d'inscription", "Rue", "Montant");
                             Console.WriteLine(new string('-', 110));
 
                             while (reader.Read())
@@ -1691,9 +1694,11 @@ namespace Projet_problème_scientifique_info
                                 string telephone = reader.IsDBNull(reader.GetOrdinal("tel_client")) ? "N/A" : reader["tel_client"].ToString();
                                 string type = reader.IsDBNull(reader.GetOrdinal("type_client")) ? "N/A" : reader["type_client"].ToString();
                                 string dateInscription = reader.IsDBNull(reader.GetOrdinal("date_inscription_client")) ? "N/A" : reader["date_inscription_client"].ToString();
+                                string rue = reader.IsDBNull(reader.GetOrdinal("rue_client")) ? "N/A" : reader["rue_client"].ToString();
+                                string montant = reader.IsDBNull(reader.GetOrdinal("total_achats")) ? "0.00" : Convert.ToDecimal(reader["total_achats"]).ToString("F2");
 
-                                Console.WriteLine("{0,-5} {1,-15} {2,-15} {3,-25} {4,-15} {5,-15} {6,-20}",
-                                    id, nom, prenom, email, telephone, type, dateInscription);
+                                Console.WriteLine("{0,-5} {1,-15} {2,-10} {3,-25} {4,-15} {5,-15} {6,-20} {7,-20} {8,-10}",
+                                    id, nom, prenom, email, telephone, type, dateInscription, rue, montant);
                             }
                         }
                         else

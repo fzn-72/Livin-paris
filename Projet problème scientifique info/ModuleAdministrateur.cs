@@ -35,6 +35,9 @@ namespace Projet_problème_scientifique_info
             {
                 Console.Clear();
                 GestionBDD.AfficherTitre("MODULE ADMINISTRATEUR");
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                Console.WriteLine($"Bienvenue {SessionUtilisateur.PrenomUtilisateur} {SessionUtilisateur.NomUtilisateur} !");
+                Console.ResetColor();
                 Console.WriteLine("1. Gestion des utilisateurs");
                 Console.WriteLine("2. Supervision des commandes");
                 Console.WriteLine("3. Statistiques globales");
@@ -74,7 +77,6 @@ namespace Projet_problème_scientifique_info
             }
         }
         #endregion
-
 
         #region Méthodes gestion utilisateurs (clients, cuisiniers, admin)
         /// <summary>
@@ -192,7 +194,6 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
         #endregion
-
 
         #region Méthodes gestion commandes
         /// <summary>
@@ -418,7 +419,6 @@ namespace Projet_problème_scientifique_info
             Console.ReadKey();
         }
         #endregion
-
 
         #region Méthodes gestion évauations
         /// <summary>

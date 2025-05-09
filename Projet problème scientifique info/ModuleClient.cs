@@ -36,7 +36,9 @@ namespace Projet_problème_scientifique_info
             {
                 Console.Clear();
                 GestionBDD.AfficherTitre("MENU CLIENT");
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
                 Console.WriteLine($"Bienvenue {SessionUtilisateur.PrenomUtilisateur} {SessionUtilisateur.NomUtilisateur} !");
+                Console.ResetColor();   
                 Console.WriteLine();
                 Console.WriteLine("1. Accéder au module de plats");
                 Console.WriteLine("2. Accéder au module de commandes");

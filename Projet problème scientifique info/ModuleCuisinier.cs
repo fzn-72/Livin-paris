@@ -35,7 +35,9 @@ namespace Projet_problème_scientifique_info
 
                 if (SessionUtilisateur.EstCuisinier())
                 {
+                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
                     Console.WriteLine($"Bienvenue {SessionUtilisateur.PrenomUtilisateur} {SessionUtilisateur.NomUtilisateur} !");
+                    Console.ResetColor();
                     Console.WriteLine();
                 }
 
@@ -266,7 +268,7 @@ namespace Projet_problème_scientifique_info
         /// Charge les données depuis des fichiers CSV, construit le graphe, vérifie la connectivité et exécute l'algorithme.
         /// Affiche un message d'erreur si les données sont invalides ou aucun chemin n'est trouvé.
         /// </summary>
-        private static void TrouverCheminOptimal(string stationDepart, string stationArrivee, string choixAlgo)
+        public static void TrouverCheminOptimal(string stationDepart, string stationArrivee, string choixAlgo)
         {
             Console.Clear();
             GestionBDD.AfficherTitre("CALCUL DU CHEMIN OPTIMAL");

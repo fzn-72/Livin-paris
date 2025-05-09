@@ -70,13 +70,13 @@ namespace Projet_problème_scientifique_info
                     {
                         Console.WriteLine("1. Consulter tous les plats disponibles");
                         Console.WriteLine("2. Exporter la liste des plats disponibles au format XML");
-                        Console.WriteLine("8. Exporter la liste des plats disponibles au format JSON");
-                        Console.WriteLine("3. Consulter mes plats");
-                        Console.WriteLine("4. Ajouter un nouveau plat");
-                        Console.WriteLine("5. Modifier un de mes plats");
-                        Console.WriteLine("6. Supprimer un de mes plats");
-                        Console.WriteLine("7. Gérer les ingrédients");
-                        Console.WriteLine("8. Retour au menu principal");
+                        Console.WriteLine("3. Exporter la liste des plats disponibles au format JSON");
+                        Console.WriteLine("4. Consulter mes plats");
+                        Console.WriteLine("5. Ajouter un nouveau plat");
+                        Console.WriteLine("6. Modifier un de mes plats");
+                        Console.WriteLine("7. Supprimer un de mes plats");
+                        Console.WriteLine("8. Gérer les ingrédients");
+                        Console.WriteLine("9. Retour au menu principal");
                         Console.Write("\nChoisissez une option : ");
                         string choix = Console.ReadLine();
 
@@ -1031,11 +1031,16 @@ namespace Projet_problème_scientifique_info
                     int result = cmdContient.ExecuteNonQuery();
                     if (result > 0)
                     {
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("Ingrédient ajouté au plat avec succès !");
+                        Console.ResetColor();
+
                     }
                     else
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Échec de l'ajout de l'ingrédient au plat.");
+                        Console.ResetColor();
                     }
                 }
                 catch (Exception ex)

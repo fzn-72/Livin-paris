@@ -401,12 +401,16 @@ namespace Projet_problème_scientifique_info
             if (!File.Exists(cheminFichierNoeuds))
             {
                 Console.WriteLine($"Erreur: Le fichier {cheminFichierNoeuds} n'existe pas.");
+                Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                Console.ReadKey();
                 return;
             }
 
             if (!File.Exists(cheminFichierArcs))
             {
                 Console.WriteLine($"Erreur: Le fichier {cheminFichierArcs} n'existe pas.");
+                Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                Console.ReadKey();
                 return;
             }
 
@@ -416,6 +420,8 @@ namespace Projet_problème_scientifique_info
                 if (stations.Count == 0)
                 {
                     Console.WriteLine("Erreur: Aucune station n'a pu être chargée.");
+                    Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                    Console.ReadKey();
                     return;
                 }
 
@@ -454,6 +460,8 @@ namespace Projet_problème_scientifique_info
                         Console.WriteLine($"Station '{stationDepart}' introuvable !");
                     if (stationArr == null)
                         Console.WriteLine($"Station '{stationArrivee}' introuvable !");
+                    Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                    Console.ReadKey();
                     return;
                 }
 
@@ -469,6 +477,8 @@ namespace Projet_problème_scientifique_info
                 if (!mapIdToNoeud.ContainsKey(stationDep.Id) || !mapIdToNoeud.ContainsKey(stationArr.Id))
                 {
                     Console.WriteLine("Erreur: Les stations ne sont pas correctement mappées dans le graphe.");
+                    Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                    Console.ReadKey();
                     return;
                 }
 
@@ -512,16 +522,169 @@ namespace Projet_problème_scientifique_info
                 if (chemin.Count <= 1 && !stationDep.Id.Equals(stationArr.Id))
                 {
                     Console.WriteLine("Aucun chemin trouvé entre ces deux stations.");
+                    Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                    Console.ReadKey();
                     return;
                 }
 
                 AfficherChemin(chemin, stations);
+
+                // Ajout d'une pause à la fin pour voir les résultats
+                Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                Console.ReadKey();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Une erreur est survenue: {ex.Message}");
+                Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+                Console.ReadKey();
+                return;
             }
         }
+        //public static void CheminLePlusCourt()
+        //{
+        //    string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+        //    //string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+        //    //string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+        //    string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+
+        //    if (!File.Exists(cheminFichierNoeuds))
+        //    {
+        //        Console.WriteLine($"Erreur: Le fichier {cheminFichierNoeuds} n'existe pas.");
+        //        Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+        //        Console.ReadKey();
+        //        return;
+        //    }
+
+        //    if (!File.Exists(cheminFichierArcs))
+        //    {
+        //        Console.WriteLine($"Erreur: Le fichier {cheminFichierArcs} n'existe pas.");
+        //        Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+        //        Console.ReadKey();
+        //        return;
+        //    }
+
+        //    try
+        //    {
+        //        var stations = ChargerStationsDirectement(cheminFichierNoeuds);
+        //        if (stations.Count == 0)
+        //        {
+        //            Console.WriteLine("Erreur: Aucune station n'a pu être chargée.");
+        //            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+        //            Console.ReadKey();
+        //            return;
+        //        }
+
+        //        Console.WriteLine("Entrez le nom de deux stations pour trouver le chemin le plus court entre elles.");
+        //        Console.WriteLine("La saisie se fait sans accents (grave, aigu, circonflexe), sans cédille et sans tréma, et en respectant les espaces");
+        //        Console.WriteLine();
+        //        Console.Write("Station de départ : ");
+        //        string stationDepart = Console.ReadLine();
+        //        Console.Write("Station d'arrivée : ");
+        //        string stationArrivee = Console.ReadLine();
+
+        //        Console.WriteLine();
+        //        Console.WriteLine("Choisissez l'algorithme à utiliser :");
+        //        Console.WriteLine("1. Dijkstra (optimal pour les graphes sans poids négatifs)");
+        //        Console.WriteLine("2. Bellman-Ford (peut gérer les poids négatifs, mais plus lent)");
+        //        Console.WriteLine("3. Floyd-Warshall (calcule tous les plus courts chemins, efficace pour les requêtes multiples)");
+        //        Console.Write("Votre choix (1, 2 ou 3) : ");
+        //        string choixAlgo = Console.ReadLine();
+
+        //        int algorithmeChoisi = 1;
+        //        if (choixAlgo == "2")
+        //        {
+        //            algorithmeChoisi = 2;
+        //        }
+        //        else if (choixAlgo == "3")
+        //        {
+        //            algorithmeChoisi = 3;
+        //        }
+
+        //        var stationDep = TrouverStation(stations, stationDepart);
+        //        var stationArr = TrouverStation(stations, stationArrivee);
+
+        //        if (stationDep == null || stationArr == null)
+        //        {
+        //            if (stationDep == null)
+        //                Console.WriteLine($"Station '{stationDepart}' introuvable !");
+        //            if (stationArr == null)
+        //                Console.WriteLine($"Station '{stationArrivee}' introuvable !");
+        //            return;
+        //        }
+
+        //        string nomAlgo = algorithmeChoisi == 1 ? "de Dijkstra" :
+        //                 algorithmeChoisi == 2 ? "de Bellman-Ford" :
+        //                 "de Floyd-Warshall";
+        //        Console.WriteLine($"Recherche du chemin entre {stationDep.Nom} et {stationArr.Nom} avec l'algorithme {nomAlgo}...");
+
+        //        var (noeuds, liens) = ConstruireGrapheComplet(stations, cheminFichierArcs);
+
+        //        var mapIdToNoeud = noeuds.ToDictionary(n => n.Id);
+
+        //        if (!mapIdToNoeud.ContainsKey(stationDep.Id) || !mapIdToNoeud.ContainsKey(stationArr.Id))
+        //        {
+        //            Console.WriteLine("Erreur: Les stations ne sont pas correctement mappées dans le graphe.");
+        //            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+        //            Console.ReadKey();
+        //            return;
+        //        }
+
+        //        var noeudDepart = mapIdToNoeud[stationDep.Id];
+        //        var noeudArrivee = mapIdToNoeud[stationArr.Id];
+
+        //        var grapheAdjacence = ConstruireGrapheAdjacence(noeuds, liens);
+        //        bool sontConnectes = VerifierConnectivite(grapheAdjacence, noeudDepart, noeudArrivee);
+
+        //        if (!sontConnectes)
+        //        {
+        //            AjouterConnexionsSupplementaires(stations, noeuds, liens, grapheAdjacence);
+
+        //            sontConnectes = VerifierConnectivite(grapheAdjacence, noeudDepart, noeudArrivee);
+
+        //            if (!sontConnectes)
+        //            {
+        //                double distance = Haversine(stationDep.Latitude, stationDep.Longitude, stationArr.Latitude, stationArr.Longitude);
+        //                int poids = Math.Max((int)(distance * 1000), 1);
+
+        //                liens.Add(new Lien<int>(noeudDepart, noeudArrivee, poids));
+        //                grapheAdjacence[noeudDepart].Add(noeudArrivee);
+        //                grapheAdjacence[noeudArrivee].Add(noeudDepart);
+        //            }
+        //        }
+
+        //        List<Noeud<int>> chemin;
+        //        switch (algorithmeChoisi)
+        //        {
+        //            case 2:
+        //                chemin = BellmanFordChemin(noeudDepart, noeudArrivee, noeuds, liens);
+        //                break;
+        //            case 3:
+        //                chemin = FloydWarshallChemin(noeudDepart, noeudArrivee, noeuds, liens);
+        //                break;
+        //            default:
+        //                chemin = DijkstraChemin(noeudDepart, noeudArrivee, noeuds, liens);
+        //                break;
+        //        }
+
+        //        if (chemin.Count <= 1 && !stationDep.Id.Equals(stationArr.Id))
+        //        {
+        //            Console.WriteLine("Aucun chemin trouvé entre ces deux stations.");
+        //            Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+        //            Console.ReadKey();
+        //            return;
+        //        }
+
+        //        AfficherChemin(chemin, stations);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Une erreur est survenue: {ex.Message}");
+        //        Console.WriteLine("\nAppuyez sur une touche pour continuer...");
+        //        Console.ReadKey();
+        //        return;
+        //    }
+        //}
         #endregion
 
         #region Lecture du fichier CSV et chargement des stations

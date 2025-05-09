@@ -20,8 +20,8 @@ namespace Projet_problème_scientifique_info
 
         private Graphe<string> graphe;
         private Dictionary<string, string> typesNoeuds;
-        private Dictionary<string, string> nomsNoeuds;  
-        private Dictionary<string, int> couleurs;   
+        private Dictionary<string, string> nomsNoeuds;
+        private Dictionary<string, int> couleurs;
 
         /// <summary>
         /// Constructeur de la classe
@@ -567,3 +567,4 @@ namespace Projet_problème_scientifique_info
         #endregion
     }
 }
+
