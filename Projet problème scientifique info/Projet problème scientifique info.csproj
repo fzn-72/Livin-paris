@@ -122,7 +122,6 @@
   <ItemGroup>
     <Compile Include="CalculDistance.cs" />
     <Compile Include="ClientCuisinierGraphe.cs" />
-    <Compile Include="ClientCuisinierMetroGraphe.cs" />
     <Compile Include="ExportJson.cs" />
     <Compile Include="ExportPlat.cs" />
     <Compile Include="ExportStatistiques.cs" />

@@ -9,6 +9,7 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ModuleAutre
     {
+        #region Menu principal
         /// <summary>
         /// Affiche le menu principal du module Autre
         /// </summary>
@@ -46,7 +47,9 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
+        #endregion
 
+        #region MenuExport 
         /// <summary>
         /// Menu d'exportation des données
         /// </summary>
@@ -175,5 +178,6 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("\nAppuyez sur une touche pour continuer...");
             Console.ReadKey();
         }
+        #endregion
     }
 }

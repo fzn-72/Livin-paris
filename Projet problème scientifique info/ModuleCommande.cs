@@ -1383,6 +1383,7 @@ namespace Projet_problème_scientifique_info
             {
                 if (conn == null)
                 {
+                    //conn = new MySqlConnection("Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;");
                     conn = new MySqlConnection("Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;");
                     conn.Open();
                     connexionLocale = true;

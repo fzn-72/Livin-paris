@@ -17,7 +17,7 @@ namespace Projet_problème_scientifique_info
         //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
         private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
 
-
+        #region Menu principal client
         /// <summary>
         /// Affiche le menu principal du client connecté
         /// </summary>
@@ -77,6 +77,7 @@ namespace Projet_problème_scientifique_info
                 }
             }
         }
+        #endregion 
 
         #region Gestion du profil
         /// <summary>
