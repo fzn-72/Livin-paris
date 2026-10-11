@@ -11,9 +11,7 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ModulePlat
     {
-        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-        private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-
+        private static string connectionString = GestionBDD.ConnectionString;
         #region Menu principal Plat
         /// <summary>
         /// Affiche le menu principal du module Plats

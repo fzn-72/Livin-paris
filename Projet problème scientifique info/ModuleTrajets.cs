@@ -75,10 +75,20 @@ namespace Projet_problème_scientifique_info
         {
             try
             {
-                //string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-                //string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
-                string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-                string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+                string cheminFichierNoeuds = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    @"..\..\..\Feuille_noeud_convertie.csv"
+                    );
+
+                cheminFichierNoeuds = Path.GetFullPath(cheminFichierNoeuds);
+                
+                string cheminFichierArcs = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    @"..\..\..\Feuille_arc_convertie.csv"
+                    );
+
+                cheminFichierArcs = Path.GetFullPath(cheminFichierArcs);
+
 
                 if (!File.Exists(cheminFichierNoeuds))
                 {

@@ -15,9 +15,7 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ClientCuisinierGraphe
     {
-        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-        private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-
+        private static string connectionString = GestionBDD.ConnectionString;
         private Graphe<string> graphe;
         private Dictionary<string, string> typesNoeuds;
         private Dictionary<string, string> nomsNoeuds;

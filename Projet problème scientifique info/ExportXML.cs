@@ -6,7 +6,12 @@ namespace Projet_problème_scientifique_info
 {
     public static class ExportXML
     {
-        private static readonly string dossierExport = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Fichiers XML";
+        private static string dossierExport = Path.GetFullPath(
+            Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                @"..\..\..\Fichiers XML"
+            )
+        ); 
         private static readonly string cheminEditix = @"C:\Program Files (x86)\editix-free-xmleditor2010\bin\Editix-XMLEditor.exe";
 
         /// <summary>

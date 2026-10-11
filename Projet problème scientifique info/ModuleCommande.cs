@@ -11,9 +11,7 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ModuleCommande
     {
-        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-        private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-
+        private static string connectionString = GestionBDD.ConnectionString;
         #region Menu principal de la classe commande
         /// <summary>
         /// Affiche le menu principal du module commande
@@ -1383,8 +1381,7 @@ namespace Projet_problème_scientifique_info
             {
                 if (conn == null)
                 {
-                    //conn = new MySqlConnection("Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;");
-                    conn = new MySqlConnection("Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;");
+                    conn = new MySqlConnection(GestionBDD.ConnectionString);
                     conn.Open();
                     connexionLocale = true;
                 }

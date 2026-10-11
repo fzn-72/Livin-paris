@@ -12,8 +12,23 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class GestionBDD
     {
-        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-        private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
+        private static string connectionString =
+            Environment.GetEnvironmentVariable("LIVINPARIS_CONNECTION_STRING");
+
+        internal static string ConnectionString
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(connectionString))
+                {
+                    throw new InvalidOperationException(
+                        "La variable d'environnement LIVINPARIS_CONNECTION_STRING n'est pas définie."
+                    );
+                }
+
+                return connectionString;
+            }
+        }
 
         /// <summary>
         /// Point d'entrée du programme

@@ -14,9 +14,7 @@ namespace Projet_problème_scientifique_info
     /// </summary>
     internal class ModuleClient
     {
-        //private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-        private static string connectionString = "Server=localhost;Database=livinparis2;Uid=root;Pwd=REDACTED;";
-
+        private static string connectionString = GestionBDD.ConnectionString;
         #region Menu principal client
         /// <summary>
         /// Affiche le menu principal du client connecté

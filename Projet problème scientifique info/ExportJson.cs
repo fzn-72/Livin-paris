@@ -10,7 +10,12 @@ namespace Projet_problème_scientifique_info
 {
     internal class ExportJson
     {
-        private static string dossierExport = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Fichiers JSON";
+        private static string dossierExport = Path.GetFullPath(
+            Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                @"..\..\..\Fichiers JSON"
+            )
+        );
 
         /// <summary>
         /// Exporte des données au format JSON

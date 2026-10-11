@@ -23,10 +23,14 @@ namespace Projet_problème_scientifique_info
     {
         try
         {
-            //string chemin = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            string chemin = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
+                string chemin = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                @"..\..\..\Feuille_noeud_convertie.csv"
+    );
 
-            if (!File.Exists(chemin))
+                chemin = Path.GetFullPath(chemin);
+
+                if (!File.Exists(chemin))
             {
                 Console.WriteLine("Erreur: Le fichier " + chemin + " n'existe pas.");
                 Console.WriteLine("\nAppuyez sur une touche pour continuer...");
@@ -393,10 +397,19 @@ namespace Projet_problème_scientifique_info
         /// </summary>
         public static void CheminLePlusCourt()
         {
-            string cheminFichierNoeuds = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            //string cheminFichierNoeuds = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_noeud_convertie.csv";
-            //string cheminFichierArcs = @"C:\Users\thoma\OneDrive\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
-            string cheminFichierArcs = @"C:\Users\fzzn7\Documents\GitHub\PSI_2025_ThoFaizMart\Feuille_arc_convertie.csv";
+            string cheminFichierNoeuds = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                @"..\..\..\Feuille_noeud_convertie.csv"
+                );
+
+            cheminFichierNoeuds = Path.GetFullPath(cheminFichierNoeuds);
+
+            string cheminFichierArcs = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                @"..\..\..\Feuille_arc_convertie.csv"
+                );
+
+            cheminFichierArcs = Path.GetFullPath(cheminFichierArcs);
 
             if (!File.Exists(cheminFichierNoeuds))
             {
