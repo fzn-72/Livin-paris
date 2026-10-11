@@ -65,7 +65,7 @@ namespace Projet_problème_scientifique_info
 
             /// Affichage avec mise en forme pour améliorer la lisibilité
             AfficherTexteFormate("Liv'InParis - Système de gestion de livraison de repas");
-            AfficherTexteFormate("Version 3.0", true);
+            AfficherTexteFormate("Version 3.2", true);
 
             AfficherTexteFormate("Cette application permet de gérer un service de livraison de repas à domicile. Elle propose " +
                 "des services de partages de repas entre voisins plus ou moins distants mais toujours dans Paris intramuros.");
@@ -160,7 +160,7 @@ namespace Projet_problème_scientifique_info
             GestionBDD.AfficherTitre("INFOS CONTACT");
 
             AfficherTexteFormate("Cette application a été développée au premier semestre 2025 par : NORAT Faizan, " +
-                "NAUDY-NORMAND Thomas et PASQUIER Martin dans le cadre du module 'PSI' de 2ème année.");
+                "NAUDY-NORMAND Thomas et PASQUIER Martin dans le cadre d'un module d'informatique 'PSI' de 2ème année.");
 
             Console.WriteLine("\nPour une question sur son fonctionnement, une suggestion d'amélioration ou une plainte, " +
                 "merci de nous contacter à l'une des adresses suivantes : ");
@@ -168,11 +168,6 @@ namespace Projet_problème_scientifique_info
             Console.WriteLine("faizan.norat@edu.devinvi.fr");
             Console.WriteLine("thomas.naudy-normand@edu.devinci.fr");
             Console.WriteLine("martin.pasquier@edu.devinci.fr");
-            Console.WriteLine("------------------------------------------------------------------");
-
-            AfficherTexteFormate("Si vous souhaitez nous rejoindre, merci de présenter vos motivations dans une courte " +
-                "lettre jointe à votre CV. Nous reviendrons vers vous dans les plus brefs délais.");
-
             Console.WriteLine("\n------------------------------------------------------------------");
             Console.WriteLine("Appuyez sur une touche pour revenir au menu précédent...");
             Console.ReadKey();

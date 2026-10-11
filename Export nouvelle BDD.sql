@@ -41,7 +41,7 @@ CREATE TABLE `administrateur` (
 
 LOCK TABLES `administrateur` WRITE;
 /*!40000 ALTER TABLE `administrateur` DISABLE KEYS */;
-INSERT INTO `administrateur` VALUES ('1','','','',''),('2','admin','Admin','admin.Admin@livinparis.com','Admin'),('A001','NORAT','Faizan','faizan.norat@livinparis.com','Faiz'),('A002','NAUDY','Thomas','thomas.naudy@livinparis.com','Thotho'),('A003','PASQUIER','Martin','martin.pasquier@livinparis.com','LePasq');
+INSERT INTO `administrateur` VALUES ('1','','','',''),('2','admin','Admin','admin.Admin@livinparis.com','Admin'),('A001','faizan','Admin','faizan.Admin@livinparis.com','Admin1'),('A002','thomas','Admin','thomas.Admin@livinparis.com','Admin2'),('A003','Martin','Admin','martin.Admin@livinparis.com','Admin3');
 /*!40000 ALTER TABLE `administrateur` ENABLE KEYS */;
 UNLOCK TABLES;
 
